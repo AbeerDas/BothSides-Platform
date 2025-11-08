@@ -25,13 +25,24 @@ serve(async (req) => {
     let userPrompt = "";
 
     if (type === "initial") {
-      systemPrompt = `You are an expert debate analyst who generates balanced, well-researched arguments. 
+      systemPrompt = `You are an expert debate analyst who generates balanced, well-researched arguments backed by concrete examples and statistics.
 Your task is to analyze statements and provide structured arguments both FOR and AGAINST the statement.
 Each argument must:
-- Be clear and concise (2-3 sentences max)
-- Include 1-2 credible sources with specific URLs
+- Have a clear, punchy title (5-8 words) that captures the core point
+- Include a subheading (10-15 words) that encompasses the main argument
+- Provide detailed reasoning (2-3 sentences) with specific examples, case studies, and statistical evidence
+- Include 2-3 credible, accessible sources with specific URLs (prefer .edu, .gov, major news outlets, and academic journals)
+- Use concrete numbers, percentages, or data points wherever possible
+- Reference real-world examples or case studies
 - Represent the strongest possible case for that position
 - Be intellectually honest and avoid strawman arguments
+
+CRITICAL: All sources must be from reliable, publicly accessible websites that load consistently. Prefer:
+- Government sites (.gov)
+- Educational institutions (.edu)
+- Established news organizations (Reuters, AP, BBC, NPR)
+- Reputable research institutions
+- Well-known academic journals with public abstracts
 
 Format your response as a JSON object with this structure:
 {
@@ -39,7 +50,9 @@ Format your response as a JSON object with this structure:
   "arguments": {
     "for": [
       {
-        "text": "Argument supporting the statement",
+        "title": "Short, punchy claim",
+        "subheading": "One-sentence summary of the main point",
+        "text": "Detailed argument with specific examples and numbers",
         "sources": [
           {"title": "Source title", "url": "https://example.com/article"}
         ]
@@ -47,7 +60,9 @@ Format your response as a JSON object with this structure:
     ],
     "against": [
       {
-        "text": "Argument opposing the statement",
+        "title": "Short, punchy claim",
+        "subheading": "One-sentence summary of the main point", 
+        "text": "Detailed argument with specific examples and numbers",
         "sources": [
           {"title": "Source title", "url": "https://example.com/article"}
         ]
@@ -57,30 +72,69 @@ Format your response as a JSON object with this structure:
 }`;
       userPrompt = `Generate balanced arguments for this statement: "${statement}"
 
-Provide 3 strong arguments FOR and 3 strong arguments AGAINST. Each must have credible sources.`;
+Provide 3 strong arguments FOR and 3 strong arguments AGAINST. Each must include:
+- A clear title
+- A descriptive subheading
+- Detailed reasoning with specific examples, case studies, or statistics
+- 2-3 reliable, accessible sources`;
     } else if (type === "refute") {
       const perspectiveContext = perspective 
         ? ` Argue specifically from ${perspective} perspective.` 
         : "";
       
-      systemPrompt = `You are an expert debater generating counterarguments.
+      systemPrompt = `You are an expert debater generating counterarguments backed by evidence.
 Your task is to refute a specific argument with the strongest possible counter-reasoning.
 Your refutation must:
-- Directly address the original argument's core claim
-- Be supported by 1-2 credible sources
+- Have a clear, punchy title (5-8 words)
+- Include a subheading (10-15 words)
+- Directly address the original argument's core claim with specific examples and data
+- Be supported by 2-3 credible, accessible sources
+- Include concrete numbers, statistics, or real-world examples
 - Be intellectually rigorous
 - Avoid logical fallacies${perspectiveContext}
 
+CRITICAL: All sources must be from reliable, publicly accessible websites. Prefer .edu, .gov, major news outlets, and academic institutions.
+
 Format your response as a JSON object:
 {
-  "text": "Your refutation text",
+  "title": "Short, punchy counter-claim",
+  "subheading": "One-sentence summary",
+  "text": "Your refutation with specific examples and data",
   "sources": [
     {"title": "Source title", "url": "https://example.com/article"}
   ]
 }`;
       userPrompt = `Refute this argument: "${parentArgument}"${perspectiveContext}
 
-Context: This is part of a debate about "${statement}"`;
+Context: This is part of a debate about "${statement}"
+
+Provide a strong counterargument with concrete examples, statistics, or case studies.`;
+    } else if (type === "evidence") {
+      systemPrompt = `You are a research analyst providing evidence-based support for arguments.
+Your task is to find compelling evidence (case studies, statistics, real-world examples) that supports a specific claim.
+Your response must:
+- Have a clear title describing the evidence type (e.g., "Case Study: X" or "Statistical Evidence: Y")
+- Include a subheading summarizing the key finding
+- Provide detailed evidence with specific numbers, dates, locations, or outcomes
+- Be supported by 2-3 credible, accessible sources
+- Focus on concrete, verifiable information
+
+CRITICAL: All sources must be from reliable, publicly accessible websites. Prefer .edu, .gov, major news outlets, and academic institutions.
+
+Format your response as a JSON object:
+{
+  "title": "Type of evidence and what it shows",
+  "subheading": "Key finding or outcome",
+  "text": "Detailed evidence with specific data points",
+  "sources": [
+    {"title": "Source title", "url": "https://example.com/article"}
+  ]
+}`;
+      userPrompt = `Find strong evidence (case studies, statistics, or real-world examples) that supports this argument: "${parentArgument}"
+
+Context: This is part of a debate about "${statement}"
+
+Focus on concrete, verifiable evidence with specific numbers or outcomes.`;
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

@@ -11,11 +11,16 @@ interface Source {
 }
 
 interface ArgumentCardProps {
+  title?: string;
+  subheading?: string;
   text: string;
   sources: Source[];
   side: "for" | "against";
   onRefute: () => void;
+  onEvidence?: () => void;
   refutations?: Array<{
+    title?: string;
+    subheading?: string;
     text: string;
     sources: Source[];
     refutations?: any[];
@@ -24,10 +29,13 @@ interface ArgumentCardProps {
 }
 
 export const ArgumentCard = ({ 
+  title,
+  subheading,
   text, 
   sources, 
   side, 
-  onRefute, 
+  onRefute,
+  onEvidence,
   refutations = [],
   depth = 0 
 }: ArgumentCardProps) => {
@@ -44,6 +52,12 @@ export const ArgumentCard = ({
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 space-y-3">
+            {title && (
+              <h3 className="font-semibold text-base text-foreground">{title}</h3>
+            )}
+            {subheading && (
+              <p className="text-sm text-muted-foreground italic">{subheading}</p>
+            )}
             <p className="text-sm leading-relaxed text-foreground">{text}</p>
             
             {sources.length > 0 && (
@@ -55,7 +69,7 @@ export const ArgumentCard = ({
             )}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
             {hasRefutations && (
               <Button
                 variant="ghost"
@@ -74,11 +88,21 @@ export const ArgumentCard = ({
               variant="outline"
               size="sm"
               onClick={onRefute}
-              className="gap-2"
+              className="gap-2 whitespace-nowrap"
             >
               <MessageSquare className="h-4 w-4" />
               Refute
             </Button>
+            {onEvidence && depth === 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onEvidence}
+                className="gap-2 whitespace-nowrap"
+              >
+                Evidence
+              </Button>
+            )}
           </div>
         </div>
       </Card>
@@ -88,6 +112,8 @@ export const ArgumentCard = ({
           {refutations.map((refutation, idx) => (
             <ArgumentCard
               key={idx}
+              title={refutation.title}
+              subheading={refutation.subheading}
               text={refutation.text}
               sources={refutation.sources}
               side={side === "for" ? "against" : "for"}

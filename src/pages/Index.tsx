@@ -14,6 +14,8 @@ interface Source {
 }
 
 interface Argument {
+  title?: string;
+  subheading?: string;
   text: string;
   sources: Source[];
   refutations?: Argument[];
@@ -58,11 +60,15 @@ const Index = () => {
         summary: data.summary,
         arguments: {
           for: data.arguments.for.map((arg: any) => ({
+            title: arg.title,
+            subheading: arg.subheading,
             text: arg.text,
             sources: arg.sources,
             refutations: [],
           })),
           against: data.arguments.against.map((arg: any) => ({
+            title: arg.title,
+            subheading: arg.subheading,
             text: arg.text,
             sources: arg.sources,
             refutations: [],
@@ -111,6 +117,8 @@ const Index = () => {
         current.refutations = [];
       }
       current.refutations.push({
+        title: data.title,
+        subheading: data.subheading,
         text: data.text,
         sources: data.sources,
         refutations: [],
@@ -137,7 +145,15 @@ const Index = () => {
       return args
         .map((arg, idx) => {
           const prefix = "  ".repeat(indent);
-          let text = `${prefix}${idx + 1}. ${arg.text}\n`;
+          let text = "";
+          
+          if (arg.title) {
+            text += `${prefix}${idx + 1}. **${arg.title}**\n`;
+          }
+          if (arg.subheading) {
+            text += `${prefix}   _${arg.subheading}_\n`;
+          }
+          text += `${prefix}   ${arg.text}\n`;
           
           if (arg.sources.length > 0) {
             text += arg.sources
@@ -183,6 +199,55 @@ ${formatArguments(debate.arguments.against)}
     });
   };
 
+  const handleEvidence = async (argument: string, side: "for" | "against", path: number[]) => {
+    if (!debate) return;
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-arguments", {
+        body: {
+          statement: debate.statement,
+          type: "evidence",
+          parentArgument: argument,
+        },
+      });
+
+      if (error) throw error;
+
+      // Deep clone the debate to modify
+      const newDebate = JSON.parse(JSON.stringify(debate));
+      
+      // Navigate to the argument using the path
+      let current = newDebate.arguments[side][path[0]];
+      for (let i = 1; i < path.length; i++) {
+        current = current.refutations[path[i]];
+      }
+
+      // Add the evidence as a refutation (since it's supporting, same structure)
+      if (!current.refutations) {
+        current.refutations = [];
+      }
+      current.refutations.push({
+        title: data.title,
+        subheading: data.subheading,
+        text: data.text,
+        sources: data.sources,
+        refutations: [],
+      });
+
+      setDebate(newDebate);
+    } catch (error: any) {
+      console.error("Error generating evidence:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate evidence. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const resetDebate = () => {
     setDebate(null);
     setStatement("");
@@ -208,19 +273,28 @@ ${formatArguments(debate.arguments.against)}
               </Card>
             )}
             
-            <div className="mt-4">
-              <Input
-                placeholder="Optional: Guide the AI perspective (e.g., 'from an economist's view')"
-                value={perspective}
-                onChange={(e) => setPerspective(e.target.value)}
-                className="max-w-md"
-              />
-            </div>
+            <Card className="p-4 bg-muted/30">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Perspective Guide (applied when you click "Refute")
+                </label>
+                <Input
+                  placeholder="e.g., 'from an economist's view' or 'using historical evidence'"
+                  value={perspective}
+                  onChange={(e) => setPerspective(e.target.value)}
+                  className="max-w-md"
+                />
+                <p className="text-xs text-muted-foreground">
+                  This perspective will be used for the next refutation you generate
+                </p>
+              </div>
+            </Card>
           </div>
 
           <DebateView
             debate={debate}
             onRefute={handleRefute}
+            onEvidence={handleEvidence}
             onReset={resetDebate}
             onExport={exportDebate}
           />
