@@ -1,0 +1,7 @@
+project_id = "uoynyjvrtuwkofeeurwh"
+
+[auth]
+enabled = true
+
+[functions.generate-arguments]
+verify_jwt = false
