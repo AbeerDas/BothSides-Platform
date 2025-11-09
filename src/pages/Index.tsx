@@ -247,9 +247,7 @@ ${formatArguments(debate.arguments.against)}
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">
-                    Guide AI perspectives (optional)
-                  </label>
+                  <label className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">AI PERSPECTIVE</label>
                   <p className="text-sm font-body text-muted-foreground">
                     Select viewpoints to inform the AI's arguments
                   </p>
