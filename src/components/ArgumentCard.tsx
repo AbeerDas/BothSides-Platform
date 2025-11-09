@@ -46,8 +46,8 @@ export const ArgumentCard = ({
     <div className={cn("space-y-2", depth > 0 && "ml-6")}>
       <Card 
         className={cn(
-          "p-4 transition-all hover:shadow-md",
-          side === "for" ? "bg-for-bg border-for-border" : "bg-against-bg border-against-border"
+          "p-5 transition-all duration-300 hover:shadow-card shadow-elegant",
+          side === "for" ? "bg-for-bg border-for-border hover:border-for-accent" : "bg-against-bg border-against-border hover:border-against-accent"
         )}
       >
         <div className="flex items-start justify-between gap-3">
@@ -88,7 +88,7 @@ export const ArgumentCard = ({
               variant="outline"
               size="sm"
               onClick={onRefute}
-              className="gap-2 whitespace-nowrap"
+              className="gap-2 whitespace-nowrap hover:scale-105 transition-transform duration-200"
             >
               <MessageSquare className="h-4 w-4" />
               Refute
@@ -98,7 +98,7 @@ export const ArgumentCard = ({
                 variant="outline"
                 size="sm"
                 onClick={onEvidence}
-                className="gap-2 whitespace-nowrap"
+                className="gap-2 whitespace-nowrap hover:scale-105 transition-transform duration-200"
               >
                 Evidence
               </Button>
@@ -108,7 +108,7 @@ export const ArgumentCard = ({
       </Card>
 
       {hasRefutations && isExpanded && (
-        <div className="space-y-2 animate-in slide-in-from-top-2">
+        <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
           {refutations.map((refutation, idx) => (
             <ArgumentCard
               key={idx}
@@ -116,7 +116,7 @@ export const ArgumentCard = ({
               subheading={refutation.subheading}
               text={refutation.text}
               sources={refutation.sources}
-              side={side === "for" ? "against" : "for"}
+              side={side}
               onRefute={() => {}}
               refutations={refutation.refutations}
               depth={depth + 1}

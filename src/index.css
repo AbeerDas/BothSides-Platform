@@ -8,91 +8,91 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Academic color palette */
-    --background: 210 20% 98%;
-    --foreground: 215 25% 20%;
+    --background: 220 18% 98%;
+    --foreground: 220 20% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 20%;
+    --card-foreground: 220 20% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 20%;
+    --popover-foreground: 220 20% 12%;
 
-    /* Deep scholarly blue */
-    --primary: 215 70% 45%;
+    --primary: 210 90% 48%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 215 70% 38%;
 
-    /* Neutral slate */
-    --secondary: 215 15% 88%;
-    --secondary-foreground: 215 25% 20%;
+    --secondary: 210 12% 94%;
+    --secondary-foreground: 220 20% 12%;
 
-    /* Muted tones */
-    --muted: 215 20% 95%;
-    --muted-foreground: 215 15% 45%;
+    --muted: 210 12% 96%;
+    --muted-foreground: 220 12% 42%;
 
-    /* Constructive green accent */
-    --accent: 145 50% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 150 48% 52%;
+    --accent-foreground: 220 20% 12%;
 
-    /* Argument colors */
-    --for-bg: 145 30% 96%;
-    --for-border: 145 40% 70%;
-    --against-bg: 25 40% 96%;
-    --against-border: 25 50% 70%;
-
-    --destructive: 0 70% 50%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 88%;
-    --input: 215 20% 94%;
-    --ring: 215 70% 45%;
+    --border: 220 12% 90%;
+    --input: 220 12% 90%;
+    --ring: 210 90% 48%;
 
-    --radius: 0.75rem;
+    --for-bg: 150 55% 97%;
+    --for-border: 150 48% 52%;
+    --for-accent: 150 48% 42%;
+    --for-hover: 150 55% 95%;
 
-    /* Transitions */
+    --against-bg: 210 55% 97%;
+    --against-border: 210 90% 48%;
+    --against-accent: 210 90% 38%;
+    --against-hover: 210 55% 95%;
+
+    --radius: 0.875rem;
+    
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    /* Shadows */
-    --shadow-subtle: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-elevated: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --transition-panel: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-elegant: 0 4px 24px -4px hsl(220 20% 20% / 0.08);
+    --shadow-panel: 0 12px 48px -12px hsl(220 20% 20% / 0.12);
+    --shadow-card: 0 2px 12px -2px hsl(220 20% 20% / 0.06);
   }
 
   .dark {
-    --background: 215 30% 10%;
-    --foreground: 210 20% 95%;
+    --background: 220 22% 7%;
+    --foreground: 220 10% 96%;
 
-    --card: 215 25% 14%;
-    --card-foreground: 210 20% 95%;
+    --card: 220 20% 9%;
+    --card-foreground: 220 10% 96%;
 
-    --popover: 215 25% 14%;
-    --popover-foreground: 210 20% 95%;
+    --popover: 220 20% 9%;
+    --popover-foreground: 220 10% 96%;
 
-    --primary: 215 70% 55%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 215 70% 48%;
+    --primary: 210 90% 58%;
+    --primary-foreground: 220 22% 7%;
 
-    --secondary: 215 20% 20%;
-    --secondary-foreground: 210 20% 95%;
+    --secondary: 220 20% 13%;
+    --secondary-foreground: 220 10% 96%;
 
-    --muted: 215 20% 18%;
-    --muted-foreground: 215 15% 60%;
+    --muted: 220 20% 13%;
+    --muted-foreground: 220 10% 62%;
 
-    --accent: 145 50% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 150 48% 52%;
+    --accent-foreground: 220 10% 96%;
 
-    --for-bg: 145 30% 15%;
-    --for-border: 145 40% 35%;
-    --against-bg: 25 40% 15%;
-    --against-border: 25 50% 35%;
-
-    --destructive: 0 70% 50%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 25%;
-    --input: 215 20% 20%;
-    --ring: 215 70% 55%;
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 210 90% 58%;
+
+    --for-bg: 150 35% 11%;
+    --for-border: 150 48% 52%;
+    --for-accent: 150 48% 62%;
+    --for-hover: 150 35% 13%;
+
+    --against-bg: 210 35% 11%;
+    --against-border: 210 90% 58%;
+    --against-accent: 210 90% 68%;
+    --against-hover: 210 35% 13%;
   }
 }
 

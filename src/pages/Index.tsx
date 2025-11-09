@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { DebateView } from "@/components/DebateView";
+import { PerspectivePills } from "@/components/PerspectivePills";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Scale } from "lucide-react";
@@ -34,7 +34,7 @@ const Index = () => {
   const [statement, setStatement] = useState("");
   const [debate, setDebate] = useState<DebateData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [perspective, setPerspective] = useState("");
+  const [perspectives, setPerspectives] = useState<string[]>([]);
   const { toast } = useToast();
 
   const generateInitialArguments = async () => {
@@ -50,7 +50,11 @@ const Index = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-arguments", {
-        body: { statement, type: "initial" },
+        body: { 
+          statement, 
+          type: "initial",
+          perspectives: perspectives.length > 0 ? perspectives : undefined
+        },
       });
 
       if (error) throw error;
@@ -97,7 +101,7 @@ const Index = () => {
           statement: debate.statement,
           type: "refute",
           parentArgument: argument,
-          perspective: perspective.trim() || undefined,
+          targetSide: side === "for" ? "against" : "for",
         },
       });
 
@@ -123,9 +127,6 @@ const Index = () => {
         sources: data.sources,
         refutations: [],
       });
-
-      setDebate(newDebate);
-      setPerspective(""); // Clear perspective after use
     } catch (error: any) {
       console.error("Error generating refutation:", error);
       toast({
@@ -251,7 +252,7 @@ ${formatArguments(debate.arguments.against)}
   const resetDebate = () => {
     setDebate(null);
     setStatement("");
-    setPerspective("");
+    setPerspectives([]);
   };
 
   if (debate) {
@@ -260,35 +261,18 @@ ${formatArguments(debate.arguments.against)}
         <div className="container max-w-7xl mx-auto py-8 px-4">
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-4">
-              <Scale className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold text-foreground">Dialectic</h1>
+              <Scale className="h-10 w-10 text-primary" />
+              <h1 className="text-4xl font-bold text-foreground">Dialectic</h1>
             </div>
             
             {isLoading && (
-              <Card className="p-4 bg-muted/50">
+              <Card className="p-4 bg-muted/50 shadow-elegant animate-pulse">
                 <div className="flex items-center gap-3">
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">Generating counterargument...</p>
+                  <p className="text-sm text-muted-foreground">Generating response...</p>
                 </div>
               </Card>
             )}
-            
-            <Card className="p-4 bg-muted/30">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Perspective Guide (applied when you click "Refute")
-                </label>
-                <Input
-                  placeholder="e.g., 'from an economist's view' or 'using historical evidence'"
-                  value={perspective}
-                  onChange={(e) => setPerspective(e.target.value)}
-                  className="max-w-md"
-                />
-                <p className="text-xs text-muted-foreground">
-                  This perspective will be used for the next refutation you generate
-                </p>
-              </div>
-            </Card>
           </div>
 
           <DebateView
@@ -308,20 +292,17 @@ ${formatArguments(debate.arguments.against)}
       <div className="w-full max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3 mb-2">
-            <Scale className="h-12 w-12 text-primary" />
-            <h1 className="text-5xl font-bold text-foreground">Dialectic</h1>
+            <Scale className="h-16 w-16 text-primary" />
+            <h1 className="text-6xl font-bold text-foreground">Dialectic</h1>
           </div>
-          <p className="text-xl text-muted-foreground leading-relaxed">
+          <p className="text-2xl text-muted-foreground leading-relaxed">
             Strengthen your reasoning by exploring the strongest opposing arguments
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Enter any statement and discover balanced, sourced arguments for both sides
           </p>
         </div>
 
-        <Card className="p-8 space-y-6 shadow-lg">
+        <Card className="p-8 space-y-6 shadow-panel">
           <div className="space-y-3">
-            <label htmlFor="statement" className="text-sm font-medium text-foreground">
+            <label htmlFor="statement" className="text-base font-semibold text-foreground">
               Your Statement
             </label>
             <Textarea
@@ -329,16 +310,26 @@ ${formatArguments(debate.arguments.against)}
               placeholder="e.g., AI will eliminate more jobs than it creates"
               value={statement}
               onChange={(e) => setStatement(e.target.value)}
-              className="min-h-[120px] text-base resize-none"
+              className="min-h-[120px] text-base resize-none transition-all duration-200 focus:shadow-card"
               disabled={isLoading}
             />
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-base font-semibold text-foreground">
+              Perspectives <span className="text-sm font-normal text-muted-foreground">(optional)</span>
+            </label>
+            <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
+            <p className="text-xs text-muted-foreground">
+              Select perspectives to guide the AI's argumentation style
+            </p>
           </div>
 
           <Button
             onClick={generateInitialArguments}
             disabled={isLoading || !statement.trim()}
             size="lg"
-            className="w-full"
+            className="w-full hover:scale-105 transition-transform duration-200"
           >
             {isLoading ? (
               <>
@@ -349,24 +340,6 @@ ${formatArguments(debate.arguments.against)}
               "Generate Debate"
             )}
           </Button>
-
-          <div className="pt-4 border-t border-border">
-            <h3 className="text-sm font-semibold text-foreground mb-3">How it works:</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">1.</span>
-                <span>AI generates balanced arguments with credible sources</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">2.</span>
-                <span>Click "Refute" to generate counterarguments for any point</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">3.</span>
-                <span>Export your complete debate analysis as markdown</span>
-              </li>
-            </ul>
-          </div>
         </Card>
       </div>
     </main>

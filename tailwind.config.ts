@@ -51,10 +51,14 @@ export default {
         for: {
           bg: "hsl(var(--for-bg))",
           border: "hsl(var(--for-border))",
+          accent: "hsl(var(--for-accent))",
+          hover: "hsl(var(--for-hover))",
         },
         against: {
           bg: "hsl(var(--against-bg))",
           border: "hsl(var(--against-border))",
+          accent: "hsl(var(--against-accent))",
+          hover: "hsl(var(--against-hover))",
         },
       },
       borderRadius: {
