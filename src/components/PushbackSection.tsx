@@ -60,9 +60,7 @@ export const PushbackSection = ({
           <h3 className="text-2xl font-serif font-bold text-foreground uppercase tracking-tight border-b-2 border-foreground pb-3 mb-4">
             Pushback
           </h3>
-          <p className="text-sm font-body text-muted-foreground">
-            Enter a claim or statement to receive a critical counterargument
-          </p>
+          <p className="text-sm font-body text-muted-foreground">Enter a claim or statement to receive a short critical counterargument</p>
         </div>
         
         <div className="flex gap-3">

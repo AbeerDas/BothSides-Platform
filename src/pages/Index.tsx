@@ -231,18 +231,14 @@ ${formatArguments(debate.arguments.against)}
       <div className="max-w-7xl mx-auto space-y-8">
         <header className="text-center space-y-6 border-b-4 border-foreground pb-8">
           <h1 className="text-6xl font-serif font-bold text-foreground tracking-tight uppercase">DIALECTIC</h1>
-          <p className="text-xl font-body text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Explore comprehensive arguments on any topic with AI-powered research and citations
-          </p>
+          <p className="text-xl font-body text-muted-foreground max-w-3xl mx-auto leading-relaxed">Arguments on any topic to help you on your debate</p>
         </header>
 
         {!debate ? <>
             <Card className="p-8 bg-card border-2 border-border shadow-elegant">
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label htmlFor="statement" className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">
-                    Enter your debate statement
-                  </label>
+                  <label htmlFor="statement" className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">YOUR STATEMENT</label>
                   <Textarea id="statement" value={statement} onChange={e => setStatement(e.target.value)} placeholder="e.g., Universal Basic Income should be implemented globally" className="min-h-[120px] text-lg font-body resize-none border-2" />
                 </div>
 
