@@ -43,28 +43,31 @@ export const ArgumentCard = ({
   const hasRefutations = refutations.length > 0;
 
   return (
-    <div className={cn("space-y-2", depth > 0 && "ml-6")}>
+    <div className={cn("space-y-3", depth > 0 && "ml-8 border-l-2 border-border pl-6")}>
       <Card 
         className={cn(
-          "p-5 transition-all duration-300 hover:shadow-card shadow-elegant",
-          side === "for" ? "bg-for-bg border-for-border hover:border-for-accent" : "bg-against-bg border-against-border hover:border-against-accent"
+          "p-6 transition-all duration-200 border shadow-card",
+          side === "for" ? "bg-for-bg border-for-border" : "bg-against-bg border-against-border"
         )}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-3">
             {title && (
-              <h3 className="font-semibold text-base text-foreground">{title}</h3>
+              <h3 className="font-serif font-semibold text-lg text-foreground uppercase tracking-wide">{title}</h3>
             )}
             {subheading && (
-              <p className="text-sm text-muted-foreground italic">{subheading}</p>
+              <p className="text-sm font-body text-muted-foreground italic border-l-2 border-border pl-3">{subheading}</p>
             )}
-            <p className="text-sm leading-relaxed text-foreground">{text}</p>
+            <p className="text-base font-body leading-relaxed text-foreground">{text}</p>
             
             {sources.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {sources.map((source, idx) => (
-                  <CitationTooltip key={idx} source={source} index={idx + 1} />
-                ))}
+              <div className="pt-3 border-t border-border space-y-2">
+                <p className="text-xs uppercase tracking-wider font-sans text-muted-foreground">Sources</p>
+                <div className="flex flex-col gap-2">
+                  {sources.map((source, idx) => (
+                    <CitationTooltip key={idx} source={source} index={idx + 1} />
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -75,7 +78,7 @@ export const ArgumentCard = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="h-8 w-8 p-0"
+                className="h-9 w-9 p-0 font-sans"
               >
                 {isExpanded ? (
                   <ChevronDown className="h-4 w-4" />
@@ -88,7 +91,7 @@ export const ArgumentCard = ({
               variant="outline"
               size="sm"
               onClick={onRefute}
-              className="gap-2 whitespace-nowrap hover:scale-105 transition-transform duration-200"
+              className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider"
             >
               <MessageSquare className="h-4 w-4" />
               Refute
@@ -98,7 +101,7 @@ export const ArgumentCard = ({
                 variant="outline"
                 size="sm"
                 onClick={onEvidence}
-                className="gap-2 whitespace-nowrap hover:scale-105 transition-transform duration-200"
+                className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider"
               >
                 Evidence
               </Button>
@@ -108,7 +111,7 @@ export const ArgumentCard = ({
       </Card>
 
       {hasRefutations && isExpanded && (
-        <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
+        <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
           {refutations.map((refutation, idx) => (
             <ArgumentCard
               key={idx}

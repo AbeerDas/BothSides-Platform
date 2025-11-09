@@ -8,91 +8,91 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 220 18% 98%;
-    --foreground: 220 20% 12%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 12%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 12%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 210 90% 48%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 20%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 12% 94%;
-    --secondary-foreground: 220 20% 12%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 210 12% 96%;
-    --muted-foreground: 220 12% 42%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 150 48% 52%;
-    --accent-foreground: 220 20% 12%;
+    --accent: 30 8% 50%;
+    --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 12% 90%;
-    --input: 220 12% 90%;
-    --ring: 210 90% 48%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 0 0% 20%;
 
-    --for-bg: 150 55% 97%;
-    --for-border: 150 48% 52%;
-    --for-accent: 150 48% 42%;
-    --for-hover: 150 55% 95%;
+    --for-bg: 0 0% 99%;
+    --for-border: 0 0% 75%;
+    --for-accent: 0 0% 60%;
+    --for-hover: 0 0% 97%;
 
-    --against-bg: 210 55% 97%;
-    --against-border: 210 90% 48%;
-    --against-accent: 210 90% 38%;
-    --against-hover: 210 55% 95%;
+    --against-bg: 0 0% 99%;
+    --against-border: 0 0% 75%;
+    --against-accent: 0 0% 60%;
+    --against-hover: 0 0% 97%;
 
-    --radius: 0.875rem;
+    --radius: 0;
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-panel: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    --shadow-elegant: 0 4px 24px -4px hsl(220 20% 20% / 0.08);
-    --shadow-panel: 0 12px 48px -12px hsl(220 20% 20% / 0.12);
-    --shadow-card: 0 2px 12px -2px hsl(220 20% 20% / 0.06);
+    --shadow-elegant: 0 1px 3px 0 hsl(0 0% 0% / 0.1);
+    --shadow-panel: 0 2px 8px 0 hsl(0 0% 0% / 0.08);
+    --shadow-card: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
   }
 
   .dark {
-    --background: 220 22% 7%;
-    --foreground: 220 10% 96%;
+    --background: 0 0% 12%;
+    --foreground: 0 0% 95%;
 
-    --card: 220 20% 9%;
-    --card-foreground: 220 10% 96%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 220 20% 9%;
-    --popover-foreground: 220 10% 96%;
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 210 90% 58%;
-    --primary-foreground: 220 22% 7%;
+    --primary: 0 0% 85%;
+    --primary-foreground: 0 0% 12%;
 
-    --secondary: 220 20% 13%;
-    --secondary-foreground: 220 10% 96%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 220 20% 13%;
-    --muted-foreground: 220 10% 62%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 150 48% 52%;
-    --accent-foreground: 220 10% 96%;
+    --accent: 30 8% 45%;
+    --accent-foreground: 0 0% 95%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 18%;
-    --input: 220 20% 18%;
-    --ring: 210 90% 58%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 0 0% 85%;
 
-    --for-bg: 150 35% 11%;
-    --for-border: 150 48% 52%;
-    --for-accent: 150 48% 62%;
-    --for-hover: 150 35% 13%;
+    --for-bg: 0 0% 14%;
+    --for-border: 0 0% 40%;
+    --for-accent: 0 0% 50%;
+    --for-hover: 0 0% 16%;
 
-    --against-bg: 210 35% 11%;
-    --against-border: 210 90% 58%;
-    --against-accent: 210 90% 68%;
-    --against-hover: 210 35% 13%;
+    --against-bg: 0 0% 14%;
+    --against-border: 0 0% 40%;
+    --against-accent: 0 0% 50%;
+    --against-hover: 0 0% 16%;
   }
 }
 

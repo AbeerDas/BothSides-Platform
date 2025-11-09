@@ -4,9 +4,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { DebateView } from "@/components/DebateView";
 import { PerspectivePills } from "@/components/PerspectivePills";
-import { useToast } from "@/hooks/use-toast";
+import { PushbackSection } from "@/components/PushbackSection";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Scale } from "lucide-react";
+import { toast } from "sonner";
 
 interface Source {
   title: string;
@@ -35,15 +35,27 @@ const Index = () => {
   const [debate, setDebate] = useState<DebateData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [perspectives, setPerspectives] = useState<string[]>([]);
-  const { toast } = useToast();
+  const [currentPhrase, setCurrentPhrase] = useState(0);
+
+  const loadingPhrases = [
+    "Analyzing top sources...",
+    "Structuring best arguments...",
+    "Evaluating opposing claims...",
+    "Refining citations...",
+  ];
+
+  useState(() => {
+    if (isLoading) {
+      const interval = setInterval(() => {
+        setCurrentPhrase((prev) => (prev + 1) % loadingPhrases.length);
+      }, 1500);
+      return () => clearInterval(interval);
+    }
+  });
 
   const generateInitialArguments = async () => {
     if (!statement.trim()) {
-      toast({
-        title: "Statement required",
-        description: "Please enter a statement to debate.",
-        variant: "destructive",
-      });
+      toast.error("Please enter a statement to debate.");
       return;
     }
 
@@ -81,11 +93,7 @@ const Index = () => {
       });
     } catch (error: any) {
       console.error("Error generating arguments:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to generate arguments. Please try again.",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to generate arguments. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -127,13 +135,11 @@ const Index = () => {
         sources: data.sources,
         refutations: [],
       });
+
+      setDebate(newDebate);
     } catch (error: any) {
       console.error("Error generating refutation:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to generate refutation. Please try again.",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to generate refutation. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -194,10 +200,7 @@ ${formatArguments(debate.arguments.against)}
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    toast({
-      title: "Export successful",
-      description: "Your debate has been exported as a markdown file.",
-    });
+    toast.success("Your debate has been exported as a markdown file.");
   };
 
   const handleEvidence = async (argument: string, side: "for" | "against", path: number[]) => {
@@ -239,11 +242,7 @@ ${formatArguments(debate.arguments.against)}
       setDebate(newDebate);
     } catch (error: any) {
       console.error("Error generating evidence:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to generate evidence. Please try again.",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to generate evidence. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -255,94 +254,81 @@ ${formatArguments(debate.arguments.against)}
     setPerspectives([]);
   };
 
-  if (debate) {
-    return (
-      <main className="min-h-screen bg-background">
-        <div className="container max-w-7xl mx-auto py-8 px-4">
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Scale className="h-10 w-10 text-primary" />
-              <h1 className="text-4xl font-bold text-foreground">Dialectic</h1>
-            </div>
+  return (
+    <div className="min-h-screen bg-background py-12 px-4">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <header className="text-center space-y-6 border-b-4 border-foreground pb-8">
+          <h1 className="text-6xl font-serif font-bold text-foreground tracking-tight uppercase">
+            Academic Debate Companion
+          </h1>
+          <p className="text-xl font-body text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Explore comprehensive arguments on any topic with AI-powered research and citations
+          </p>
+        </header>
+
+        {!debate ? (
+          <>
+            <Card className="p-8 bg-card border-2 border-border shadow-elegant">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label htmlFor="statement" className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">
+                    Enter your debate statement
+                  </label>
+                  <Textarea
+                    id="statement"
+                    value={statement}
+                    onChange={(e) => setStatement(e.target.value)}
+                    placeholder="e.g., Universal Basic Income should be implemented globally"
+                    className="min-h-[120px] text-lg font-body resize-none border-2"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">
+                    Guide AI perspectives (optional)
+                  </label>
+                  <p className="text-sm font-body text-muted-foreground">
+                    Select viewpoints to inform the AI's arguments
+                  </p>
+                  <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
+                </div>
+
+                <Button
+                  onClick={generateInitialArguments}
+                  disabled={isLoading || !statement.trim()}
+                  className="w-full text-lg font-sans uppercase tracking-wider py-6"
+                  size="lg"
+                >
+                  {isLoading ? loadingPhrases[currentPhrase] : "Generate Debate"}
+                </Button>
+              </div>
+            </Card>
+
+            <PushbackSection statement={statement} />
+          </>
+        ) : (
+          <>
+            <PushbackSection statement={statement} />
             
             {isLoading && (
-              <Card className="p-4 bg-muted/50 shadow-elegant animate-pulse">
-                <div className="flex items-center gap-3">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">Generating response...</p>
-                </div>
+              <Card className="p-4 bg-muted border border-border animate-in fade-in duration-200">
+                <p className="text-sm font-body text-muted-foreground italic text-center">
+                  {loadingPhrases[currentPhrase]}
+                </p>
               </Card>
             )}
-          </div>
-
-          <DebateView
-            debate={debate}
-            onRefute={handleRefute}
-            onEvidence={handleEvidence}
-            onReset={resetDebate}
-            onExport={exportDebate}
-          />
-        </div>
-      </main>
-    );
-  }
-
-  return (
-    <main className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <Scale className="h-16 w-16 text-primary" />
-            <h1 className="text-6xl font-bold text-foreground">Dialectic</h1>
-          </div>
-          <p className="text-2xl text-muted-foreground leading-relaxed">
-            Strengthen your reasoning by exploring the strongest opposing arguments
-          </p>
-        </div>
-
-        <Card className="p-8 space-y-6 shadow-panel">
-          <div className="space-y-3">
-            <label htmlFor="statement" className="text-base font-semibold text-foreground">
-              Your Statement
-            </label>
-            <Textarea
-              id="statement"
-              placeholder="e.g., AI will eliminate more jobs than it creates"
-              value={statement}
-              onChange={(e) => setStatement(e.target.value)}
-              className="min-h-[120px] text-base resize-none transition-all duration-200 focus:shadow-card"
-              disabled={isLoading}
+            
+            <DebateView
+              debate={debate}
+              onRefute={handleRefute}
+              onEvidence={handleEvidence}
+              onReset={resetDebate}
+              onExport={exportDebate}
             />
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-base font-semibold text-foreground">
-              Perspectives <span className="text-sm font-normal text-muted-foreground">(optional)</span>
-            </label>
-            <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
-            <p className="text-xs text-muted-foreground">
-              Select perspectives to guide the AI's argumentation style
-            </p>
-          </div>
-
-          <Button
-            onClick={generateInitialArguments}
-            disabled={isLoading || !statement.trim()}
-            size="lg"
-            className="w-full hover:scale-105 transition-transform duration-200"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Analyzing Statement...
-              </>
-            ) : (
-              "Generate Debate"
-            )}
-          </Button>
-        </Card>
+          </>
+        )}
       </div>
-    </main>
+    </div>
   );
 };
 

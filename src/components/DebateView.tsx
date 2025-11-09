@@ -43,19 +43,19 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport }: 
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <Card className="p-6 bg-card shadow-elegant">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2 flex-1">
-            <h2 className="text-3xl font-bold text-foreground">{debate.statement}</h2>
-            <p className="text-muted-foreground leading-relaxed text-lg">{debate.summary}</p>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <Card className="p-8 bg-card border-2 border-border shadow-elegant">
+        <div className="flex items-start justify-between gap-6">
+          <div className="space-y-4 flex-1">
+            <h2 className="text-4xl font-serif font-bold text-foreground uppercase tracking-tight border-b-2 border-foreground pb-3">{debate.statement}</h2>
+            <p className="text-muted-foreground font-body leading-relaxed text-lg">{debate.summary}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button
               variant="outline"
               size="sm"
               onClick={onExport}
-              className="gap-2 hover:scale-105 transition-transform duration-200"
+              className="gap-2 font-sans text-xs uppercase tracking-wider"
             >
               <Download className="h-4 w-4" />
               Export
@@ -64,7 +64,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport }: 
               variant="outline"
               size="sm"
               onClick={onReset}
-              className="gap-2 hover:scale-105 transition-transform duration-200"
+              className="gap-2 font-sans text-xs uppercase tracking-wider"
             >
               <RotateCcw className="h-4 w-4" />
               New Debate
@@ -73,11 +73,11 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport }: 
         </div>
       </Card>
 
-      <div className="relative flex gap-4 min-h-[600px]">
+      <div className="relative flex gap-6 min-h-[600px]">
         {/* For Panel */}
         <div
           className={cn(
-            "transition-all duration-500 ease-in-out rounded-xl overflow-hidden",
+            "transition-all duration-500 ease-in-out overflow-hidden",
             expandedPanel === "for" && "w-full",
             expandedPanel === "against" && "w-0 opacity-0",
             expandedPanel === null && "w-1/2"
@@ -85,17 +85,17 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport }: 
         >
           <Card
             className={cn(
-              "h-full bg-for-bg/50 border-2 border-for-border shadow-panel cursor-pointer transition-all duration-300 overflow-hidden",
+              "h-full bg-for-bg border-2 border-for-border shadow-panel cursor-pointer transition-all duration-300 overflow-hidden",
               expandedPanel === "for" && "cursor-default",
-              expandedPanel !== "for" && "hover:shadow-xl hover:border-for-accent"
+              expandedPanel !== "for" && "hover:shadow-panel"
             )}
             onClick={() => expandedPanel !== "for" && togglePanel("for")}
           >
-            <div className="p-6 h-full overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-2 bg-for-border rounded-full" />
-                  <h3 className="text-2xl font-bold text-foreground">Arguments For</h3>
+            <div className="p-8 h-full overflow-y-auto">
+              <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-for-border">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-1 bg-for-border" />
+                  <h3 className="text-3xl font-serif font-bold text-foreground uppercase tracking-tight">Arguments For</h3>
                 </div>
                 {expandedPanel === "for" && (
                   <Button
@@ -105,14 +105,14 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport }: 
                       e.stopPropagation();
                       setExpandedPanel(null);
                     }}
-                    className="gap-2 hover:bg-for-hover"
+                    className="gap-2 font-sans text-xs uppercase tracking-wider"
                   >
                     <ChevronLeft className="h-4 w-4" />
                     Collapse
                   </Button>
                 )}
               </div>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {debate.arguments.for.map((arg, idx) => (
                   <ArgumentCard
                     key={idx}
@@ -134,7 +134,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport }: 
         {/* Against Panel */}
         <div
           className={cn(
-            "transition-all duration-500 ease-in-out rounded-xl overflow-hidden",
+            "transition-all duration-500 ease-in-out overflow-hidden",
             expandedPanel === "against" && "w-full",
             expandedPanel === "for" && "w-0 opacity-0",
             expandedPanel === null && "w-1/2"
@@ -142,17 +142,17 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport }: 
         >
           <Card
             className={cn(
-              "h-full bg-against-bg/50 border-2 border-against-border shadow-panel cursor-pointer transition-all duration-300 overflow-hidden",
+              "h-full bg-against-bg border-2 border-against-border shadow-panel cursor-pointer transition-all duration-300 overflow-hidden",
               expandedPanel === "against" && "cursor-default",
-              expandedPanel !== "against" && "hover:shadow-xl hover:border-against-accent"
+              expandedPanel !== "against" && "hover:shadow-panel"
             )}
             onClick={() => expandedPanel !== "against" && togglePanel("against")}
           >
-            <div className="p-6 h-full overflow-y-auto">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-2 bg-against-border rounded-full" />
-                  <h3 className="text-2xl font-bold text-foreground">Arguments Against</h3>
+            <div className="p-8 h-full overflow-y-auto">
+              <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-against-border">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-1 bg-against-border" />
+                  <h3 className="text-3xl font-serif font-bold text-foreground uppercase tracking-tight">Arguments Against</h3>
                 </div>
                 {expandedPanel === "against" && (
                   <Button
@@ -162,14 +162,14 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport }: 
                       e.stopPropagation();
                       setExpandedPanel(null);
                     }}
-                    className="gap-2 hover:bg-against-hover"
+                    className="gap-2 font-sans text-xs uppercase tracking-wider"
                   >
                     Collapse
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 )}
               </div>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {debate.arguments.against.map((arg, idx) => (
                   <ArgumentCard
                     key={idx}

@@ -58,16 +58,16 @@ export const PerspectivePills = ({ perspectives, onChange }: PerspectivePillsPro
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Select onValueChange={addPerspective}>
-          <SelectTrigger className="w-[240px]">
+          <SelectTrigger className="w-[280px] font-sans border-2">
             <SelectValue placeholder="Add perspective..." />
           </SelectTrigger>
           <SelectContent>
             {PRESET_PERSPECTIVES.map((p) => (
-              <SelectItem key={p} value={p} disabled={perspectives.includes(p)}>
+              <SelectItem key={p} value={p} disabled={perspectives.includes(p)} className="font-sans">
                 {p}
               </SelectItem>
             ))}
-            <SelectItem value="other">Other (custom)...</SelectItem>
+            <SelectItem value="other" className="font-sans">Other (custom)...</SelectItem>
           </SelectContent>
         </Select>
 
@@ -78,12 +78,13 @@ export const PerspectivePills = ({ perspectives, onChange }: PerspectivePillsPro
               value={customPerspective}
               onChange={(e) => setCustomPerspective(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addCustomPerspective()}
-              className="w-[200px]"
+              className="w-[200px] font-sans border-2"
             />
             <Button
               size="sm"
               onClick={addCustomPerspective}
               disabled={!customPerspective.trim()}
+              className="font-sans text-xs uppercase tracking-wider"
             >
               Add
             </Button>
@@ -94,6 +95,7 @@ export const PerspectivePills = ({ perspectives, onChange }: PerspectivePillsPro
                 setShowCustomInput(false);
                 setCustomPerspective("");
               }}
+              className="font-sans text-xs uppercase tracking-wider"
             >
               Cancel
             </Button>
@@ -106,12 +108,12 @@ export const PerspectivePills = ({ perspectives, onChange }: PerspectivePillsPro
           {perspectives.map((perspective) => (
             <div
               key={perspective}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 animate-in fade-in scale-in duration-200 hover:bg-primary/15 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-foreground text-sm font-sans border border-border animate-in fade-in duration-200 hover:bg-muted transition-colors"
             >
               <span>{perspective}</span>
               <button
                 onClick={() => removePerspective(perspective)}
-                className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                className="hover:text-destructive transition-colors"
               >
                 <X className="h-3 w-3" />
               </button>
