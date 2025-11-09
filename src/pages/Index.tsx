@@ -229,9 +229,9 @@ ${formatArguments(debate.arguments.against)}
   };
   return <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
-        <header className="text-center space-y-6 border-b-4 border-foreground pb-8">
+        <header className="text-center space-y-6 border-b-4 pb-8">
           <h1 className="text-6xl font-serif font-bold text-foreground tracking-tight uppercase">DIALECTIC</h1>
-          <p className="text-xl font-body text-muted-foreground max-w-3xl mx-auto leading-relaxed">Arguments on any topic to help you on your debate</p>
+          <p className="text-xl font-body text-muted-foreground max-w-3xl mx-auto leading-relaxed">Refine your arguments on any topic to help you on your debate</p>
         </header>
 
         {!debate ? <>
