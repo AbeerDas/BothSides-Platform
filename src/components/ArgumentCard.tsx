@@ -26,6 +26,7 @@ interface ArgumentCardProps {
     refutations?: any[];
   }>;
   depth?: number;
+  isLoading?: boolean;
 }
 
 export const ArgumentCard = ({ 
@@ -37,81 +38,112 @@ export const ArgumentCard = ({
   onRefute,
   onEvidence,
   refutations = [],
-  depth = 0 
+  depth = 0,
+  isLoading = false
 }: ArgumentCardProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [showEvidence, setShowEvidence] = useState(false);
+  const [isRefuting, setIsRefuting] = useState(false);
   const hasRefutations = refutations.length > 0;
 
+  const handleRefute = () => {
+    setIsRefuting(true);
+    onRefute();
+    setTimeout(() => setIsRefuting(false), 2000);
+  };
+
   return (
-    <div className={cn("space-y-3", depth > 0 && "ml-8 border-l-2 border-border pl-6")}>
+    <div className={cn("space-y-3 transition-all duration-300", depth > 0 && "ml-8 border-l-2 border-border pl-6")}>
       <Card 
         className={cn(
-          "p-6 transition-all duration-200 border shadow-card",
+          "p-6 transition-all duration-300 border shadow-card animate-fade-in",
           side === "for" ? "bg-for-bg border-for-border" : "bg-against-bg border-against-border"
         )}
       >
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 space-y-3">
-            {title && (
-              <h3 className="font-serif font-semibold text-lg text-foreground uppercase tracking-wide">{title}</h3>
-            )}
-            {subheading && (
-              <p className="text-sm font-body text-muted-foreground italic border-l-2 border-border pl-3">{subheading}</p>
-            )}
-            <p className="text-base font-body leading-relaxed text-foreground">{text}</p>
-            
-            {sources.length > 0 && (
-              <div className="pt-3 border-t border-border space-y-2">
-                <p className="text-xs uppercase tracking-wider font-sans text-muted-foreground">Sources</p>
-                <div className="flex flex-col gap-2">
-                  {sources.map((source, idx) => (
-                    <CitationTooltip key={idx} source={source} index={idx + 1} />
-                  ))}
-                </div>
-              </div>
-            )}
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 space-y-3">
+              {title && (
+                <h3 className="font-serif font-semibold text-lg text-foreground uppercase tracking-wide">{title}</h3>
+              )}
+              {!isMinimized && (
+                <>
+                  {subheading && (
+                    <p className="text-sm font-body text-muted-foreground italic border-l-2 border-border pl-3">{subheading}</p>
+                  )}
+                  <p className="text-base font-body leading-relaxed text-foreground">{text}</p>
+                  
+                  {showEvidence && (
+                    <div className="mt-4 p-4 border-l-2 border-border bg-background/50 animate-fade-in">
+                      <p className="text-sm font-body text-muted-foreground italic">
+                        Additional supporting evidence and detailed analysis would appear here...
+                      </p>
+                    </div>
+                  )}
+                  
+                  {sources.length > 0 && (
+                    <div className="pt-3 border-t border-border space-y-2">
+                      <p className="text-xs uppercase tracking-wider font-sans text-muted-foreground">Sources</p>
+                      <div className="flex flex-col gap-2">
+                        {sources.map((source, idx) => (
+                          <CitationTooltip key={idx} source={source} index={idx + 1} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            {hasRefutations && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="h-9 w-9 p-0 font-sans"
-              >
-                {isExpanded ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefute}
-              className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Refute
-            </Button>
-            {onEvidence && depth === 0 && (
+          <div className="flex items-center justify-between pt-4 border-t border-border">
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onEvidence}
-                className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider"
+                onClick={handleRefute}
+                disabled={isRefuting}
+                className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
               >
-                Evidence
+                <MessageSquare className="h-4 w-4" />
+                Refute
               </Button>
-            )}
+              {onEvidence && depth === 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowEvidence(!showEvidence);
+                    if (!showEvidence) onEvidence();
+                  }}
+                  className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
+                >
+                  More Evidence
+                </Button>
+              )}
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMinimized(!isMinimized)}
+              className="whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
+            >
+              {isMinimized ? "Expand" : "Minimize"}
+            </Button>
           </div>
         </div>
       </Card>
 
-      {hasRefutations && isExpanded && (
-        <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+      {isRefuting && (
+        <div className="ml-8 text-sm font-body text-muted-foreground italic animate-fade-in">
+          Generating refutation<span className="animate-pulse">...</span>
+        </div>
+      )}
+
+      {hasRefutations && isExpanded && !isMinimized && (
+        <div className="space-y-3 transition-all duration-300">
           {refutations.map((refutation, idx) => (
             <ArgumentCard
               key={idx}
@@ -119,7 +151,7 @@ export const ArgumentCard = ({
               subheading={refutation.subheading}
               text={refutation.text}
               sources={refutation.sources}
-              side={side}
+              side={side === "for" ? "against" : "for"}
               onRefute={() => {}}
               refutations={refutation.refutations}
               depth={depth + 1}

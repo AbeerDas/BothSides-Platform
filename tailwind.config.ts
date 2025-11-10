@@ -92,6 +92,11 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "bounce-slow": "bounce-slow 2s ease-in-out infinite",
+        "fade-in": "stagger-fade-in 0.5s ease-out forwards",
+        "fade-in-delay-1": "stagger-fade-in 0.5s ease-out 0.1s forwards",
+        "fade-in-delay-2": "stagger-fade-in 0.5s ease-out 0.2s forwards",
+        "fade-in-delay-3": "stagger-fade-in 0.5s ease-out 0.3s forwards",
       },
     },
   },
