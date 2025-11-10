@@ -238,15 +238,14 @@ ${formatArguments(debate.arguments.against)}
             <Card className="p-8 bg-card border-2 border-border shadow-elegant">
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label htmlFor="statement" className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">YOUR STATEMENT</label>
+                  <label htmlFor="statement" className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">THE OPINION/RESOLUTION
+              </label>
                   <Textarea id="statement" value={statement} onChange={e => setStatement(e.target.value)} placeholder="e.g., Universal Basic Income should be implemented globally" className="min-h-[120px] text-lg font-body resize-none border-2" />
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">AI PERSPECTIVE</label>
-                  <p className="text-sm font-body text-muted-foreground">
-                    Select viewpoints to inform the AI's arguments
-                  </p>
+                  <label className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">PERSPECTIVE</label>
+                  <p className="text-sm font-body text-muted-foreground">Select the "lens" that informs the AI's arguments</p>
                   <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
                 </div>
 
