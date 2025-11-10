@@ -101,33 +101,6 @@ const Index = () => {
       setIsLoading(false);
     }
   };
-  const handleEvidence = async (side: "for" | "against", path: number[]) => {
-    if (!debate) return;
-    setIsLoading(true);
-    try {
-      let current: Argument = side === "for" ? debate.argumentsFor[path[0]] : debate.argumentsAgainst[path[0]];
-      for (let i = 1; i < path.length; i++) {
-        current = current.refutations![path[i]];
-      }
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('generate-arguments', {
-        body: {
-          statement: debate.statement,
-          type: 'evidence',
-          parentArgument: current.text
-        }
-      });
-      if (error) throw error;
-
-      // Evidence is handled inline in ArgumentCard, no need to update debate
-    } catch (error: any) {
-      console.error('Error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
   const exportDebate = () => {
     if (!debate) return;
     const formatArguments = (args: Argument[], indent = 0): string => {
@@ -221,7 +194,7 @@ ${formatArguments(debate.argumentsAgainst)}
           {!debate && <PushbackSection statement={statement} />}
 
           {debate && <div className="animate-fade-in">
-              <DebateView debate={debate} onRefute={handleRefute} onEvidence={handleEvidence} onReset={resetDebate} onExport={exportDebate} onAddArgument={async (side: "for" | "against") => {
+              <DebateView debate={debate} onRefute={handleRefute} onReset={resetDebate} onExport={exportDebate} onAddArgument={async (side: "for" | "against") => {
             setAddingArgumentSide(side);
             try {
               const {

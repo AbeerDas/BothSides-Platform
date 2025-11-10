@@ -17,7 +17,6 @@ interface ArgumentCardProps {
   sources: Source[];
   side: "for" | "against";
   onRefute: (path: number[]) => void;
-  onEvidence?: () => void;
   refutations?: Array<{
     title?: string;
     subheading?: string;
@@ -37,7 +36,6 @@ export const ArgumentCard = ({
   sources, 
   side, 
   onRefute,
-  onEvidence,
   refutations = [],
   depth = 0,
   isLoading = false,
@@ -45,7 +43,6 @@ export const ArgumentCard = ({
 }: ArgumentCardProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [showEvidence, setShowEvidence] = useState(false);
   const [isRefuting, setIsRefuting] = useState(false);
   const hasRefutations = refutations.length > 0;
 
@@ -54,12 +51,6 @@ export const ArgumentCard = ({
     setIsRefuting(true);
     onRefute(path);
     setTimeout(() => setIsRefuting(false), 2000);
-  };
-
-  const handleEvidence = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowEvidence(!showEvidence);
-    if (!showEvidence && onEvidence) onEvidence();
   };
 
   const handleMinimize = (e: React.MouseEvent) => {
@@ -88,14 +79,6 @@ export const ArgumentCard = ({
                   )}
                   <p className="text-base font-body leading-relaxed text-foreground">{text}</p>
                   
-                  {showEvidence && (
-                    <div className="mt-4 p-4 border-l-2 border-border bg-background/50 animate-fade-in">
-                      <p className="text-sm font-body text-muted-foreground italic">
-                        Additional supporting evidence and detailed analysis would appear here...
-                      </p>
-                    </div>
-                  )}
-                  
                   {sources.length > 0 && (
                     <div className="pt-3 border-t border-border space-y-2">
                       <p className="text-xs uppercase tracking-wider font-sans text-muted-foreground">Sources</p>
@@ -112,28 +95,16 @@ export const ArgumentCard = ({
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-border">
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefute}
-                disabled={isRefuting}
-                className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
-              >
-                <MessageSquare className="h-4 w-4" />
-                Refute
-              </Button>
-              {onEvidence && depth === 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleEvidence}
-                  className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
-                >
-                  More Evidence
-                </Button>
-              )}
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefute}
+              disabled={isRefuting}
+              className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Refute
+            </Button>
             
             <Button
               variant="ghost"
@@ -164,7 +135,6 @@ export const ArgumentCard = ({
               sources={refutation.sources}
               side={side === "for" ? "against" : "for"}
               onRefute={onRefute}
-              onEvidence={onEvidence}
               refutations={refutation.refutations}
               depth={depth + 1}
               path={[...path, idx]}
