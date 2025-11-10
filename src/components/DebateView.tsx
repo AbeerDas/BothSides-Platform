@@ -69,7 +69,7 @@ export const DebateView = ({
           className={cn(
             "transition-all duration-700 ease-in-out relative group cursor-pointer", 
             expandedSide === "for" ? "lg:w-full" : expandedSide === "against" ? "lg:hidden" : "lg:flex-1",
-            hoveredSide === "for" && !expandedSide && "lg:flex-[0.53]"
+            hoveredSide === "against" && !expandedSide && "lg:flex-[0.48]"
           )} 
           onMouseEnter={() => !expandedSide && setHoveredSide("for")} 
           onMouseLeave={() => setHoveredSide(null)} 
@@ -105,7 +105,7 @@ export const DebateView = ({
           className={cn(
             "transition-all duration-700 ease-in-out relative group cursor-pointer", 
             expandedSide === "against" ? "lg:w-full" : expandedSide === "for" ? "lg:hidden" : "lg:flex-1",
-            hoveredSide === "against" && !expandedSide && "lg:flex-[0.53]"
+            hoveredSide === "for" && !expandedSide && "lg:flex-[0.48]"
           )} 
           onMouseEnter={() => !expandedSide && setHoveredSide("against")} 
           onMouseLeave={() => setHoveredSide(null)} 
