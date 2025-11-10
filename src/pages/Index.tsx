@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,8 +7,10 @@ import { DebateView } from "@/components/DebateView";
 import { PerspectivePills } from "@/components/PerspectivePills";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { NavBar } from "@/components/NavBar";
-import { Scale } from "lucide-react";
+import { Scale, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 interface Source {
   title: string;
   url: string;
@@ -32,6 +35,21 @@ const Index = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [perspectives, setPerspectives] = useState<string[]>([]);
   const [addingArgumentSide, setAddingArgumentSide] = useState<"for" | "against" | null>(null);
+  const [currentDebateSlug, setCurrentDebateSlug] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   const generateInitialArguments = async () => {
     if (!statement.trim()) return;
     setIsGenerating(true);
@@ -47,15 +65,42 @@ const Index = () => {
         }
       });
       if (error) throw error;
-      setDebate({
+      
+      const debateData = {
         statement,
         summary: data.summary,
         argumentsFor: data.arguments.for,
         argumentsAgainst: data.arguments.against
-      });
+      };
+      
+      setDebate(debateData);
+
+      // Save to database
+      const slug = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const { error: saveError } = await supabase
+        .from('debates')
+        .insert({
+          slug,
+          statement,
+          summary: data.summary,
+          arguments_data: {
+            for: data.arguments.for,
+            against: data.arguments.against
+          },
+          user_id: user?.id || null,
+        });
+
+      if (saveError) {
+        console.error('Error saving debate:', saveError);
+        toast.error("Debate generated but couldn't save to history");
+      } else {
+        setCurrentDebateSlug(slug);
+      }
+      
       setIsGenerating(false);
     } catch (error: any) {
       console.error('Error:', error);
+      toast.error("Failed to generate debate");
       setIsGenerating(false);
     }
   };
@@ -134,14 +179,38 @@ const Index = () => {
                   <Textarea value={statement} onChange={e => setStatement(e.target.value)} placeholder="Universal Basic Income should be mandatory, Michael Jordan > Lebron, etc." className="min-h-[100px] font-body text-base resize-none" />
                 </div>
 
-                <div className="space-y-4 mt-6">
-                  <label className="text-sm font-serif font-semibold text-foreground uppercase tracking-wide">Attach a Perspective (optional)</label>
-                  <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
+                <div className="mt-6">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-serif font-semibold text-foreground uppercase tracking-wide whitespace-nowrap">
+                        Perspective
+                      </label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>Add specific viewpoints (like "Economist" or "Philosopher") to generate arguments from those perspectives. This helps create more diverse and targeted debates.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <div className="flex-1 md:ml-4">
+                        <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      onClick={generateInitialArguments} 
+                      disabled={!statement.trim()} 
+                      className="font-sans text-sm uppercase tracking-wider bg-sky-800 hover:bg-sky-900 text-white md:min-w-[180px]" 
+                      size="lg"
+                    >
+                      <Scale className="h-4 w-4 mr-2" />
+                      Generate
+                    </Button>
+                  </div>
                 </div>
-
-                <Button onClick={generateInitialArguments} disabled={!statement.trim()} className="w-full font-sans text-sm uppercase tracking-wider mt-6 bg-sky-800 hover:bg-sky-900 text-white" size="lg">
-                  Generate Debate
-                </Button>
               </Card>
             </div>}
 

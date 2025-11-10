@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      debates: {
+        Row: {
+          arguments_data: Json
+          created_at: string
+          id: string
+          is_public: boolean
+          slug: string
+          statement: string
+          summary: string
+          user_id: string | null
+        }
+        Insert: {
+          arguments_data: Json
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          slug: string
+          statement: string
+          summary: string
+          user_id?: string | null
+        }
+        Update: {
+          arguments_data?: Json
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          slug?: string
+          statement?: string
+          summary?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
