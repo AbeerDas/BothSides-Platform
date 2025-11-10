@@ -77,28 +77,6 @@ CRITICAL REQUIREMENTS:
 Point to refute: "${parentArgument}"
 
 Generate a strong refutation with title, subheading, detailed counter-argument backed by examples and data, and credible sources.`;
-    } else if (type === "evidence") {
-      systemPrompt = `You are an expert researcher. Generate strong supporting evidence for the given argument.
-
-CRITICAL REQUIREMENTS:
-1. The evidence MUST have:
-   - "title": A concise title (max 8 words) describing the evidence type
-   - "subheading": A one-sentence summary (max 15 words) of the evidence
-   - "text": Detailed evidence (2-3 sentences) with specific case studies, statistics, or research findings
-   
-2. ALWAYS provide:
-   - Real case studies or examples
-   - Statistical data and numbers
-   - Research findings or empirical evidence
-   
-3. Provide 2-4 highly credible sources
-4. Prioritize academic sources, government data, peer-reviewed research (.gov, .edu, academic journals)
-5. Format sources as: {"title": "Source Title", "url": "https://..."}
-6. Ensure URLs are complete and accessible`;
-      userPrompt = `Original statement: "${statement}"
-Argument to support: "${parentArgument}"
-
-Generate strong evidence with title, subheading, detailed supporting data (case studies, statistics, research), and credible academic/research sources.`;
     } else if (type === "add-argument") {
       const existingTitles = existingArguments?.map((arg: any) => arg.title).join(', ') || '';
       
@@ -199,7 +177,7 @@ Generate a NEW argument ${side === 'for' ? 'supporting' : 'opposing'} this state
       }];
       tool_choice = { type: "function", function: { name: "generate_arguments" } };
     } else {
-      // For refute, evidence, add-argument - single argument response
+      // For refute and add-argument - single argument response
       tools = [{
         type: "function",
         function: {
