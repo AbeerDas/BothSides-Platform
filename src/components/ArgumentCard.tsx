@@ -16,7 +16,7 @@ interface ArgumentCardProps {
   text: string;
   sources: Source[];
   side: "for" | "against";
-  onRefute: () => void;
+  onRefute: (path: number[]) => void;
   onEvidence?: () => void;
   refutations?: Array<{
     title?: string;
@@ -27,6 +27,7 @@ interface ArgumentCardProps {
   }>;
   depth?: number;
   isLoading?: boolean;
+  path?: number[];
 }
 
 export const ArgumentCard = ({ 
@@ -39,7 +40,8 @@ export const ArgumentCard = ({
   onEvidence,
   refutations = [],
   depth = 0,
-  isLoading = false
+  isLoading = false,
+  path = []
 }: ArgumentCardProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -47,10 +49,22 @@ export const ArgumentCard = ({
   const [isRefuting, setIsRefuting] = useState(false);
   const hasRefutations = refutations.length > 0;
 
-  const handleRefute = () => {
+  const handleRefute = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsRefuting(true);
-    onRefute();
+    onRefute(path);
     setTimeout(() => setIsRefuting(false), 2000);
+  };
+
+  const handleEvidence = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowEvidence(!showEvidence);
+    if (!showEvidence && onEvidence) onEvidence();
+  };
+
+  const handleMinimize = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMinimized(!isMinimized);
   };
 
   return (
@@ -113,10 +127,7 @@ export const ArgumentCard = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    setShowEvidence(!showEvidence);
-                    if (!showEvidence) onEvidence();
-                  }}
+                  onClick={handleEvidence}
                   className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
                 >
                   More Evidence
@@ -127,7 +138,7 @@ export const ArgumentCard = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsMinimized(!isMinimized)}
+              onClick={handleMinimize}
               className="whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
             >
               {isMinimized ? "Expand" : "Minimize"}
@@ -152,9 +163,11 @@ export const ArgumentCard = ({
               text={refutation.text}
               sources={refutation.sources}
               side={side === "for" ? "against" : "for"}
-              onRefute={() => {}}
+              onRefute={onRefute}
+              onEvidence={onEvidence}
               refutations={refutation.refutations}
               depth={depth + 1}
+              path={[...path, idx]}
             />
           ))}
         </div>

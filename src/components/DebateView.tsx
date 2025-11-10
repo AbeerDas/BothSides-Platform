@@ -31,9 +31,10 @@ interface DebateViewProps {
   onReset: () => void;
   onExport: () => void;
   onAddArgument: (side: "for" | "against") => void;
+  addingArgumentSide: "for" | "against" | null;
 }
 
-export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, onAddArgument }: DebateViewProps) => {
+export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, onAddArgument, addingArgumentSide }: DebateViewProps) => {
   const [expandedSide, setExpandedSide] = useState<"for" | "against" | null>(null);
   const [hoveredSide, setHoveredSide] = useState<"for" | "against" | null>(null);
 
@@ -77,9 +78,8 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
         {/* FOR Panel */}
         <div 
           className={cn(
-            "transition-all duration-500 ease-in-out relative group",
-            expandedSide === "for" ? "lg:col-span-2" : expandedSide === "against" ? "lg:hidden" : "",
-            hoveredSide === "for" && !expandedSide ? "translate-x-1" : ""
+            "transition-all duration-500 ease-in-out relative group cursor-pointer",
+            expandedSide === "for" ? "lg:col-span-2" : expandedSide === "against" ? "lg:hidden" : ""
           )}
           onMouseEnter={() => !expandedSide && setHoveredSide("for")}
           onMouseLeave={() => setHoveredSide(null)}
@@ -90,7 +90,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
               Expand
             </div>
           )}
-          <div className="border border-for-border bg-for-bg p-6 space-y-4 cursor-pointer">
+          <div className="border border-for-border bg-for-bg p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide">
                 Arguments FOR
@@ -106,12 +106,19 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
                   text={arg.text}
                   sources={arg.sources}
                   side="for"
-                  onRefute={() => onRefute("for", [idx])}
+                  onRefute={(subPath) => onRefute("for", subPath)}
                   onEvidence={() => onEvidence("for", [idx])}
                   refutations={arg.refutations}
+                  path={[idx]}
                 />
               ))}
             </div>
+            
+            {addingArgumentSide === "for" && (
+              <div className="text-sm font-body text-muted-foreground italic animate-fade-in">
+                Generating argument<span className="animate-pulse">...</span>
+              </div>
+            )}
             
             <Button
               onClick={(e) => {
@@ -120,6 +127,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
               }}
               variant="outline"
               className="w-full font-sans text-xs uppercase tracking-wider mt-4"
+              disabled={addingArgumentSide === "for"}
             >
               + Add Argument
             </Button>
@@ -129,9 +137,8 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
         {/* AGAINST Panel */}
         <div 
           className={cn(
-            "transition-all duration-500 ease-in-out relative group",
-            expandedSide === "against" ? "lg:col-span-2" : expandedSide === "for" ? "lg:hidden" : "",
-            hoveredSide === "against" && !expandedSide ? "-translate-x-1" : ""
+            "transition-all duration-500 ease-in-out relative group cursor-pointer",
+            expandedSide === "against" ? "lg:col-span-2" : expandedSide === "for" ? "lg:hidden" : ""
           )}
           onMouseEnter={() => !expandedSide && setHoveredSide("against")}
           onMouseLeave={() => setHoveredSide(null)}
@@ -142,7 +149,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
               Expand
             </div>
           )}
-          <div className="border border-against-border bg-against-bg p-6 space-y-4 cursor-pointer">
+          <div className="border border-against-border bg-against-bg p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide">
                 Arguments AGAINST
@@ -158,12 +165,19 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
                   text={arg.text}
                   sources={arg.sources}
                   side="against"
-                  onRefute={() => onRefute("against", [idx])}
+                  onRefute={(subPath) => onRefute("against", subPath)}
                   onEvidence={() => onEvidence("against", [idx])}
                   refutations={arg.refutations}
+                  path={[idx]}
                 />
               ))}
             </div>
+            
+            {addingArgumentSide === "against" && (
+              <div className="text-sm font-body text-muted-foreground italic animate-fade-in">
+                Generating argument<span className="animate-pulse">...</span>
+              </div>
+            )}
             
             <Button
               onClick={(e) => {
@@ -172,6 +186,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
               }}
               variant="outline"
               className="w-full font-sans text-xs uppercase tracking-wider mt-4"
+              disabled={addingArgumentSide === "against"}
             >
               + Add Argument
             </Button>

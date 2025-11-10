@@ -26,12 +26,12 @@ export const LoadingScreen = () => {
         <div className="animate-bounce-slow">
           <Scale className="h-16 w-16 mx-auto text-foreground" />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 h-8 flex items-center justify-center">
           {loadingPhrases.map((phrase, idx) => (
             <p
               key={phrase}
-              className={`font-serif text-lg text-muted-foreground transition-all duration-500 ${
-                idx === currentPhrase ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 absolute"
+              className={`font-serif text-lg text-muted-foreground transition-all duration-500 absolute ${
+                idx === currentPhrase ? "opacity-100" : "opacity-0"
               }`}
             >
               {phrase}

@@ -35,6 +35,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [perspectives, setPerspectives] = useState<string[]>([]);
+  const [addingArgumentSide, setAddingArgumentSide] = useState<"for" | "against" | null>(null);
 
   const generateInitialArguments = async () => {
     if (!statement.trim()) return;
@@ -51,15 +52,13 @@ const Index = () => {
 
       if (error) throw error;
       
-      setTimeout(() => {
-        setDebate({
-          statement,
-          summary: data.summary,
-          argumentsFor: data.arguments.for,
-          argumentsAgainst: data.arguments.against
-        });
-        setIsGenerating(false);
-      }, 1500);
+      setDebate({
+        statement,
+        summary: data.summary,
+        argumentsFor: data.arguments.for,
+        argumentsAgainst: data.arguments.against
+      });
+      setIsGenerating(false);
     } catch (error: any) {
       console.error('Error:', error);
       setIsGenerating(false);
@@ -266,7 +265,7 @@ ${formatArguments(debate.argumentsAgainst)}
                 onReset={resetDebate}
                 onExport={exportDebate}
                 onAddArgument={async (side: "for" | "against") => {
-                  setIsLoading(true);
+                  setAddingArgumentSide(side);
                   try {
                     const { data, error } = await supabase.functions.invoke('generate-arguments', {
                       body: {
@@ -291,9 +290,10 @@ ${formatArguments(debate.argumentsAgainst)}
                   } catch (error: any) {
                     console.error('Error:', error);
                   } finally {
-                    setIsLoading(false);
+                    setAddingArgumentSide(null);
                   }
                 }}
+                addingArgumentSide={addingArgumentSide}
               />
             </div>
           )}
