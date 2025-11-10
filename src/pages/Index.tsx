@@ -231,7 +231,7 @@ ${formatArguments(debate.arguments.against)}
       <div className="max-w-7xl mx-auto space-y-8">
         <header className="text-center space-y-6 border-b-4 pb-8">
           <h1 className="text-6xl font-serif font-bold text-foreground tracking-tight uppercase">DIALECTIC</h1>
-          <p className="text-xl font-body text-muted-foreground max-w-3xl mx-auto leading-relaxed">Refine your arguments on any topic to help strengthen your worldview</p>
+          <p className="text-xl font-body text-muted-foreground max-w-3xl mx-auto leading-relaxed">See arguements against your opinions</p>
         </header>
 
         {!debate ? <>
