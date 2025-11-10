@@ -69,7 +69,7 @@ export const DebateView = ({
               <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-for-border">
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-1 bg-for-border" />
-                  <h3 className="text-3xl font-serif font-bold text-foreground uppercase tracking-tight">Arguments For</h3>
+                  <h3 className="text-3xl font-serif font-bold text-foreground uppercase tracking-tight">FOR</h3>
                 </div>
                 {expandedPanel === "for" && <Button variant="ghost" size="sm" onClick={e => {
                 e.stopPropagation();
@@ -93,7 +93,7 @@ export const DebateView = ({
               <div className="flex items-center justify-between mb-8 pb-4 border-b-2 border-against-border">
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-1 bg-against-border" />
-                  <h3 className="text-3xl font-serif font-bold text-foreground uppercase tracking-tight">Arguments Against</h3>
+                  <h3 className="text-3xl font-serif font-bold text-foreground uppercase tracking-tight">AGAINST</h3>
                 </div>
                 {expandedPanel === "against" && <Button variant="ghost" size="sm" onClick={e => {
                 e.stopPropagation();
