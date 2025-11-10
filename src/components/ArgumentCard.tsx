@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, ChevronRight, MessageSquare } from "lucide-react";
+import { Minimize2, Maximize2, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { CitationTooltip } from "./CitationTooltip";
 import { cn } from "@/lib/utils";
@@ -94,7 +94,7 @@ export const ArgumentCard = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-border">
+          <div className="flex items-center justify-between pt-4 border-t border-border relative">
             <Button
               variant="outline"
               size="sm"
@@ -108,11 +108,12 @@ export const ArgumentCard = ({
             
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={handleMinimize}
-              className="whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
+              className="absolute -top-2 right-0"
+              title={isMinimized ? "Maximize" : "Minimize"}
             >
-              {isMinimized ? "Expand" : "Minimize"}
+              {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
             </Button>
           </div>
         </div>

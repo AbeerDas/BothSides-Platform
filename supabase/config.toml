@@ -6,5 +6,5 @@ enabled = true
 [functions.generate-arguments]
 verify_jwt = false
 
-[functions.generate-pushback]
+[functions.generate-conclusion]
 verify_jwt = false

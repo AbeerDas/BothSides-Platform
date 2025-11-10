@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { DebateView } from "@/components/DebateView";
 import { PerspectivePills } from "@/components/PerspectivePills";
-import { PushbackSection } from "@/components/PushbackSection";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { NavBar } from "@/components/NavBar";
 import { Scale } from "lucide-react";
 import { Card } from "@/components/ui/card";
 interface Source {
@@ -101,52 +101,6 @@ const Index = () => {
       setIsLoading(false);
     }
   };
-  const exportDebate = () => {
-    if (!debate) return;
-    const formatArguments = (args: Argument[], indent = 0): string => {
-      return args.map((arg, idx) => {
-        const prefix = '  '.repeat(indent);
-        let text = '';
-        if (arg.title) {
-          text += `${prefix}${idx + 1}. **${arg.title}**\n`;
-        }
-        if (arg.subheading) {
-          text += `${prefix}   _${arg.subheading}_\n`;
-        }
-        text += `${prefix}   ${arg.text}\n`;
-        if (arg.sources.length > 0) {
-          text += arg.sources.map((s, i) => `${prefix}   [${i + 1}] ${s.title}: ${s.url}`).join('\n') + '\n';
-        }
-        if (arg.refutations && arg.refutations.length > 0) {
-          text += `${prefix}   Refutations:\n`;
-          text += formatArguments(arg.refutations, indent + 2);
-        }
-        return text;
-      }).join('\n');
-    };
-    const markdown = `# Debate: ${debate.statement}
-
-## Summary
-${debate.summary}
-
-## Arguments For
-${formatArguments(debate.argumentsFor)}
-
-## Arguments Against
-${formatArguments(debate.argumentsAgainst)}
-`;
-    const blob = new Blob([markdown], {
-      type: 'text/markdown'
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `debate-${Date.now()}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
   const resetDebate = () => {
     setDebate(null);
     setStatement("");
@@ -157,22 +111,26 @@ ${formatArguments(debate.argumentsAgainst)}
     return <LoadingScreen />;
   }
   return <div className="min-h-screen bg-background">
+      <NavBar />
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="space-y-8">
-          <div className="text-center space-y-4 pb-6">
-            <div className="flex items-center justify-center gap-3">
-              <Scale className="h-8 w-8 text-foreground" />
-              <h1 className="font-serif font-bold text-4xl md:text-5xl text-foreground uppercase tracking-tight">
-                DIALECTIC
-              </h1>
+          {!debate && (
+            <div className="text-center space-y-4 pb-6">
+              <div className="flex items-center justify-center gap-3">
+                <Scale className="h-8 w-8 text-foreground" />
+                <h1 className="font-serif font-bold text-4xl md:text-5xl text-foreground uppercase tracking-tight">
+                  DIALECTIC
+                </h1>
+              </div>
+              <p className="font-body text-lg text-muted-foreground max-w-2xl mx-auto">See if your opinion holds up against multiple viewpoints</p>
             </div>
-            <p className="font-body text-lg text-muted-foreground max-w-2xl mx-auto">See if your opinion holds up against multiple viewpoints</p>
-          </div>
+          )}
 
           {!debate && <div className="space-y-6 animate-fade-in">
               <Card className="p-6 bg-card border border-border">
                 <div className="space-y-4">
                   <h3 className="text-lg font-serif font-semibold text-foreground uppercase tracking-wide">State Your Opinion</h3>
+                  <p className="text-sm font-body text-muted-foreground">Enter any statement, opinion, or claim you'd like to explore from multiple angles</p>
                   <Textarea value={statement} onChange={e => setStatement(e.target.value)} placeholder="Universal Basic Income should be mandatory, Michael Jordan > Lebron, etc." className="min-h-[100px] font-body text-base resize-none" />
                 </div>
 
@@ -187,10 +145,8 @@ ${formatArguments(debate.argumentsAgainst)}
               </Card>
             </div>}
 
-          {!debate && <PushbackSection statement={statement} />}
-
           {debate && <div className="animate-fade-in">
-              <DebateView debate={debate} onRefute={handleRefute} onReset={resetDebate} onExport={exportDebate} onAddArgument={async (side: "for" | "against") => {
+              <DebateView debate={debate} onRefute={handleRefute} onReset={resetDebate} onAddArgument={async (side: "for" | "against") => {
             setAddingArgumentSide(side);
             try {
               const {
