@@ -32,31 +32,24 @@ serve(async (req) => {
       systemPrompt = `You are an expert debate analyst. Generate balanced arguments for and against the given statement.
 
 CRITICAL REQUIREMENTS:
-1. Each argument MUST have:
+1. Generate 3-4 arguments for EACH side (FOR and AGAINST)
+2. Each argument MUST have:
    - "title": A concise, clear title (max 8 words) that captures the core point
    - "subheading": A one-sentence summary (max 15 words) that encompasses the main point
    - "text": The detailed argument (2-3 sentences) with specific examples and numbers
    
-2. ALWAYS back arguments with:
+3. ALWAYS back arguments with:
    - Concrete examples from real cases
    - Statistical data and numbers where applicable
    - Specific studies or events
    
-3. Provide 2-4 credible sources per argument
-4. Use reliable, verifiable sources (academic papers, established news outlets, government data, .gov, .edu domains preferred)
-5. Format sources as: {"title": "Source Title", "url": "https://..."}
-6. Ensure URLs are complete and accessible${perspectiveContext}
-
-Return JSON: {
-  "summary": "brief neutral summary",
-  "arguments": {
-    "for": [{"title": "...", "subheading": "...", "text": "...", "sources": [...]}],
-    "against": [{"title": "...", "subheading": "...", "text": "...", "sources": [...]}]
-  }
-}`;
+4. Provide 2-4 credible sources per argument
+5. Use reliable, verifiable sources (academic papers, established news outlets, government data, .gov, .edu domains preferred)
+6. Format sources as: {"title": "Source Title", "url": "https://..."}
+7. Ensure URLs are complete and accessible${perspectiveContext}`;
       userPrompt = `Statement: "${statement}"
 
-Generate arguments for and against this statement with titles, subheadings, detailed text backed by examples and numbers, and credible sources.`;
+Generate 3-4 arguments for and against this statement with titles, subheadings, detailed text backed by examples and numbers, and credible sources.`;
     } else if (type === "refute") {
       const sideContext = targetSide 
         ? `You are arguing from the "${targetSide}" perspective of the original statement.`
@@ -79,9 +72,7 @@ CRITICAL REQUIREMENTS:
    
 3. Provide 2-4 credible sources
 4. Use reliable, verifiable sources (academic papers, established news outlets, government data, .gov, .edu domains preferred)
-5. Ensure URLs are complete and accessible
-
-Return JSON: {"title": "...", "subheading": "...", "text": "...", "sources": [...]}`;
+5. Ensure URLs are complete and accessible`;
       userPrompt = `Original statement: "${statement}"
 Point to refute: "${parentArgument}"
 
@@ -103,9 +94,7 @@ CRITICAL REQUIREMENTS:
 3. Provide 2-4 highly credible sources
 4. Prioritize academic sources, government data, peer-reviewed research (.gov, .edu, academic journals)
 5. Format sources as: {"title": "Source Title", "url": "https://..."}
-6. Ensure URLs are complete and accessible
-
-Return JSON: {"title": "...", "subheading": "...", "text": "...", "sources": [...]}`;
+6. Ensure URLs are complete and accessible`;
       userPrompt = `Original statement: "${statement}"
 Argument to support: "${parentArgument}"
 
@@ -131,14 +120,112 @@ CRITICAL REQUIREMENTS:
 5. Format sources as: {"title": "Source Title", "url": "https://..."}
 6. Ensure URLs are complete and accessible
 
-${existingTitles ? `IMPORTANT: DO NOT repeat these existing argument angles: ${existingTitles}. Your argument must offer a NEW perspective.` : ''}
-
-Return JSON: {"title": "...", "subheading": "...", "text": "...", "sources": [...]}`;
+${existingTitles ? `IMPORTANT: DO NOT repeat these existing argument angles: ${existingTitles}. Your argument must offer a NEW perspective.` : ''}`;
       
       userPrompt = `Statement: "${statement}"
 Side: ${side}
 
 Generate a NEW argument ${side === 'for' ? 'supporting' : 'opposing'} this statement with title, subheading, detailed text backed by examples and numbers, and credible sources.`;
+    }
+
+    // Define tool schemas based on type
+    let tools: any[] = [];
+    let tool_choice: any = undefined;
+
+    if (type === "initial") {
+      tools = [{
+        type: "function",
+        function: {
+          name: "generate_arguments",
+          description: "Generate balanced arguments for and against a statement",
+          parameters: {
+            type: "object",
+            properties: {
+              summary: { type: "string" },
+              arguments: {
+                type: "object",
+                properties: {
+                  for: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        subheading: { type: "string" },
+                        text: { type: "string" },
+                        sources: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              title: { type: "string" },
+                              url: { type: "string" }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    minItems: 3,
+                    maxItems: 4
+                  },
+                  against: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        title: { type: "string" },
+                        subheading: { type: "string" },
+                        text: { type: "string" },
+                        sources: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              title: { type: "string" },
+                              url: { type: "string" }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    minItems: 3,
+                    maxItems: 4
+                  }
+                }
+              }
+            }
+          }
+        }
+      }];
+      tool_choice = { type: "function", function: { name: "generate_arguments" } };
+    } else {
+      // For refute, evidence, add-argument - single argument response
+      tools = [{
+        type: "function",
+        function: {
+          name: "generate_argument",
+          description: "Generate a single argument",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              subheading: { type: "string" },
+              text: { type: "string" },
+              sources: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    url: { type: "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }];
+      tool_choice = { type: "function", function: { name: "generate_argument" } };
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -153,7 +240,8 @@ Generate a NEW argument ${side === 'for' ? 'supporting' : 'opposing'} this state
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        temperature: 0.7,
+        tools,
+        tool_choice,
       }),
     });
 
@@ -177,21 +265,15 @@ Generate a NEW argument ${side === 'for' ? 'supporting' : 'opposing'} this state
     }
 
     const data = await response.json();
-    const content = data.choices[0].message.content;
+    const toolCall = data.choices[0].message.tool_calls?.[0];
     
-    console.log("AI response:", content);
-    
-    // Parse the JSON from the AI response
-    let parsedContent;
-    try {
-      // Try to extract JSON from markdown code blocks if present
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```\n([\s\S]*?)\n```/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : content;
-      parsedContent = JSON.parse(jsonStr);
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
+    if (!toolCall) {
+      console.error("No tool call in AI response:", JSON.stringify(data));
       throw new Error("Invalid response format from AI");
     }
+
+    const parsedContent = JSON.parse(toolCall.function.arguments);
+    console.log("Parsed AI response:", parsedContent);
 
     return new Response(
       JSON.stringify(parsedContent),

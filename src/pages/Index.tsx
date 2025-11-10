@@ -52,7 +52,12 @@ const Index = () => {
       if (error) throw error;
       
       setTimeout(() => {
-        setDebate(data);
+        setDebate({
+          statement,
+          summary: data.summary,
+          argumentsFor: data.arguments.for,
+          argumentsAgainst: data.arguments.against
+        });
         setIsGenerating(false);
       }, 1500);
     } catch (error: any) {
@@ -241,7 +246,7 @@ ${formatArguments(debate.argumentsAgainst)}
                 <Button
                   onClick={generateInitialArguments}
                   disabled={!statement.trim()}
-                  className="w-full font-sans text-sm uppercase tracking-wider mt-6"
+                  className="w-full font-sans text-sm uppercase tracking-wider mt-6 bg-sky-800 hover:bg-sky-900 text-white"
                   size="lg"
                 >
                   Generate Debate

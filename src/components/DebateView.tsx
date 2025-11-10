@@ -64,7 +64,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
               variant="outline"
               size="sm"
               onClick={onReset}
-              className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
+              className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200 bg-sky-800 hover:bg-sky-900 text-white border-sky-800"
             >
               <RotateCcw className="h-4 w-4" />
               New Debate
@@ -79,7 +79,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
           className={cn(
             "transition-all duration-500 ease-in-out relative group",
             expandedSide === "for" ? "lg:col-span-2" : expandedSide === "against" ? "lg:hidden" : "",
-            hoveredSide === "for" && !expandedSide ? "scale-[1.02]" : ""
+            hoveredSide === "for" && !expandedSide ? "translate-x-1" : ""
           )}
           onMouseEnter={() => !expandedSide && setHoveredSide("for")}
           onMouseLeave={() => setHoveredSide(null)}
@@ -131,7 +131,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
           className={cn(
             "transition-all duration-500 ease-in-out relative group",
             expandedSide === "against" ? "lg:col-span-2" : expandedSide === "for" ? "lg:hidden" : "",
-            hoveredSide === "against" && !expandedSide ? "scale-[1.02]" : ""
+            hoveredSide === "against" && !expandedSide ? "-translate-x-1" : ""
           )}
           onMouseEnter={() => !expandedSide && setHoveredSide("against")}
           onMouseLeave={() => setHoveredSide(null)}
