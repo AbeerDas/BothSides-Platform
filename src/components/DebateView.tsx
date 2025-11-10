@@ -23,6 +23,7 @@ interface DebateData {
 interface DebateViewProps {
   debate: DebateData;
   onRefute: (side: "for" | "against", path: number[]) => void;
+  onEvidence: (side: "for" | "against", path: number[]) => void;
   onReset: () => void;
   onExport: () => void;
   onAddArgument: (side: "for" | "against") => void;
@@ -31,6 +32,7 @@ interface DebateViewProps {
 export const DebateView = ({
   debate,
   onRefute,
+  onEvidence,
   onReset,
   onExport,
   onAddArgument,
@@ -55,7 +57,7 @@ export const DebateView = ({
               <Download className="h-4 w-4" />
               Export
             </Button>
-            <Button variant="outline" size="sm" onClick={onReset} className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200 bg-sky-800 hover:bg-sky-900 text-white hover:text-white border-sky-800">
+            <Button variant="outline" size="sm" onClick={onReset} className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200 bg-sky-800 hover:bg-sky-900 text-white border-sky-800">
               <RotateCcw className="h-4 w-4" />
               New Debate
             </Button>
@@ -63,18 +65,9 @@ export const DebateView = ({
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         {/* FOR Panel */}
-        <div 
-          className={cn(
-            "transition-all duration-700 ease-in-out relative group cursor-pointer", 
-            expandedSide === "for" ? "lg:w-full" : expandedSide === "against" ? "lg:hidden" : "lg:flex-1",
-            hoveredSide === "against" && !expandedSide && "lg:flex-[0.48]"
-          )} 
-          onMouseEnter={() => !expandedSide && setHoveredSide("for")} 
-          onMouseLeave={() => setHoveredSide(null)} 
-          onClick={() => setExpandedSide(expandedSide === "for" ? null : "for")}
-        >
+        <div className={cn("transition-all duration-500 ease-in-out relative group cursor-pointer", expandedSide === "for" ? "lg:col-span-2" : expandedSide === "against" ? "lg:hidden" : "")} onMouseEnter={() => !expandedSide && setHoveredSide("for")} onMouseLeave={() => setHoveredSide(null)} onClick={() => setExpandedSide(expandedSide === "for" ? null : "for")}>
           {hoveredSide === "for" && !expandedSide && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-3 py-1 text-xs font-sans rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               Expand
             </div>}
@@ -84,7 +77,7 @@ export const DebateView = ({
             </div>
 
             <div className="space-y-4">
-              {debate.argumentsFor?.map((arg, idx) => <ArgumentCard key={idx} title={arg.title} subheading={arg.subheading} text={arg.text} sources={arg.sources} side="for" onRefute={subPath => onRefute("for", subPath)} refutations={arg.refutations} path={[idx]} />)}
+              {debate.argumentsFor?.map((arg, idx) => <ArgumentCard key={idx} title={arg.title} subheading={arg.subheading} text={arg.text} sources={arg.sources} side="for" onRefute={subPath => onRefute("for", subPath)} onEvidence={() => onEvidence("for", [idx])} refutations={arg.refutations} path={[idx]} />)}
             </div>
             
             {addingArgumentSide === "for" && <div className="text-sm font-body text-muted-foreground italic animate-fade-in">
@@ -101,16 +94,7 @@ export const DebateView = ({
         </div>
 
         {/* AGAINST Panel */}
-        <div 
-          className={cn(
-            "transition-all duration-700 ease-in-out relative group cursor-pointer", 
-            expandedSide === "against" ? "lg:w-full" : expandedSide === "for" ? "lg:hidden" : "lg:flex-1",
-            hoveredSide === "for" && !expandedSide && "lg:flex-[0.48]"
-          )} 
-          onMouseEnter={() => !expandedSide && setHoveredSide("against")} 
-          onMouseLeave={() => setHoveredSide(null)} 
-          onClick={() => setExpandedSide(expandedSide === "against" ? null : "against")}
-        >
+        <div className={cn("transition-all duration-500 ease-in-out relative group cursor-pointer", expandedSide === "against" ? "lg:col-span-2" : expandedSide === "for" ? "lg:hidden" : "")} onMouseEnter={() => !expandedSide && setHoveredSide("against")} onMouseLeave={() => setHoveredSide(null)} onClick={() => setExpandedSide(expandedSide === "against" ? null : "against")}>
           {hoveredSide === "against" && !expandedSide && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-3 py-1 text-xs font-sans rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               Expand
             </div>}
@@ -121,7 +105,7 @@ export const DebateView = ({
             </div>
 
             <div className="space-y-4">
-              {debate.argumentsAgainst?.map((arg, idx) => <ArgumentCard key={idx} title={arg.title} subheading={arg.subheading} text={arg.text} sources={arg.sources} side="against" onRefute={subPath => onRefute("against", subPath)} refutations={arg.refutations} path={[idx]} />)}
+              {debate.argumentsAgainst?.map((arg, idx) => <ArgumentCard key={idx} title={arg.title} subheading={arg.subheading} text={arg.text} sources={arg.sources} side="against" onRefute={subPath => onRefute("against", subPath)} onEvidence={() => onEvidence("against", [idx])} refutations={arg.refutations} path={[idx]} />)}
             </div>
             
             {addingArgumentSide === "against" && <div className="text-sm font-body text-muted-foreground italic animate-fade-in">
