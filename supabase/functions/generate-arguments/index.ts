@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { statement, type, parentArgument, perspectives, targetSide } = await req.json();
+    const { statement, type, parentArgument, perspectives, targetSide, side, existingArguments } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -110,6 +110,35 @@ Return JSON: {"title": "...", "subheading": "...", "text": "...", "sources": [..
 Argument to support: "${parentArgument}"
 
 Generate strong evidence with title, subheading, detailed supporting data (case studies, statistics, research), and credible academic/research sources.`;
+    } else if (type === "add-argument") {
+      const existingTitles = existingArguments?.map((arg: any) => arg.title).join(', ') || '';
+      
+      systemPrompt = `You are an expert debate analyst. Generate a NEW argument for the ${side} side that is DIFFERENT from existing arguments.
+
+CRITICAL REQUIREMENTS:
+1. The argument MUST have:
+   - "title": A concise, clear title (max 8 words) that captures the core point
+   - "subheading": A one-sentence summary (max 15 words) that encompasses the main point
+   - "text": The detailed argument (2-3 sentences) with specific examples and numbers
+   
+2. ALWAYS back arguments with:
+   - Concrete examples from real cases
+   - Statistical data and numbers where applicable
+   - Specific studies or events
+   
+3. Provide 2-4 credible sources per argument
+4. Use reliable, verifiable sources (academic papers, established news outlets, government data, .gov, .edu domains preferred)
+5. Format sources as: {"title": "Source Title", "url": "https://..."}
+6. Ensure URLs are complete and accessible
+
+${existingTitles ? `IMPORTANT: DO NOT repeat these existing argument angles: ${existingTitles}. Your argument must offer a NEW perspective.` : ''}
+
+Return JSON: {"title": "...", "subheading": "...", "text": "...", "sources": [...]}`;
+      
+      userPrompt = `Statement: "${statement}"
+Side: ${side}
+
+Generate a NEW argument ${side === 'for' ? 'supporting' : 'opposing'} this statement with title, subheading, detailed text backed by examples and numbers, and credible sources.`;
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

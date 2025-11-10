@@ -274,7 +274,7 @@ ${formatArguments(debate.argumentsAgainst)}
 
                     if (error) throw error;
                     
-                    const newArgument = data.argument;
+                    const newArgument = data;
                     const updatedDebate = {
                       ...debate,
                       ...(side === 'for' 
