@@ -162,10 +162,8 @@ const Index = () => {
         <div className="space-y-8">
           {!debate && <div className="text-center space-y-4 pb-6">
               <div className="flex items-center justify-center gap-3">
-                <Scale className="h-8 w-8 text-foreground" />
-                <h1 className="font-serif font-bold text-4xl md:text-5xl text-foreground uppercase tracking-tight">
-                  DIALECTIC
-                </h1>
+                <Scale className="h-12 w-12 text-foreground" />
+                
               </div>
               <p className="font-body text-lg text-muted-foreground max-w-2xl mx-auto">See if your opinion holds up against multiple viewpoints</p>
             </div>}
