@@ -172,16 +172,12 @@ ${formatArguments(debate.argumentsAgainst)}
           {!debate && <div className="space-y-6 animate-fade-in">
               <Card className="p-6 bg-card border border-border">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-serif font-semibold text-foreground uppercase tracking-wide">
-                    Your Opinion
-                  </h3>
+                  <h3 className="text-lg font-serif font-semibold text-foreground uppercase tracking-wide">State Your Opinion</h3>
                   <Textarea value={statement} onChange={e => setStatement(e.target.value)} placeholder="Universal Basic Income should be mandatory, Michael Jordan > Lebron, etc." className="min-h-[100px] font-body text-base resize-none" />
                 </div>
 
                 <div className="space-y-4 mt-6">
-                  <label className="text-sm font-serif font-semibold text-foreground uppercase tracking-wide">
-                    Perspective
-                  </label>
+                  <label className="text-sm font-serif font-semibold text-foreground uppercase tracking-wide">Attach a Perspective (optional)</label>
                   <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
                 </div>
 
