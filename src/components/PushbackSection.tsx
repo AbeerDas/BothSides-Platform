@@ -58,7 +58,7 @@ export const PushbackSection = ({
       <div className="space-y-4">
         <div className="space-y-2">
           <h3 className="text-lg font-serif font-semibold text-foreground uppercase tracking-wide">
-            Your Opinion
+            Pushback
           </h3>
           <p className="text-sm font-body text-muted-foreground">Enter a claim or statement to receive a short critical counterargument</p>
         </div>

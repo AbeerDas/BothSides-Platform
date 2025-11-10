@@ -7,6 +7,7 @@ import { PerspectivePills } from "@/components/PerspectivePills";
 import { PushbackSection } from "@/components/PushbackSection";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Scale } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface Source {
   title: string;
@@ -215,39 +216,41 @@ ${formatArguments(debate.argumentsAgainst)}
             </p>
           </div>
 
-          {!debate && <PushbackSection statement={statement} />}
-
           {!debate && (
             <div className="space-y-6 animate-fade-in">
-              <div className="space-y-4">
-                <label className="text-sm font-serif font-semibold text-foreground uppercase tracking-wide">
-                  Your Opinion
-                </label>
-                <Textarea
-                  value={statement}
-                  onChange={(e) => setStatement(e.target.value)}
-                  placeholder="Universal Basic Income should be mandatory, Michael Jordan > Lebron, etc."
-                  className="min-h-[100px] font-body text-base resize-none"
-                />
-              </div>
+              <Card className="p-6 bg-card border border-border">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-serif font-semibold text-foreground uppercase tracking-wide">
+                    Your Opinion
+                  </h3>
+                  <Textarea
+                    value={statement}
+                    onChange={(e) => setStatement(e.target.value)}
+                    placeholder="Universal Basic Income should be mandatory, Michael Jordan > Lebron, etc."
+                    className="min-h-[100px] font-body text-base resize-none"
+                  />
+                </div>
 
-              <div className="space-y-4">
-                <label className="text-sm font-serif font-semibold text-foreground uppercase tracking-wide">
-                  Perspective
-                </label>
-                <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
-              </div>
+                <div className="space-y-4 mt-6">
+                  <label className="text-sm font-serif font-semibold text-foreground uppercase tracking-wide">
+                    Perspective
+                  </label>
+                  <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
+                </div>
 
-              <Button
-                onClick={generateInitialArguments}
-                disabled={!statement.trim()}
-                className="w-full font-sans text-sm uppercase tracking-wider"
-                size="lg"
-              >
-                Generate Debate
-              </Button>
+                <Button
+                  onClick={generateInitialArguments}
+                  disabled={!statement.trim()}
+                  className="w-full font-sans text-sm uppercase tracking-wider mt-6"
+                  size="lg"
+                >
+                  Generate Debate
+                </Button>
+              </Card>
             </div>
           )}
+
+          {!debate && <PushbackSection statement={statement} />}
 
           {debate && (
             <div className="animate-fade-in">

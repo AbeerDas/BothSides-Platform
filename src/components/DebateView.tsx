@@ -98,7 +98,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
             </div>
 
             <div className="space-y-4">
-              {debate.argumentsFor.map((arg, idx) => (
+              {debate.argumentsFor?.map((arg, idx) => (
                 <ArgumentCard
                   key={idx}
                   title={arg.title}
@@ -150,7 +150,7 @@ export const DebateView = ({ debate, onRefute, onEvidence, onReset, onExport, on
             </div>
 
             <div className="space-y-4">
-              {debate.argumentsAgainst.map((arg, idx) => (
+              {debate.argumentsAgainst?.map((arg, idx) => (
                 <ArgumentCard
                   key={idx}
                   title={arg.title}
