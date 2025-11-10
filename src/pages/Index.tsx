@@ -38,16 +38,21 @@ const Index = () => {
   const [currentDebateSlug, setCurrentDebateSlug] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
-
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
       setUser(session?.user ?? null);
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ?? null);
     });
-
     return () => subscription.unsubscribe();
   }, []);
   const generateInitialArguments = async () => {
@@ -65,38 +70,34 @@ const Index = () => {
         }
       });
       if (error) throw error;
-      
       const debateData = {
         statement,
         summary: data.summary,
         argumentsFor: data.arguments.for,
         argumentsAgainst: data.arguments.against
       };
-      
       setDebate(debateData);
 
       // Save to database
       const slug = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const { error: saveError } = await supabase
-        .from('debates')
-        .insert({
-          slug,
-          statement,
-          summary: data.summary,
-          arguments_data: {
-            for: data.arguments.for,
-            against: data.arguments.against
-          },
-          user_id: user?.id || null,
-        });
-
+      const {
+        error: saveError
+      } = await supabase.from('debates').insert({
+        slug,
+        statement,
+        summary: data.summary,
+        arguments_data: {
+          for: data.arguments.for,
+          against: data.arguments.against
+        },
+        user_id: user?.id || null
+      });
       if (saveError) {
         console.error('Error saving debate:', saveError);
         toast.error("Debate generated but couldn't save to history");
       } else {
         setCurrentDebateSlug(slug);
       }
-      
       setIsGenerating(false);
     } catch (error: any) {
       console.error('Error:', error);
@@ -159,8 +160,7 @@ const Index = () => {
       <NavBar />
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="space-y-8">
-          {!debate && (
-            <div className="text-center space-y-4 pb-6">
+          {!debate && <div className="text-center space-y-4 pb-6">
               <div className="flex items-center justify-center gap-3">
                 <Scale className="h-8 w-8 text-foreground" />
                 <h1 className="font-serif font-bold text-4xl md:text-5xl text-foreground uppercase tracking-tight">
@@ -168,8 +168,7 @@ const Index = () => {
                 </h1>
               </div>
               <p className="font-body text-lg text-muted-foreground max-w-2xl mx-auto">See if your opinion holds up against multiple viewpoints</p>
-            </div>
-          )}
+            </div>}
 
           {!debate && <div className="space-y-6 animate-fade-in">
               <Card className="p-6 bg-card border border-border">
@@ -191,7 +190,7 @@ const Index = () => {
                             <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
-                            <p>Add specific viewpoints (like "Economist" or "Philosopher") to generate arguments from those perspectives. This helps create more diverse and targeted debates.</p>
+                            <p>Add specific viewpoints (like &quot;Economist&quot; or &quot;Philosopher&quot;) to generate arguments from those perspectives. </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -200,12 +199,7 @@ const Index = () => {
                       </div>
                     </div>
                     
-                    <Button 
-                      onClick={generateInitialArguments} 
-                      disabled={!statement.trim()} 
-                      className="font-sans text-sm uppercase tracking-wider bg-sky-800 hover:bg-sky-900 text-white md:min-w-[180px]" 
-                      size="lg"
-                    >
+                    <Button onClick={generateInitialArguments} disabled={!statement.trim()} className="font-sans text-sm uppercase tracking-wider bg-sky-800 hover:bg-sky-900 text-white md:min-w-[180px]" size="lg">
                       <Scale className="h-4 w-4 mr-2" />
                       Generate
                     </Button>
