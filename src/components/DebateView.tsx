@@ -73,7 +73,7 @@ export const DebateView = ({
             </div>}
           <div className="border border-for-border bg-for-bg p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide">FOR</h2>
+              <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide">FOR ᯓ★</h2>
             </div>
 
             <div className="space-y-4">
@@ -100,7 +100,7 @@ export const DebateView = ({
             </div>}
           <div className="border border-against-border bg-against-bg p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide">AGAINST</h2>
+              <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide">AGAINST ᯓ★</h2>
             </div>
 
             <div className="space-y-4">
