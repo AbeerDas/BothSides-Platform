@@ -37,7 +37,6 @@ export const DebateView = ({
   addingArgumentSide
 }: DebateViewProps) => {
   const [expandedSide, setExpandedSide] = useState<"for" | "against" | null>(null);
-  const [hoveredSide, setHoveredSide] = useState<"for" | "against" | null>(null);
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
@@ -121,16 +120,12 @@ export const DebateView = ({
         {/* FOR Panel */}
         <div 
           className={cn(
-            "transition-all duration-700 ease-in-out relative group cursor-pointer", 
-            expandedSide === "for" ? "lg:w-full" : expandedSide === "against" ? "lg:hidden" : "lg:flex-1",
-            hoveredSide === "for" && !expandedSide && "lg:w-[calc(50%+10px)]",
-            hoveredSide === "against" && !expandedSide && "lg:w-[calc(50%-10px)]"
+            "transition-all duration-300 ease-in-out relative group cursor-pointer", 
+            expandedSide === "for" ? "lg:w-full" : expandedSide === "against" ? "lg:hidden" : "lg:flex-1"
           )} 
-          onMouseEnter={() => !expandedSide && setHoveredSide("for")} 
-          onMouseLeave={() => setHoveredSide(null)} 
           onClick={() => setExpandedSide(expandedSide === "for" ? null : "for")}
         >
-          {hoveredSide === "for" && !expandedSide && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-3 py-1 text-xs font-sans rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+          {!expandedSide && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-3 py-1 text-xs font-sans rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
               Click to expand this section
             </div>}
           {expandedSide === "for" && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-3 py-1 text-xs font-sans rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
@@ -161,16 +156,12 @@ export const DebateView = ({
         {/* AGAINST Panel */}
         <div 
           className={cn(
-            "transition-all duration-700 ease-in-out relative group cursor-pointer", 
-            expandedSide === "against" ? "lg:w-full" : expandedSide === "for" ? "lg:hidden" : "lg:flex-1",
-            hoveredSide === "against" && !expandedSide && "lg:w-[calc(50%+10px)]",
-            hoveredSide === "for" && !expandedSide && "lg:w-[calc(50%-10px)]"
+            "transition-all duration-300 ease-in-out relative group cursor-pointer", 
+            expandedSide === "against" ? "lg:w-full" : expandedSide === "for" ? "lg:hidden" : "lg:flex-1"
           )} 
-          onMouseEnter={() => !expandedSide && setHoveredSide("against")} 
-          onMouseLeave={() => setHoveredSide(null)} 
           onClick={() => setExpandedSide(expandedSide === "against" ? null : "against")}
         >
-          {hoveredSide === "against" && !expandedSide && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-3 py-1 text-xs font-sans rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+          {!expandedSide && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-3 py-1 text-xs font-sans rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
               Click to expand this section
             </div>}
           {expandedSide === "against" && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-3 py-1 text-xs font-sans rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">

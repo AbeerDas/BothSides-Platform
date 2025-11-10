@@ -52,7 +52,7 @@ export const NavBar = () => {
               <Button
                 variant="ghost"
                 onClick={handleSignOut}
-                className="text-sm"
+                className="text-sm text-sky-600 hover:text-sky-700"
               >
                 Sign Out
               </Button>
@@ -60,7 +60,7 @@ export const NavBar = () => {
               <Button
                 variant="ghost"
                 onClick={() => navigate("/auth")}
-                className="text-sm"
+                className="text-sm text-sky-600 hover:text-sky-700"
               >
                 Sign In
               </Button>

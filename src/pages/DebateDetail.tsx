@@ -83,13 +83,72 @@ export default function DebateDetail() {
     );
   }
 
+  const handleRefute = async (side: "for" | "against", path: number[]) => {
+    if (!slug || !debate) return;
+    
+    try {
+      // Generate refutation
+      const targetArguments = side === "for" ? debate.argumentsFor : debate.argumentsAgainst;
+      let targetArg: any = targetArguments[path[0]];
+      
+      for (let i = 1; i < path.length; i++) {
+        targetArg = targetArg.refutations?.[path[i]];
+      }
+
+      const { data: refutationData, error: refutationError } = await supabase.functions.invoke(
+        "generate-arguments",
+        {
+          body: {
+            statement: debate.statement,
+            side: side === "for" ? "against" : "for",
+            context: targetArg.text,
+            count: 1,
+          },
+        }
+      );
+
+      if (refutationError) throw refutationError;
+
+      // Update debate with new refutation
+      const newRefutation = refutationData.arguments[0];
+      const updatedDebate = { ...debate };
+      const targetSide = side === "for" ? updatedDebate.argumentsFor : updatedDebate.argumentsAgainst;
+      
+      let current: any = targetSide[path[0]];
+      for (let i = 1; i < path.length; i++) {
+        current = current.refutations[path[i]];
+      }
+      
+      if (!current.refutations) current.refutations = [];
+      current.refutations.push(newRefutation);
+
+      // Save to database
+      const { error: updateError } = await supabase
+        .from("debates")
+        .update({
+          arguments_data: {
+            for: updatedDebate.argumentsFor,
+            against: updatedDebate.argumentsAgainst,
+          } as any,
+        })
+        .eq("slug", slug);
+
+      if (updateError) throw updateError;
+
+      // Update local state
+      setDebate(updatedDebate);
+    } catch (error) {
+      console.error("Error adding refutation:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <NavBar />
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <DebateView
           debate={debate}
-          onRefute={async () => {}}
+          onRefute={handleRefute}
           onReset={() => navigate("/")}
           onAddArgument={async () => {}}
           addingArgumentSide={null}

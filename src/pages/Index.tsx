@@ -7,7 +7,7 @@ import { DebateView } from "@/components/DebateView";
 import { PerspectivePills } from "@/components/PerspectivePills";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { NavBar } from "@/components/NavBar";
-import { Scale, Info } from "lucide-react";
+import { Scale, Info, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -180,7 +180,7 @@ const Index = () => {
 
                 <div className="mt-6">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex items-center gap-2 ">
+                    <div className="flex items-center gap-2 flex-wrap flex-1">
                       <label className="text-sm font-serif font-semibold text-foreground uppercase tracking-wide whitespace-nowrap">
                         Perspective
                       </label>
@@ -194,14 +194,12 @@ const Index = () => {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      <div className="flex-1 md:ml-4">
-                        <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
-                      </div>
+                      <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
                     </div>
                     
                     <Button onClick={generateInitialArguments} disabled={!statement.trim()} className="font-sans text-sm uppercase tracking-wider bg-sky-800 hover:bg-sky-900 text-white md:min-w-[180px]" size="lg">
-                      <Scale className="h-4 w-4 mr-2" />
                       Generate
+                      <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   </div>
                 </div>

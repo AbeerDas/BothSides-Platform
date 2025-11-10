@@ -62,60 +62,60 @@ export const ArgumentCard = ({
     <div className={cn("space-y-3 transition-all duration-300", depth > 0 && "ml-8 border-l-2 border-border pl-6")}>
       <Card 
         className={cn(
-          "p-6 transition-all duration-300 border shadow-card animate-fade-in",
+          "p-6 transition-all duration-300 border shadow-card animate-fade-in relative",
           side === "for" ? "bg-for-bg border-for-border" : "bg-against-bg border-against-border"
         )}
       >
-        <div className="space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 space-y-3">
-              {title && (
-                <h3 className="font-serif font-semibold text-lg text-foreground uppercase tracking-wide">{title}</h3>
-              )}
-              {!isMinimized && (
-                <>
-                  {subheading && (
-                    <p className="text-sm font-body text-muted-foreground italic border-l-2 border-border pl-3">{subheading}</p>
-                  )}
-                  <p className="text-base font-body leading-relaxed text-foreground">{text}</p>
-                  
-                  {sources.length > 0 && (
-                    <div className="pt-3 border-t border-border space-y-2">
-                      <p className="text-xs uppercase tracking-wider font-sans text-muted-foreground">Sources</p>
-                      <div className="flex flex-col gap-2">
-                        {sources.map((source, idx) => (
-                          <CitationTooltip key={idx} source={source} index={idx + 1} />
-                        ))}
-                      </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleMinimize}
+          className="absolute top-2 right-2 z-10"
+          title={isMinimized ? "Maximize" : "Minimize"}
+        >
+          {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+        </Button>
+
+        <div className="space-y-4 pr-10">
+          <div className="space-y-3">
+            {title && (
+              <h3 className="font-serif font-semibold text-lg text-foreground uppercase tracking-wide">{title}</h3>
+            )}
+            {!isMinimized && (
+              <>
+                {subheading && (
+                  <p className="text-sm font-body text-muted-foreground italic border-l-2 border-border pl-3">{subheading}</p>
+                )}
+                <p className="text-base font-body leading-relaxed text-foreground">{text}</p>
+                
+                {sources.length > 0 && (
+                  <div className="pt-3 border-t border-border space-y-2">
+                    <p className="text-xs uppercase tracking-wider font-sans text-muted-foreground">Sources</p>
+                    <div className="flex flex-col gap-2">
+                      {sources.map((source, idx) => (
+                        <CitationTooltip key={idx} source={source} index={idx + 1} />
+                      ))}
                     </div>
-                  )}
-                </>
-              )}
-            </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-border relative">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefute}
-              disabled={isRefuting}
-              className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Refute
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleMinimize}
-              className="absolute -top-2 right-0"
-              title={isMinimized ? "Maximize" : "Minimize"}
-            >
-              {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-            </Button>
-          </div>
+          {!isMinimized && (
+            <div className="pt-4 border-t border-border">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefute}
+                disabled={isRefuting}
+                className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Refute
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
 

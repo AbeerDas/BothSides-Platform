@@ -2,16 +2,12 @@ import { useEffect, useState } from "react";
 import { Scale } from "lucide-react";
 
 const loadingPhrases = [
-  "Teaching AI to argue like your in-laws at Thanksgiving...",
-  "Fact-checking conspiracy theorists with actual facts...",
-  "Bribing philosophers with tenure for better arguments...",
-  "Downloading all of Reddit (but keeping only the good parts)...",
-  "Training debate bots by making them watch cable news...",
-  "Asking ChatGPT to disagree with itself...",
-  "Forcing economists to use small words...",
-  "Making lawyers explain things without billable hours...",
-  "Peer-reviewing hot takes from Twitter...",
-  "Simulating a debate between your brain cells..."
+  "Teaching AI the ancient art of arguing productively...",
+  "Consulting both sides of the brain for maximum objectivity...",
+  "Downloading critical thinking skills from the cloud...",
+  "Convincing the algorithm that nuance actually matters...",
+  "Generating perspectives faster than Twitter generates hot takes...",
+  "Brewing a fresh pot of intellectual discourse...",
 ];
 
 export const LoadingScreen = () => {
@@ -34,7 +30,7 @@ export const LoadingScreen = () => {
           {loadingPhrases.map((phrase, idx) => (
             <p
               key={phrase}
-              className={`font-serif text-lg text-muted-foreground transition-all duration-500 absolute max-w-xl text-center ${
+              className={`font-serif text-lg text-muted-foreground transition-all duration-500 absolute max-w-2xl text-center ${
                 idx === currentPhrase ? "opacity-100" : "opacity-0"
               }`}
             >

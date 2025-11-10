@@ -102,7 +102,7 @@ export default function Auth() {
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full bg-sky-800 hover:bg-sky-900 text-white"
             disabled={loading}
           >
             {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
