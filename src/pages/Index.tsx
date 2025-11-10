@@ -231,15 +231,14 @@ ${formatArguments(debate.arguments.against)}
       <div className="max-w-7xl mx-auto space-y-8">
         <header className="text-center space-y-6 border-b-4 pb-8">
           <h1 className="text-6xl font-serif font-bold text-foreground tracking-tight uppercase">DIALECTIC</h1>
-          <p className="text-xl font-body text-muted-foreground max-w-3xl mx-auto leading-relaxed">See the arguments against your opinions</p>
+          <p className="text-xl font-body text-muted-foreground max-w-3xl mx-auto leading-relaxed">See the arguments against your opinion</p>
         </header>
 
         {!debate ? <>
             <Card className="p-8 bg-card border-2 border-border shadow-elegant">
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label htmlFor="statement" className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">THE OPINION/RESOLUTION
-              </label>
+                  <label htmlFor="statement" className="text-lg font-serif font-semibold text-foreground block uppercase tracking-wide">YOUR OPINION</label>
                   <Textarea id="statement" value={statement} onChange={e => setStatement(e.target.value)} placeholder="e.g., Universal Basic Income should be implemented globally" className="min-h-[120px] text-lg font-body resize-none border-2" />
                 </div>
 
