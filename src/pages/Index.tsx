@@ -165,7 +165,7 @@ const Index = () => {
                 <Scale className="h-12 w-12 text-foreground" />
                 
               </div>
-              <p className="font-body text-lg text-muted-foreground max-w-2xl mx-auto">Look at the counterarguments against your opinion</p>
+              <p className="font-body text-lg text-muted-foreground max-w-2xl mx-auto">Look at the all counterarguments against your opinion</p>
             </div>}
 
           {!debate && <div className="space-y-6 animate-fade-in">
