@@ -7,7 +7,7 @@ import { DebateView } from "@/components/DebateView";
 import { PerspectivePills } from "@/components/PerspectivePills";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { NavBar } from "@/components/NavBar";
-import { Scale, Info, ArrowRight } from "lucide-react";
+import { Info, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -162,17 +162,17 @@ const Index = () => {
         <div className="space-y-8">
           {!debate && <div className="text-center space-y-4 pb-6">
               <div className="flex items-center justify-center gap-3">
-                <Scale className="h-12 w-12 text-foreground" />
+                
                 
               </div>
-              <p className="font-body text-lg text-muted-foreground max-w-2xl mx-auto">Look at the all counterarguments against your opinion</p>
+              <p className="font-body text-3xl text-muted-foreground max-w-5xl mx-auto">Look at the all counterarguments against your opinion</p>
             </div>}
 
           {!debate && <div className="space-y-6 animate-fade-in">
-              <Card className="p-6 bg-card border border-border">
+              <Card className="p-6 bg-card border border-border ">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-serif font-semibold text-foreground uppercase tracking-wide">State Your Opinion</h3>
-                  <p className="text-sm font-body text-muted-foreground">Enter any statement, opinion, or claim you'd like to explore from multiple angles</p>
+                  <h3 className="text-lg font-serif font-semibold text-foreground uppercase tracking-wide">ENTER YOUR TAKE</h3>
+                  <p className="text-sm font-body text-muted-foreground">State any opinion or claim you'd like to explore from multiple angles</p>
                   <Textarea value={statement} onChange={e => setStatement(e.target.value)} placeholder="Universal Basic Income should be mandatory, Michael Jordan > Lebron, etc." className="min-h-[100px] font-body text-base resize-none" />
                 </div>
 

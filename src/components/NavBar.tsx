@@ -33,17 +33,13 @@ export const NavBar = () => {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <Scale className="h-6 w-6 text-foreground" />
-            <h1 className="font-serif font-bold text-2xl text-foreground uppercase tracking-tight">
-              DIALECTIC
-            </h1>
+            <h1 className="font-serif font-bold text-2xl text-foreground uppercase tracking-tight">BOTH-SIDES</h1>
           </Link>
 
           <div className="flex items-center gap-4">
             <RecentLogsDropdown />
             
-            <Button variant="ghost" onClick={() => navigate("/public")} className="text-sm">
-              Public Domain
-            </Button>
+            <Button variant="ghost" onClick={() => navigate("/public")} className="text-sm">Public Domain</Button>
 
             {user ? <Button variant="ghost" onClick={handleSignOut} className="text-sm text-sky-800">
                 Sign Out
