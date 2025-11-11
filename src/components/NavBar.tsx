@@ -39,7 +39,7 @@ export const NavBar = () => {
           <div className="flex items-center gap-4">
             <RecentLogsDropdown />
             
-            <Button variant="ghost" onClick={() => navigate("/public")} className="text-sm">Public Domain</Button>
+            <Button variant="ghost" onClick={() => navigate("/public")} className="text-sm">Public Debates</Button>
 
             {user ? <Button variant="ghost" onClick={handleSignOut} className="text-sm text-sky-800">
                 Sign Out
