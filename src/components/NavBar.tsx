@@ -33,7 +33,7 @@ export const NavBar = () => {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <Scale className="h-6 w-6 text-foreground" />
-            <h1 className="font-serif font-bold text-2xl text-foreground tracking-tight">BothSideTakes</h1>
+            <h1 className="font-serif font-bold text-2xl text-foreground tracking-tight">BothSides</h1>
           </Link>
 
           <div className="flex items-center gap-4">
