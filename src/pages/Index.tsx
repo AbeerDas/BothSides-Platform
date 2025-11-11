@@ -158,7 +158,7 @@ const Index = () => {
   }
   return <div className="min-h-screen bg-background">
       <NavBar />
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
+      <div className="container mx-auto px-4 py-24 max-w-6xl">
         <div className="space-y-8">
           {!debate && <div className="text-center space-y-4 pb-6">
               <div className="flex items-center justify-center gap-3">
