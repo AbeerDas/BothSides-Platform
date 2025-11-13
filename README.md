@@ -1,73 +1,64 @@
-# Welcome to your Lovable project
+# BothSides
 
-## Project info
+BothSides is an interactive debate platform that helps users explore both sides of any argument. You type in a statement or opinion, and the app generates structured arguments for and against it — complete with evidence and threaded refutations that evolve naturally like a real debate.
 
-**URL**: https://lovable.dev/projects/7383d509-fa64-4a9e-98b3-8429c623fea9
+The goal is to make critical thinking and discussion more interactive, transparent, and engaging.
 
-## How can I edit this code?
+Link: [Website](https://dialectic.lovable.app/)
 
-There are several ways of editing your application.
+<img width="1462" height="832" alt="Screenshot 2025-11-13 at 4 40 26 PM" src="https://github.com/user-attachments/assets/c3e6154f-c44f-4b1c-8932-61e79256401b" />
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7383d509-fa64-4a9e-98b3-8429c623fea9) and start prompting.
+## Features
 
-Changes made via Lovable will be committed automatically to this repo.
+### Debate Generation
+Enter any statement — from political topics to light takes like *“Michael Jordan > LeBron.”*  
+Dialectic analyzes sources and generates a balanced debate between opposing sides.
 
-**Use your preferred IDE**
+### Perspective Selector
+Choose a specific perspective (political, ethical, economic, etc.) to shape how the debate is framed.  
+The dropdown sits beside the “Generate Debate” button on desktop, and stacks cleanly on mobile.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Threaded Refutations
+Each argument can be refuted multiple times, forming a logical chain of responses.  
+This keeps the debate flowing as long as needed, like an interactive back-and-forth discussion.
+<img width="1462" height="832" alt="Screenshot 2025-11-13 at 4 42 24 PM" src="https://github.com/user-attachments/assets/a91f735a-f9ae-4bd7-a920-95c2dd30f304" />
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Evidence Expansion
+Additional evidence appears as an inline expansion within the same container rather than a new thread.  
+This keeps the layout clean and focused on clarity.
 
-Follow these steps:
+### Add Arguments
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Each side has an **“Add Argument”** button at the bottom.  
+New arguments dynamically appear and push existing content down, keeping structure intact.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Account System
+You can use BothSides with or without signing in.
 
-# Step 3: Install the necessary dependencies.
-npm i
+Logging in unlocks two extra features in the top navigation:
+- **Recent Logs:** personal list of your past debates  
+- **Public Debates:** a shared space showing all debates from every user
+<img width="1462" height="832" alt="Screenshot 2025-11-13 at 4 46 51 PM" src="https://github.com/user-attachments/assets/aa838e5b-e115-4557-aac6-797218c6e059" />
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Each debate has a unique URL and is stored as JSON with its arguments, evidence, and refutations.  
+Anonymous debates still appear publicly, but without a linked account.
+
+---
+
+## Coming Next
+- Real-time debate mode for collaborative arguing  
+- Upvote and comment system for public debates  
+- Debate summarization and takeaway highlights  
+- Tags, filters, and search in the public feed  
+- Dark mode support  
+
+---
+
+## Getting Started
+
+Clone the repo and install dependencies:
+```bash
+npm install
 npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/7383d509-fa64-4a9e-98b3-8429c623fea9) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
