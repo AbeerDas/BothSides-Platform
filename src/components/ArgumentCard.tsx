@@ -75,8 +75,7 @@ export const ArgumentCard = ({
           </div>
 
           {!isMinimized && <div className="pt-4 border-t border-border">
-              <Button variant="outline" size="sm" onClick={handleRefute} disabled={isRefuting} className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200">
-                <MessageSquare className="h-4 w-4" />
+              <Button variant="outline" size="sm" onClick={handleRefute} disabled={isRefuting} className="gap-2 whitespace-nowrap font-sans text-xs uppercase tracking-wider transition-all duration-200">Click here for Comeback<MessageSquare className="h-4 w-4" />
                 Refute
               </Button>
             </div>}
