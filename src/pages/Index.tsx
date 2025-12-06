@@ -247,7 +247,7 @@ const Index = () => {
                 </div>
 
                 {/* Decorative divider */}
-                <div className="flex items-center justify-center text-greek-gold/40 gap-[8px]">
+                <div className="flex items-center justify-center text-greek-gold/40 gap-[12px]">
                   <div className="h-px w-20 bg-gradient-to-r from-transparent to-greek-gold/40" />
                   <span className="text-lg">⟢</span>
                   <span className="text-sm font-serif italic text-muted-foreground">Know Thyself</span>
