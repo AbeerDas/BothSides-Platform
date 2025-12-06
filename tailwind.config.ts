@@ -65,6 +65,12 @@ export default {
           accent: "hsl(var(--against-accent))",
           hover: "hsl(var(--against-hover))",
         },
+        greek: {
+          gold: "hsl(var(--greek-gold))",
+          olive: "hsl(var(--greek-olive))",
+          terracotta: "hsl(var(--greek-terracotta))",
+          marble: "hsl(var(--greek-marble))",
+        },
       },
       borderRadius: {
         lg: "0",
@@ -88,6 +94,22 @@ export default {
             height: "0",
           },
         },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0) rotate(0deg)",
+          },
+          "50%": {
+            transform: "translateY(-5px) rotate(1deg)",
+          },
+        },
+        "pulse-glow": {
+          "0%, 100%": {
+            opacity: "0.4",
+          },
+          "50%": {
+            opacity: "0.8",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -97,6 +119,8 @@ export default {
         "fade-in-delay-1": "stagger-fade-in 0.5s ease-out 0.1s forwards",
         "fade-in-delay-2": "stagger-fade-in 0.5s ease-out 0.2s forwards",
         "fade-in-delay-3": "stagger-fade-in 0.5s ease-out 0.3s forwards",
+        "float": "float 3s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
       },
     },
   },
