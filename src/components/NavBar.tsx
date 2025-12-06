@@ -39,7 +39,7 @@ export const NavBar = () => {
               <Scale className="h-7 w-7 text-greek-gold" />
               <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-6 h-px bg-gradient-to-r from-transparent via-greek-gold/50 to-transparent" />
             </div>
-            <h1 className="font-serif font-bold text-2xl text-foreground">
+            <h1 className="font-serif font-bold text-2xl text-foreground tracking">
               BothSides
             </h1>
           </button>
