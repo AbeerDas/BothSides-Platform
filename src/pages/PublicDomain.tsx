@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { NavBar } from "@/components/NavBar";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
+import { Search } from "lucide-react";
+
 interface Debate {
   id: string;
   slug: string;
@@ -13,13 +16,17 @@ interface Debate {
     username: string | null;
   } | null;
 }
+
 export default function PublicDomain() {
   const [debates, setDebates] = useState<Debate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+
   useEffect(() => {
     loadDebates();
   }, []);
+
   const loadDebates = async () => {
     try {
       const {
@@ -50,7 +57,13 @@ export default function PublicDomain() {
       setLoading(false);
     }
   };
-  return <div className="min-h-screen bg-background">
+
+  const filteredDebates = debates.filter(debate =>
+    debate.statement.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-background">
       <NavBar />
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="space-y-8">
@@ -61,10 +74,26 @@ export default function PublicDomain() {
             </p>
           </div>
 
-          {loading ? <div className="text-center text-muted-foreground">Loading debates...</div> : debates.length === 0 ? <div className="text-center text-muted-foreground">
-              No debates yet. Be the first to create one!
-            </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {debates.map(debate => <Card key={debate.id} className="p-6 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/debate/${debate.slug}`)}>
+          <div className="relative max-w-md mx-auto">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search debates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {loading ? (
+            <div className="text-center text-muted-foreground">Loading debates...</div>
+          ) : filteredDebates.length === 0 ? (
+            <div className="text-center text-muted-foreground">
+              {searchQuery ? "No debates match your search." : "No debates yet. Be the first to create one!"}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredDebates.map(debate => (
+                <Card key={debate.id} className="p-6 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate(`/debate/${debate.slug}`)}>
                   <div className="space-y-3">
                     <h3 className="font-serif font-semibold text-lg line-clamp-3">
                       {debate.statement}
@@ -75,14 +104,17 @@ export default function PublicDomain() {
                       </p>
                       <p>
                         {formatDistanceToNow(new Date(debate.created_at), {
-                    addSuffix: true
-                  })}
+                          addSuffix: true
+                        })}
                       </p>
                     </div>
                   </div>
-                </Card>)}
-            </div>}
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </div>;
+    </div>
+  );
 }

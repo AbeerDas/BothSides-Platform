@@ -48,7 +48,7 @@ export const NavBar = () => {
               <Scale className="h-7 w-7 text-greek-gold" />
               <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-6 h-px bg-gradient-to-r from-transparent via-greek-gold/50 to-transparent" />
             </div>
-            <h1 className="font-serif font-bold text-2xl text-foreground tracking-tight">
+            <h1 className="font-serif font-bold text-2xl text-foreground tracking-widest">
               BothSides
             </h1>
           </button>
@@ -59,7 +59,7 @@ export const NavBar = () => {
             <Button 
               variant="ghost" 
               onClick={() => navigate("/public")} 
-              className="text-sm font-serif hover:bg-accent"
+              className="text-sm text-sky-600 hover:text-sky-700 hover:bg-transparent hover:underline"
             >
               Public Debates
             </Button>
@@ -68,7 +68,7 @@ export const NavBar = () => {
               <Button 
                 variant="ghost" 
                 onClick={handleSignOut} 
-                className="text-sm text-sky-700 hover:text-sky-800 hover:bg-sky-50"
+                className="text-sm text-sky-600 hover:text-sky-700 hover:bg-transparent hover:underline"
               >
                 Sign Out
               </Button>
@@ -76,7 +76,7 @@ export const NavBar = () => {
               <Button 
                 variant="ghost" 
                 onClick={() => navigate("/auth")} 
-                className="text-sm text-sky-600 hover:text-sky-700 hover:bg-sky-50"
+                className="text-sm text-sky-600 hover:text-sky-700 hover:bg-transparent hover:underline"
               >
                 Sign In
               </Button>
