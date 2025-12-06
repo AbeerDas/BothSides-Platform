@@ -222,7 +222,7 @@ const Index = () => {
   }
   return <div className="min-h-screen bg-background">
       <NavBar />
-      <div className="container mx-auto px-4 py-16 max-w-6xl">
+      <div className="container mx-auto py-16 max-w-6xl px-[48px]">
         <div className="space-y-16">
           {!debate && <>
               {/* Hero Section with Greek Theme */}
