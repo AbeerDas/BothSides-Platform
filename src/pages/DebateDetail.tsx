@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { NavBar } from "@/components/NavBar";
 import { DebateView } from "@/components/DebateView";
+import { toast } from "sonner";
 
 interface Source {
   title: string;
@@ -29,6 +30,7 @@ export default function DebateDetail() {
   const navigate = useNavigate();
   const [debate, setDebate] = useState<DebateData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRefuting, setIsRefuting] = useState(false);
 
   useEffect(() => {
     loadDebate();
@@ -66,7 +68,7 @@ export default function DebateDetail() {
       <div className="min-h-screen bg-background">
         <NavBar />
         <div className="flex items-center justify-center min-h-[50vh]">
-          <p className="text-muted-foreground">Loading debate...</p>
+          <p className="text-muted-foreground font-serif">Loading debate...</p>
         </div>
       </div>
     );
@@ -77,17 +79,19 @@ export default function DebateDetail() {
       <div className="min-h-screen bg-background">
         <NavBar />
         <div className="flex items-center justify-center min-h-[50vh]">
-          <p className="text-muted-foreground">Debate not found</p>
+          <p className="text-muted-foreground font-serif">Debate not found</p>
         </div>
       </div>
     );
   }
 
   const handleRefute = async (side: "for" | "against", path: number[]) => {
-    if (!slug || !debate) return;
+    if (!slug || !debate || isRefuting) return;
+    
+    setIsRefuting(true);
     
     try {
-      // Generate refutation
+      // Get the target argument to refute
       const targetArguments = side === "for" ? debate.argumentsFor : debate.argumentsAgainst;
       let targetArg: any = targetArguments[path[0]];
       
@@ -95,32 +99,44 @@ export default function DebateDetail() {
         targetArg = targetArg.refutations?.[path[i]];
       }
 
+      if (!targetArg) {
+        throw new Error("Target argument not found");
+      }
+
+      // Generate refutation using the correct API format
       const { data: refutationData, error: refutationError } = await supabase.functions.invoke(
         "generate-arguments",
         {
           body: {
             statement: debate.statement,
-            side: side === "for" ? "against" : "for",
-            context: targetArg.text,
-            count: 1,
+            type: "refute",
+            parentArgument: targetArg.text,
+            targetSide: side === "for" ? "against" : "for"
           },
         }
       );
 
       if (refutationError) throw refutationError;
 
-      // Update debate with new refutation
-      const newRefutation = refutationData.arguments[0];
-      const updatedDebate = { ...debate };
+      // Create a deep copy of the debate
+      const updatedDebate = JSON.parse(JSON.stringify(debate));
       const targetSide = side === "for" ? updatedDebate.argumentsFor : updatedDebate.argumentsAgainst;
       
+      // Navigate to the correct argument
       let current: any = targetSide[path[0]];
       for (let i = 1; i < path.length; i++) {
         current = current.refutations[path[i]];
       }
       
+      // Add the refutation
       if (!current.refutations) current.refutations = [];
-      current.refutations.push(newRefutation);
+      current.refutations.push({
+        title: refutationData.title,
+        subheading: refutationData.subheading,
+        text: refutationData.text,
+        sources: refutationData.sources,
+        refutations: []
+      });
 
       // Save to database
       const { error: updateError } = await supabase
@@ -137,13 +153,17 @@ export default function DebateDetail() {
 
       // Update local state
       setDebate(updatedDebate);
-    } catch (error) {
+      toast.success("Refutation added successfully!");
+    } catch (error: any) {
       console.error("Error adding refutation:", error);
+      toast.error(error.message || "Failed to generate refutation. Please try again.");
+    } finally {
+      setIsRefuting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background greek-pattern">
       <NavBar />
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <DebateView
