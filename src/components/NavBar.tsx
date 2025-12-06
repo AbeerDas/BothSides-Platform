@@ -53,7 +53,7 @@ export const NavBar = () => {
 
             {user ? <Button variant="ghost" onClick={handleSignOut} className="text-sm text-sky-600 hover:text-sky-700 hover:bg-transparent hover:underline">
                 Sign Out
-              </Button> : <Button variant="ghost" onClick={() => navigate("/auth")} className="text-sm text-sky-600 hover:text-sky-700 hover:bg-transparent hover:underline">
+              </Button> : <Button variant="ghost" onClick={() => navigate("/auth")} className="text-sm hover:bg-transparent hover:underline text-amber-800">
                 Sign In
               </Button>}
           </div>

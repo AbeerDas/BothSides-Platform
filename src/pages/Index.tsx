@@ -12,12 +12,10 @@ import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
-
 interface Source {
   title: string;
   url: string;
 }
-
 interface Argument {
   title?: string;
   subheading?: string;
@@ -25,14 +23,12 @@ interface Argument {
   sources: Source[];
   refutations?: Argument[];
 }
-
 interface DebateData {
   statement: string;
   summary: string;
   argumentsFor: Argument[];
   argumentsAgainst: Argument[];
 }
-
 interface PublicDebate {
   id: string;
   slug: string;
@@ -41,7 +37,6 @@ interface PublicDebate {
   user_id: string | null;
   username?: string;
 }
-
 const Index = () => {
   const [statement, setStatement] = useState("");
   const [debate, setDebate] = useState<DebateData | null>(null);
@@ -53,43 +48,44 @@ const Index = () => {
   const [user, setUser] = useState<any>(null);
   const [publicDebates, setPublicDebates] = useState<PublicDebate[]>([]);
   const navigate = useNavigate();
-
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
       setUser(session?.user ?? null);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ?? null);
     });
 
     // Load public debates for the landing page
     loadPublicDebates();
-
     return () => subscription.unsubscribe();
   }, []);
-
   const loadPublicDebates = async () => {
     try {
-      const { data: debates, error } = await supabase
-        .from("debates")
-        .select("id, slug, statement, created_at, user_id")
-        .eq("is_public", true)
-        .order("created_at", { ascending: false })
-        .limit(6);
-
+      const {
+        data: debates,
+        error
+      } = await supabase.from("debates").select("id, slug, statement, created_at, user_id").eq("is_public", true).order("created_at", {
+        ascending: false
+      }).limit(6);
       if (error) throw error;
 
       // Fetch usernames for debates with user_ids
       const userIds = debates?.filter(d => d.user_id).map(d => d.user_id) || [];
       const uniqueUserIds = [...new Set(userIds)];
-
       let usernameMap: Record<string, string> = {};
       if (uniqueUserIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("id, username")
-          .in("id", uniqueUserIds);
-
+        const {
+          data: profiles
+        } = await supabase.from("profiles").select("id, username").in("id", uniqueUserIds);
         if (profiles) {
           usernameMap = profiles.reduce((acc, p) => {
             acc[p.id] = p.username || "Anonymous";
@@ -97,23 +93,23 @@ const Index = () => {
           }, {} as Record<string, string>);
         }
       }
-
       const debatesWithUsernames = debates?.map(d => ({
         ...d,
         username: d.user_id ? usernameMap[d.user_id] || "Anonymous" : "Anonymous"
       })) || [];
-
       setPublicDebates(debatesWithUsernames);
     } catch (error) {
       console.error("Error loading public debates:", error);
     }
   };
-
   const generateInitialArguments = async () => {
     if (!statement.trim()) return;
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-arguments', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('generate-arguments', {
         body: {
           statement,
           type: 'initial',
@@ -131,7 +127,9 @@ const Index = () => {
 
       // Save to database
       const slug = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const { error: saveError } = await supabase.from('debates').insert({
+      const {
+        error: saveError
+      } = await supabase.from('debates').insert({
         slug,
         statement,
         summary: data.summary,
@@ -154,7 +152,6 @@ const Index = () => {
       setIsGenerating(false);
     }
   };
-
   const handleRefute = async (side: "for" | "against", path: number[]) => {
     if (!debate) return;
     setIsLoading(true);
@@ -163,7 +160,10 @@ const Index = () => {
       for (let i = 1; i < path.length; i++) {
         current = current.refutations![path[i]];
       }
-      const { data, error } = await supabase.functions.invoke('generate-arguments', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('generate-arguments', {
         body: {
           statement: debate.statement,
           type: 'refute',
@@ -191,16 +191,14 @@ const Index = () => {
 
       // Save the updated debate to database
       if (currentDebateSlug) {
-        const { error: updateError } = await supabase
-          .from('debates')
-          .update({
-            arguments_data: {
-              for: newDebate.argumentsFor,
-              against: newDebate.argumentsAgainst,
-            } as any,
-          })
-          .eq("slug", currentDebateSlug);
-
+        const {
+          error: updateError
+        } = await supabase.from('debates').update({
+          arguments_data: {
+            for: newDebate.argumentsFor,
+            against: newDebate.argumentsAgainst
+          } as any
+        }).eq("slug", currentDebateSlug);
         if (updateError) {
           console.error('Error saving refutation:', updateError);
         }
@@ -212,7 +210,6 @@ const Index = () => {
       setIsLoading(false);
     }
   };
-
   const resetDebate = () => {
     setDebate(null);
     setStatement("");
@@ -220,18 +217,14 @@ const Index = () => {
     setIsGenerating(false);
     setCurrentDebateSlug(null);
   };
-
   if (isGenerating) {
     return <LoadingScreen />;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <NavBar />
       <div className="container mx-auto px-4 py-16 max-w-6xl">
         <div className="space-y-16">
-          {!debate && (
-            <>
+          {!debate && <>
               {/* Hero Section with Greek Theme */}
               <div className="text-center space-y-8 pb-8 animate-fade-in">
                 <div className="relative inline-block">
@@ -274,12 +267,7 @@ const Index = () => {
                     <p className="text-sm font-body text-muted-foreground">
                       State any opinion or claim you'd like to explore from multiple angles
                     </p>
-                    <Textarea 
-                      value={statement} 
-                      onChange={e => setStatement(e.target.value)} 
-                      placeholder="Universal Basic Income should be mandatory, Michael Jordan > Lebron, Stoicism is the best philosophy for modern life..." 
-                      className="min-h-[120px] font-body text-base resize-none bg-background border-border focus:border-greek-gold/50" 
-                    />
+                    <Textarea value={statement} onChange={e => setStatement(e.target.value)} placeholder="Universal Basic Income should be mandatory, Michael Jordan > Lebron, Stoicism is the best philosophy for modern life..." className="min-h-[120px] font-body text-base resize-none bg-background border-border focus:border-greek-gold/50" />
                   </div>
 
                   <div className="mt-6">
@@ -301,12 +289,7 @@ const Index = () => {
                         <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
                       </div>
                       
-                      <Button 
-                        onClick={generateInitialArguments} 
-                        disabled={!statement.trim()} 
-                        className="font-sans text-sm uppercase tracking-wider bg-sky-700 hover:bg-sky-800 text-white md:min-w-[180px] shadow-elegant" 
-                        size="lg"
-                      >
+                      <Button onClick={generateInitialArguments} disabled={!statement.trim()} size="lg" className="font-sans text-sm uppercase tracking-wider text-white md:min-w-[180px] shadow-elegant bg-amber-800 hover:bg-amber-700">
                         Generate
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
@@ -316,8 +299,7 @@ const Index = () => {
               </div>
 
               {/* Public Debates Section */}
-              {publicDebates.length > 0 && (
-                <div className="space-y-6 animate-fade-in pt-8">
+              {publicDebates.length > 0 && <div className="space-y-6 animate-fade-in pt-8">
                   <div className="flex items-center justify-between">
                     <div className="space-y-2">
                       <h2 className="font-serif text-2xl font-bold text-foreground flex items-center gap-2">
@@ -328,36 +310,27 @@ const Index = () => {
                         Explore discussions from the community
                       </p>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => navigate("/public")}
-                      className="font-sans text-xs uppercase tracking-wider hover:bg-accent"
-                    >
+                    <Button variant="outline" onClick={() => navigate("/public")} className="font-sans text-xs uppercase tracking-wider hover:bg-accent">
                       View All
                     </Button>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {publicDebates.map((debate) => (
-                      <Card 
-                        key={debate.id}
-                        className="p-5 bg-card border border-border hover:shadow-panel transition-all duration-300 cursor-pointer group"
-                        onClick={() => navigate(`/debate/${debate.slug}`)}
-                      >
+                    {publicDebates.map(debate => <Card key={debate.id} className="p-5 bg-card border border-border hover:shadow-panel transition-all duration-300 cursor-pointer group" onClick={() => navigate(`/debate/${debate.slug}`)}>
                         <div className="space-y-3">
                           <h3 className="font-serif font-semibold text-foreground line-clamp-2 group-hover:text-greek-gold transition-colors">
                             {debate.statement}
                           </h3>
                           <div className="flex items-center justify-between text-xs text-muted-foreground font-body">
                             <span>{debate.username}</span>
-                            <span>{formatDistanceToNow(new Date(debate.created_at), { addSuffix: true })}</span>
+                            <span>{formatDistanceToNow(new Date(debate.created_at), {
+                        addSuffix: true
+                      })}</span>
                           </div>
                         </div>
-                      </Card>
-                    ))}
+                      </Card>)}
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Philosophy Quote Footer */}
               <div className="text-center pt-8 border-t border-border/50">
@@ -365,64 +338,54 @@ const Index = () => {
                   "It is the mark of an educated mind to be able to entertain a thought without accepting it." — Aristotle
                 </p>
               </div>
-            </>
-          )}
+            </>}
 
-          {debate && (
-            <div className="animate-fade-in">
-              <DebateView 
-                debate={debate} 
-                onRefute={handleRefute} 
-                onReset={resetDebate} 
-                onAddArgument={async (side: "for" | "against") => {
-                  setAddingArgumentSide(side);
-                  try {
-                    const { data, error } = await supabase.functions.invoke('generate-arguments', {
-                      body: {
-                        statement: debate.statement,
-                        type: 'add-argument',
-                        side,
-                        existingArguments: side === 'for' ? debate.argumentsFor : debate.argumentsAgainst
-                      }
-                    });
-                    if (error) throw error;
-                    const newArgument = data;
-                    const updatedDebate = {
-                      ...debate,
-                      ...(side === 'for' 
-                        ? { argumentsFor: [...debate.argumentsFor, newArgument] } 
-                        : { argumentsAgainst: [...debate.argumentsAgainst, newArgument] }
-                      )
-                    };
-                    setDebate(updatedDebate);
+          {debate && <div className="animate-fade-in">
+              <DebateView debate={debate} onRefute={handleRefute} onReset={resetDebate} onAddArgument={async (side: "for" | "against") => {
+            setAddingArgumentSide(side);
+            try {
+              const {
+                data,
+                error
+              } = await supabase.functions.invoke('generate-arguments', {
+                body: {
+                  statement: debate.statement,
+                  type: 'add-argument',
+                  side,
+                  existingArguments: side === 'for' ? debate.argumentsFor : debate.argumentsAgainst
+                }
+              });
+              if (error) throw error;
+              const newArgument = data;
+              const updatedDebate = {
+                ...debate,
+                ...(side === 'for' ? {
+                  argumentsFor: [...debate.argumentsFor, newArgument]
+                } : {
+                  argumentsAgainst: [...debate.argumentsAgainst, newArgument]
+                })
+              };
+              setDebate(updatedDebate);
 
-                    // Save to database
-                    if (currentDebateSlug) {
-                      await supabase
-                        .from('debates')
-                        .update({
-                          arguments_data: {
-                            for: updatedDebate.argumentsFor,
-                            against: updatedDebate.argumentsAgainst,
-                          } as any,
-                        })
-                        .eq("slug", currentDebateSlug);
-                    }
-                  } catch (error: any) {
-                    console.error('Error:', error);
-                    toast.error("Failed to add argument");
-                  } finally {
-                    setAddingArgumentSide(null);
-                  }
-                }} 
-                addingArgumentSide={addingArgumentSide} 
-              />
-            </div>
-          )}
+              // Save to database
+              if (currentDebateSlug) {
+                await supabase.from('debates').update({
+                  arguments_data: {
+                    for: updatedDebate.argumentsFor,
+                    against: updatedDebate.argumentsAgainst
+                  } as any
+                }).eq("slug", currentDebateSlug);
+              }
+            } catch (error: any) {
+              console.error('Error:', error);
+              toast.error("Failed to add argument");
+            } finally {
+              setAddingArgumentSide(null);
+            }
+          }} addingArgumentSide={addingArgumentSide} />
+            </div>}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
