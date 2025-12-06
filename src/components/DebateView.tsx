@@ -108,7 +108,7 @@ export const DebateView = ({
               <Download className="h-4 w-4" />
               Export PDF
             </Button>
-            <Button variant="outline" size="sm" onClick={onReset} className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 bg-sky-700 hover:bg-sky-800 text-white hover:text-white border-sky-700 w-full sm:w-auto">
+            <Button variant="outline" size="sm" onClick={onReset} className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 text-white hover:text-white border-sky-700 w-full sm:w-auto bg-amber-800 hover:bg-amber-700">
               <RotateCcw className="h-4 w-4" />
               New Debate
             </Button>
