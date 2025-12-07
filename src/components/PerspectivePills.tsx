@@ -1,55 +1,31 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Dices } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
-const PRESET_PERSPECTIVES = [
+const RANDOM_PERSPECTIVES = [
   "Economist",
-  "Libertarian",
-  "Socialist",
-  "Conservative",
-  "Progressive",
-  "Climate Scientist",
   "Philosopher",
   "Ethicist",
-  "Political Strategist",
-  "Tech Ethicist",
-  "Public Health Expert",
-  "Constitutional Scholar",
-  "Social Justice Advocate",
-  "Business Leader",
-  "Environmental Activist",
-  "Civil Rights Attorney",
-  "Data Scientist",
-  "Education Reformer",
-  "Foreign Policy Analyst",
-  "Military Strategist",
-  "National Security Expert",
   "Historian",
-  "Journalist",
-  "Investigative Reporter",
-  "Medical Professional",
-  "Religious Scholar",
-  "Theologian",
-  "Urban Planner",
-  "Architect",
   "Psychologist",
   "Sociologist",
+  "Climate Scientist",
+  "Tech Ethicist",
+  "Constitutional Scholar",
+  "Medical Professional",
+  "Urban Planner",
   "Anthropologist",
+  "Data Scientist",
   "Legal Scholar",
-  "Human Rights Advocate",
-  "Trade Unionist",
+  "Theologian",
+  "Military Strategist",
   "Entrepreneur",
-  "Venture Capitalist",
-  "Statistician",
   "Epidemiologist",
+  "Journalist",
+  "Human Rights Advocate",
 ];
 
 interface PerspectivePillsProps {
@@ -58,24 +34,21 @@ interface PerspectivePillsProps {
 }
 
 export const PerspectivePills = ({ perspectives, onChange }: PerspectivePillsProps) => {
-  const [customPerspective, setCustomPerspective] = useState("");
-  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const addPerspective = (perspective: string) => {
-    if (perspective === "other") {
-      setShowCustomInput(true);
-      return;
-    }
-    if (!perspectives.includes(perspective)) {
-      onChange([...perspectives, perspective]);
+  const addPerspective = () => {
+    const trimmed = inputValue.trim();
+    if (trimmed && !perspectives.includes(trimmed)) {
+      onChange([...perspectives, trimmed]);
+      setInputValue("");
     }
   };
 
-  const addCustomPerspective = () => {
-    if (customPerspective.trim() && !perspectives.includes(customPerspective.trim())) {
-      onChange([...perspectives, customPerspective.trim()]);
-      setCustomPerspective("");
-      setShowCustomInput(false);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addPerspective();
     }
   };
 
@@ -83,53 +56,74 @@ export const PerspectivePills = ({ perspectives, onChange }: PerspectivePillsPro
     onChange(perspectives.filter((p) => p !== perspective));
   };
 
+  const addRandomPerspective = async () => {
+    setIsGenerating(true);
+    try {
+      // Try to get AI-generated perspective
+      const { data, error } = await supabase.functions.invoke("generate-arguments", {
+        body: {
+          type: "random-perspective",
+          existingPerspectives: perspectives,
+        },
+      });
+
+      if (error || data?.error) {
+        // Fallback to local random selection
+        const available = RANDOM_PERSPECTIVES.filter(p => !perspectives.includes(p));
+        if (available.length === 0) {
+          toast.info("All common perspectives already added");
+          return;
+        }
+        const randomPerspective = available[Math.floor(Math.random() * available.length)];
+        onChange([...perspectives, randomPerspective]);
+      } else if (data?.perspective) {
+        if (!perspectives.includes(data.perspective)) {
+          onChange([...perspectives, data.perspective]);
+        }
+      }
+    } catch {
+      // Fallback to local random selection
+      const available = RANDOM_PERSPECTIVES.filter(p => !perspectives.includes(p));
+      if (available.length > 0) {
+        const randomPerspective = available[Math.floor(Math.random() * available.length)];
+        onChange([...perspectives, randomPerspective]);
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Select onValueChange={addPerspective}>
-          <SelectTrigger className="w-[280px] font-sans border-2">
-            <SelectValue placeholder="Add perspective..." />
-          </SelectTrigger>
-          <SelectContent>
-            {PRESET_PERSPECTIVES.map((p) => (
-              <SelectItem key={p} value={p} disabled={perspectives.includes(p)} className="font-sans">
-                {p}
-              </SelectItem>
-            ))}
-            <SelectItem value="other" className="font-sans">Other (custom)...</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {showCustomInput && (
-          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-300">
-            <Input
-              placeholder="Enter custom perspective..."
-              value={customPerspective}
-              onChange={(e) => setCustomPerspective(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addCustomPerspective()}
-              className="w-[200px] font-sans border-2"
-            />
-            <Button
-              size="sm"
-              onClick={addCustomPerspective}
-              disabled={!customPerspective.trim()}
-              className="font-sans text-xs uppercase tracking-wider"
-            >
-              Add
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setShowCustomInput(false);
-                setCustomPerspective("");
-              }}
-              className="font-sans text-xs uppercase tracking-wider"
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="flex-1 flex gap-2">
+          <Input
+            placeholder="Add a perspective (e.g., Economist, Philosopher)..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1 font-sans border-2"
+          />
+          <Button
+            size="sm"
+            onClick={addPerspective}
+            disabled={!inputValue.trim()}
+            className="font-sans text-xs uppercase tracking-wider whitespace-nowrap"
+          >
+            Add
+          </Button>
+        </div>
+        
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={addRandomPerspective}
+          disabled={isGenerating}
+          className="font-sans text-xs uppercase tracking-wider gap-2 whitespace-nowrap"
+        >
+          <Dices className="h-4 w-4" />
+          {isGenerating ? "..." : "Random"}
+        </Button>
       </div>
 
       {perspectives.length > 0 && (
@@ -137,7 +131,7 @@ export const PerspectivePills = ({ perspectives, onChange }: PerspectivePillsPro
           {perspectives.map((perspective) => (
             <div
               key={perspective}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-foreground text-sm font-sans border border-border animate-in fade-in duration-200 hover:bg-muted transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary text-foreground text-sm font-sans border border-border animate-in fade-in duration-200 hover:bg-muted transition-colors rounded-sm"
             >
               <span>{perspective}</span>
               <button
