@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { statement, type, parentArgument, perspectives, targetSide, side, existingArguments } = await req.json();
+    const { statement, type, parentArgument, perspectives, targetSide, side, existingArguments, existingPerspectives } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -20,6 +20,147 @@ serve(async (req) => {
     }
 
     console.log(`Generating ${type} for statement:`, statement);
+
+    // Handle random perspective generation
+    if (type === "random-perspective") {
+      const existingList = existingPerspectives?.join(", ") || "";
+      
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { 
+              role: "system", 
+              content: "You generate unique and interesting perspectives for debate analysis. Return a single perspective name (1-3 words) that would provide valuable insight into any topic." 
+            },
+            { 
+              role: "user", 
+              content: `Generate ONE unique perspective/lens for analyzing debates. ${existingList ? `Avoid these already used: ${existingList}` : ''} Be creative and think of interesting viewpoints like "Game Theorist", "Futurist", "Devil's Advocate", "Utilitarian", etc.` 
+            }
+          ],
+          tools: [{
+            type: "function",
+            function: {
+              name: "return_perspective",
+              description: "Return a single perspective name",
+              parameters: {
+                type: "object",
+                properties: {
+                  perspective: { type: "string" }
+                },
+                required: ["perspective"]
+              }
+            }
+          }],
+          tool_choice: { type: "function", function: { name: "return_perspective" } }
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate perspective");
+      }
+
+      const data = await response.json();
+      const toolCall = data.choices[0].message.tool_calls?.[0];
+      if (toolCall) {
+        const parsed = JSON.parse(toolCall.function.arguments);
+        return new Response(
+          JSON.stringify({ perspective: parsed.perspective }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      throw new Error("Invalid response");
+    }
+
+    // Handle lens generation
+    if (type === "generate-lenses") {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { 
+              role: "system", 
+              content: "You generate interesting and relevant perspectives/lenses for analyzing debate topics. Each lens should offer a unique viewpoint that would reveal different aspects of the argument." 
+            },
+            { 
+              role: "user", 
+              content: `For the statement: "${statement}"
+              
+Generate 5 interesting and relevant lenses/perspectives to analyze this topic. Each should be 2-4 words and represent a distinct analytical framework or expert viewpoint.
+
+Examples of good lenses: "Economic Analysis", "Ethical Framework", "Historical Precedent", "Environmental Impact", "Social Justice Lens", "Technological Perspective", "Legal Framework", "Psychological Impact", "Cultural Analysis", "Long-term Consequences"` 
+            }
+          ],
+          tools: [{
+            type: "function",
+            function: {
+              name: "return_lenses",
+              description: "Return 5 analytical lenses",
+              parameters: {
+                type: "object",
+                properties: {
+                  lenses: { 
+                    type: "array",
+                    items: { type: "string" },
+                    minItems: 5,
+                    maxItems: 5
+                  }
+                },
+                required: ["lenses"]
+              }
+            }
+          }],
+          tool_choice: { type: "function", function: { name: "return_lenses" } }
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to generate lenses:", await response.text());
+        // Return default lenses on error
+        return new Response(
+          JSON.stringify({ lenses: [
+            "Economic Analysis",
+            "Ethical Framework", 
+            "Historical Precedent",
+            "Social Impact",
+            "Long-term Consequences"
+          ]}),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const data = await response.json();
+      const toolCall = data.choices[0].message.tool_calls?.[0];
+      if (toolCall) {
+        const parsed = JSON.parse(toolCall.function.arguments);
+        return new Response(
+          JSON.stringify({ lenses: parsed.lenses }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      // Fallback
+      return new Response(
+        JSON.stringify({ lenses: [
+          "Economic Analysis",
+          "Ethical Framework", 
+          "Historical Precedent",
+          "Social Impact",
+          "Long-term Consequences"
+        ]}),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     let systemPrompt = "";
     let userPrompt = "";
