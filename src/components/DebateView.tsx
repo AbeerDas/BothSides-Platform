@@ -297,7 +297,7 @@ export const DebateView = ({
               Share
             </Button>
 
-            <Button variant="outline" size="sm" onClick={onReset} className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto text-foreground font-semibold border-greek-gold bg-amber-800 hover:bg-amber-700">
+            <Button variant="outline" size="sm" onClick={onReset} className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto text-foreground font-semibold bg-amber-800 hover:bg-amber-700">
               <RotateCcw className="h-4 w-4" />
               New Debate
             </Button>
