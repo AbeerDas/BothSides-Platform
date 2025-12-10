@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Scale, Menu, X, Sun, Moon, History, Users, LogIn, LogOut } from "lucide-react";
+import { Scale, Menu, Sun, Moon, History, Users, LogIn, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,15 +72,14 @@ export const NavBar = () => {
   );
 
   return (
-    <nav className="border-b border-border bg-card/80 backdrop-blur-sm meander-border">
+    <nav className="border-b border-border bg-card/80 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <button onClick={handleLogoClick} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="relative">
               <Scale className="h-7 w-7 text-greek-gold" />
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-6 h-px bg-gradient-to-r from-transparent via-greek-gold/50 to-transparent" />
             </div>
-            <h1 className="font-serif font-bold text-2xl text-foreground tracking-[0.15em]">
+            <h1 className="font-logo font-semibold text-2xl text-foreground tracking-tight italic">
               BothSides
             </h1>
           </button>
@@ -115,7 +114,7 @@ export const NavBar = () => {
                     {user ? (
                       <button
                         onClick={handleSignOut}
-                        className="flex items-center gap-3 px-4 py-3 text-left font-body text-sm text-sky-600 hover:bg-accent rounded-md transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 text-left font-body text-sm hover:bg-accent rounded-md transition-colors"
                       >
                         <LogOut className="h-5 w-5" />
                         Sign Out
@@ -123,7 +122,7 @@ export const NavBar = () => {
                     ) : (
                       <button
                         onClick={() => handleNavigate("/auth")}
-                        className="flex items-center gap-3 px-4 py-3 text-left font-body text-sm text-sky-600 hover:bg-accent rounded-md transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 text-left font-body text-sm bg-greek-gold text-foreground font-semibold hover:bg-greek-gold/90 rounded-md transition-colors"
                       >
                         <LogIn className="h-5 w-5" />
                         Sign In
@@ -149,15 +148,14 @@ export const NavBar = () => {
                 <Button 
                   variant="ghost" 
                   onClick={handleSignOut} 
-                  className="text-sm font-body text-sky-600 hover:text-sky-700 hover:bg-transparent hover:underline"
+                  className="text-sm font-body hover:bg-transparent hover:underline"
                 >
                   Sign Out
                 </Button>
               ) : (
                 <Button 
-                  variant="ghost" 
                   onClick={() => navigate("/auth")} 
-                  className="text-sm font-body text-sky-600 hover:bg-transparent hover:underline"
+                  className="text-sm font-body bg-greek-gold hover:bg-greek-gold/90 text-foreground font-semibold"
                 >
                   Sign In
                 </Button>

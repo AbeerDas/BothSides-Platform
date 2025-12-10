@@ -7,6 +7,8 @@ import { DebateView } from "@/components/DebateView";
 import { PerspectivePills } from "@/components/PerspectivePills";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { NavBar } from "@/components/NavBar";
+import { PageTransition } from "@/components/PageTransition";
+import { VoteButtons } from "@/components/VoteButtons";
 import { ArrowRight, Scale, Dices } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -36,6 +38,7 @@ interface PublicDebate {
   created_at: string;
   user_id: string | null;
   username?: string;
+  votes: number;
 }
 
 const RANDOM_TOPICS = [
@@ -44,6 +47,47 @@ const RANDOM_TOPICS = [
   "Universal basic income should be implemented",
   "AI will create more jobs than it destroys",
   "College education is overrated",
+  "LeBron James is better than Michael Jordan",
+  "Electric vehicles are better than gas cars",
+  "Cryptocurrency will replace traditional currency",
+  "Space exploration is worth the investment",
+  "Veganism is the most ethical diet choice",
+  "Nuclear energy is the solution to climate change",
+  "Standardized testing should be abolished",
+  "Violent video games cause real-world violence",
+  "Social media influencers have too much power",
+  "Cancel culture has gone too far",
+  "The metaverse will transform how we live",
+  "4-day work weeks should become standard",
+  "Billionaires should not exist",
+  "Privacy is dead in the digital age",
+  "Genetic engineering should be used on humans",
+  "Automation will lead to mass unemployment",
+  "The Olympics should be held in one permanent location",
+  "Zoos are cruel and should be banned",
+  "Homework does more harm than good",
+  "The death penalty should be abolished",
+  "Minimum wage should be $20/hour",
+  "Fast fashion should be banned",
+  "Voting should be mandatory",
+  "Plastic surgery should have age restrictions",
+  "Self-driving cars will never be safe",
+  "Traditional marriage is outdated",
+  "Cursive handwriting should still be taught",
+  "Celebrities should stay out of politics",
+  "NFTs are worthless",
+  "Countries should have open borders",
+  "Philosophy should be taught in elementary school",
+  "Professional athletes are overpaid",
+  "True altruism doesn't exist",
+  "Beauty standards are harmful to society",
+  "College athletes should be paid",
+  "Streaming killed the music industry",
+  "Tipping culture should be abolished",
+  "Democracy is the best form of government",
+  "Free will is an illusion",
+  "Aliens definitely exist",
+  "Art made by AI isn't real art",
 ];
 
 const Index = () => {
@@ -73,7 +117,7 @@ const Index = () => {
     try {
       const { data: debates, error } = await supabase
         .from("debates")
-        .select("id, slug, statement, created_at, user_id")
+        .select("id, slug, statement, created_at, user_id, votes")
         .eq("is_public", true)
         .order("created_at", { ascending: false })
         .limit(6);
@@ -172,6 +216,7 @@ const Index = () => {
     setStatement("");
     setPerspectives([]);
     setCurrentDebateSlug(null);
+    navigate("/");
   };
 
   const handleRandomTopic = () => {
@@ -182,84 +227,96 @@ const Index = () => {
   if (isGenerating) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen bg-background greek-pattern">
-      <NavBar />
-      <div className="container mx-auto py-8 max-w-6xl px-4 md:px-12">
-        <div className="space-y-12">
-          {!debate && (
-            <>
-              <div className="text-center space-y-4 pt-4 animate-fade-in">
-                <Scale className="h-12 w-12 mx-auto text-greek-gold animate-float" strokeWidth={1.5} />
-                <h1 className="font-serif text-3xl md:text-4xl font-bold text-foreground">The Art of Dialectic</h1>
-                <p className="font-body text-base text-muted-foreground max-w-2xl mx-auto">Explore both sides of any argument</p>
-              </div>
-
-              <Card className="p-6 md:p-8 bg-card border border-border pillar-shadow max-w-3xl mx-auto">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-serif font-semibold text-foreground flex items-center gap-2">
-                    <span className="text-greek-gold">⟢</span> What's Your Take?
-                  </h3>
-                  <Textarea value={statement} onChange={e => setStatement(e.target.value)} placeholder="Enter a statement to explore both sides..." className="min-h-[100px] font-body text-base resize-none" />
-                  <Button variant="ghost" size="sm" onClick={handleRandomTopic} className="gap-2 text-muted-foreground">
-                    <Dices className="h-4 w-4" /> Random topic
-                  </Button>
+    <PageTransition>
+      <div className="min-h-screen bg-background greek-pattern">
+        <NavBar />
+        <div className="container mx-auto py-8 max-w-6xl px-4 md:px-12">
+          <div className="space-y-12">
+            {!debate && (
+              <>
+                <div className="text-center space-y-3 pt-2 animate-fade-in">
+                  <Scale className="h-10 w-10 mx-auto text-greek-gold animate-float" strokeWidth={1.5} />
+                  <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground">The Art of Dialectic</h1>
+                  <p className="font-body text-sm text-muted-foreground max-w-xl mx-auto">Explore both sides of any argument</p>
                 </div>
-                <div className="mt-6 space-y-4">
-                  <div>
-                    <label className="text-sm font-serif font-semibold text-foreground mb-2 block">Add Perspectives (Optional)</label>
-                    <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
-                  </div>
-                  <Button onClick={generateInitialArguments} disabled={!statement.trim()} size="lg" className="w-full font-sans text-sm uppercase tracking-wider bg-amber-800 hover:bg-amber-700 text-white">
-                    Generate <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </div>
-              </Card>
 
-              {publicDebates.length > 0 && (
-                <div className="space-y-6 pt-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="font-serif text-xl font-bold text-foreground">Recent Debates in the Agora</h2>
-                    <Button variant="outline" onClick={() => navigate("/public")} className="text-xs uppercase tracking-wider">View All</Button>
+                <Card className="p-6 md:p-8 bg-card border border-border pillar-shadow max-w-3xl mx-auto">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-serif font-semibold text-foreground flex items-center gap-2">
+                      <span className="text-greek-gold">⟢</span> What's Your Take?
+                    </h3>
+                    <Textarea 
+                      value={statement} 
+                      onChange={e => setStatement(e.target.value)} 
+                      placeholder="LeBron is better than Michael Jordan, UBI should be implemented, Electric cars are better than gas cars..." 
+                      className="min-h-[100px] font-body text-base resize-none" 
+                    />
+                    <Button variant="ghost" size="sm" onClick={handleRandomTopic} className="gap-2 text-muted-foreground hover:text-foreground">
+                      <Dices className="h-4 w-4" /> Random topic
+                    </Button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {publicDebates.map(d => (
-                      <Card key={d.id} className="p-4 bg-card border border-border hover:border-greek-gold cursor-pointer group" onClick={() => navigate(`/debate/${d.slug}`)}>
-                        <h3 className="font-serif font-semibold text-foreground line-clamp-2 group-hover:text-greek-gold transition-colors">{d.statement}</h3>
-                        <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
-                          <span>{d.username}</span>
-                          <span>{formatDistanceToNow(new Date(d.created_at), { addSuffix: true })}</span>
-                        </div>
-                      </Card>
-                    ))}
+                  <div className="mt-6 space-y-4">
+                    <div>
+                      <label className="text-sm font-serif font-semibold text-foreground mb-2 block">Add Perspectives (Optional)</label>
+                      <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
+                    </div>
+                    <Button onClick={generateInitialArguments} disabled={!statement.trim()} size="lg" className="w-full font-sans text-sm uppercase tracking-wider bg-greek-gold hover:bg-greek-gold/90 text-foreground font-semibold">
+                      Generate <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
                   </div>
-                </div>
-              )}
-            </>
-          )}
+                </Card>
 
-          {debate && (
-            <DebateView debate={debate} onRefute={handleRefute} onReset={resetDebate} onAddArgument={async (side) => {
-              setAddingArgumentSide(side);
-              try {
-                const { data, error } = await supabase.functions.invoke('generate-arguments', {
-                  body: { statement: debate.statement, type: 'add-argument', side, existingArguments: side === 'for' ? debate.argumentsFor : debate.argumentsAgainst }
-                });
-                if (error) throw error;
-                const updatedDebate = { ...debate, ...(side === 'for' ? { argumentsFor: [...debate.argumentsFor, data] } : { argumentsAgainst: [...debate.argumentsAgainst, data] }) };
-                setDebate(updatedDebate);
-                if (currentDebateSlug) {
-                  await supabase.from('debates').update({ arguments_data: { for: updatedDebate.argumentsFor, against: updatedDebate.argumentsAgainst } as any }).eq("slug", currentDebateSlug);
+                {publicDebates.length > 0 && (
+                  <div className="space-y-6 pt-4">
+                    <div className="flex items-center justify-between">
+                      <h2 className="font-serif text-xl font-bold text-foreground">Recent Debates in the Agora</h2>
+                      <Button variant="outline" onClick={() => navigate("/public")} className="text-xs uppercase tracking-wider">View All</Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {publicDebates.map(d => (
+                        <Card key={d.id} className="p-4 bg-card border border-border hover:border-greek-gold cursor-pointer group" onClick={() => navigate(`/debate/${d.slug}`)}>
+                          <div className="flex gap-3">
+                            <VoteButtons debateId={d.id} initialVotes={d.votes} className="flex-col" />
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-serif font-semibold text-foreground line-clamp-2 group-hover:text-greek-gold transition-colors">{d.statement}</h3>
+                              <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+                                <span>{d.username}</span>
+                                <span>{formatDistanceToNow(new Date(d.created_at), { addSuffix: true })}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {debate && (
+              <DebateView debate={debate} onRefute={handleRefute} onReset={resetDebate} onAddArgument={async (side) => {
+                setAddingArgumentSide(side);
+                try {
+                  const { data, error } = await supabase.functions.invoke('generate-arguments', {
+                    body: { statement: debate.statement, type: 'add-argument', side, existingArguments: side === 'for' ? debate.argumentsFor : debate.argumentsAgainst }
+                  });
+                  if (error) throw error;
+                  const updatedDebate = { ...debate, ...(side === 'for' ? { argumentsFor: [...debate.argumentsFor, data] } : { argumentsAgainst: [...debate.argumentsAgainst, data] }) };
+                  setDebate(updatedDebate);
+                  if (currentDebateSlug) {
+                    await supabase.from('debates').update({ arguments_data: { for: updatedDebate.argumentsFor, against: updatedDebate.argumentsAgainst } as any }).eq("slug", currentDebateSlug);
+                  }
+                } catch (error: any) {
+                  toast.error("Failed to add argument");
+                } finally {
+                  setAddingArgumentSide(null);
                 }
-              } catch (error: any) {
-                toast.error("Failed to add argument");
-              } finally {
-                setAddingArgumentSide(null);
-              }
-            }} addingArgumentSide={addingArgumentSide} />
-          )}
+              }} addingArgumentSide={addingArgumentSide} />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 export default Index;

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChevronDown, ChevronUp, Lightbulb } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+
 interface Argument {
   title?: string;
   subheading?: string;
@@ -13,11 +13,13 @@ interface Argument {
   }>;
   refutations?: Argument[];
 }
+
 interface ConclusionSectionProps {
   statement: string;
   argumentsFor: Argument[];
   argumentsAgainst: Argument[];
 }
+
 export const ConclusionSection = ({
   statement,
   argumentsFor,
@@ -26,6 +28,7 @@ export const ConclusionSection = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [conclusion, setConclusion] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+
   const generateConclusion = async () => {
     if (conclusion) {
       setIsExpanded(!isExpanded);
@@ -53,21 +56,27 @@ export const ConclusionSection = ({
       setIsLoading(false);
     }
   };
-  return <Card className="border border-border bg-card overflow-hidden">
+
+  return (
+    <Card className="border border-border bg-card overflow-hidden">
       <button onClick={generateConclusion} className="w-full p-6 flex items-center justify-between gap-4 hover:bg-muted/50 transition-colors">
         <div className="flex items-center gap-3">
-          <Lightbulb className="h-5 w-5 text-foreground" />
+          <Lightbulb className="h-5 w-5 text-greek-gold" />
           <h3 className="font-serif font-bold text-lg text-foreground tracking-wide">What's our Final Conclusion?</h3>
         </div>
-        {conclusion && (isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />)}
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <span className="text-sm">Click to {conclusion ? (isExpanded ? 'hide' : 'show') : 'generate'}</span>
+          {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+        </div>
       </button>
 
       {isExpanded && <div className="px-6 pb-6 animate-fade-in">
           {isLoading ? <p className="text-sm font-body text-muted-foreground italic">
               Analyzing all arguments<span className="animate-pulse">...</span>
-            </p> : <p className="text-base font-body leading-relaxed text-foreground border-l-4 border-primary pl-4">
+            </p> : <p className="text-base font-body leading-relaxed text-foreground border-l-4 border-greek-gold pl-4">
               {conclusion}
             </p>}
         </div>}
-    </Card>;
+    </Card>
+  );
 };
