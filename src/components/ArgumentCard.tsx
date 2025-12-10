@@ -77,7 +77,7 @@ export const ArgumentCard = ({
                       Sources
                     </p>
                     <div className="flex flex-col gap-2">
-                      {sources.map((source, idx) => <CitationTooltip key={idx} source={source} index={idx + 1} className="text-slate-50" />)}
+                      {sources.map((source, idx) => <CitationTooltip key={idx} source={source} index={idx + 1} className="text-foreground" />)}
                     </div>
                   </div>}
               </>}
