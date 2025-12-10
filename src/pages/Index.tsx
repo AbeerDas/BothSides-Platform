@@ -220,8 +220,8 @@ const Index = () => {
             {!debate && <>
                 <div className="text-center space-y-3 pt-2 animate-fade-in">
                   <Scale className="h-10 w-10 mx-auto text-greek-gold animate-float" strokeWidth={1.5} />
-                  <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground">The Art of Dialectic</h1>
-                  <p className="font-body text-sm text-muted-foreground max-w-xl mx-auto">Explore both sides of any argument</p>
+                  <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground">Explore All Sides of an Argument</h1>
+                  <p className="font-body text-sm text-muted-foreground max-w-xl mx-auto">The Art of the Dialectic</p>
                 </div>
 
                 <Card className="p-6 md:p-8 bg-card border border-border pillar-shadow max-w-3xl mx-auto">
