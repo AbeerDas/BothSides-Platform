@@ -311,7 +311,7 @@ export const DebateView = ({
           <div className="border border-for-border bg-for-bg p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide flex items-center gap-2">
-                <span className="text-greek-gold bg-popover-foreground">⟢</span> FOR
+                <span className="bg-inherit text-slate-50">⟢</span> FOR
               </h2>
               
               <button onClick={handleExpandFor} className="flex items-center gap-1 text-sm font-sans text-muted-foreground hover:text-foreground transition-colors">
