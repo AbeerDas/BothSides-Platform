@@ -73,7 +73,7 @@ export const PerspectivePills = ({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         <div className="flex-1 flex gap-2">
           <Input placeholder="Add a perspective (e.g., Economist, Philosopher)..." value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyDown={handleKeyDown} className="flex-1 font-sans border-2" />
-          <Button size="sm" onClick={addPerspective} disabled={!inputValue.trim()} className="font-sans text-xs uppercase tracking-wider whitespace-nowrap bg-amber-800 hover:bg-amber-700 text-primary">
+          <Button size="sm" onClick={addPerspective} disabled={!inputValue.trim()} className="font-sans text-xs uppercase tracking-wider whitespace-nowrap bg-amber-800 hover:bg-amber-700 text-slate-50">
             Add
           </Button>
         </div>
