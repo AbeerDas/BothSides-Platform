@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArgumentCard } from "./ArgumentCard";
 import { ConclusionSection } from "./ConclusionSection";
-import { Download, RotateCcw, ChevronLeft, ChevronRight, RefreshCw, ChevronDown } from "lucide-react";
+import { Download, RotateCcw, ChevronLeft, ChevronRight, RefreshCw, ChevronDown, Share2, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -44,6 +44,8 @@ interface DebateViewProps {
   addingArgumentSide: "for" | "against" | null;
 }
 
+type ComplexityLevel = "academic" | "default" | "simple";
+
 export const DebateView = ({
   debate,
   onRefute,
@@ -58,6 +60,8 @@ export const DebateView = ({
   const [customLens, setCustomLens] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [tempDebate, setTempDebate] = useState<DebateData | null>(null);
+  const [complexityLevel, setComplexityLevel] = useState<ComplexityLevel>("default");
+  const [changingComplexity, setChangingComplexity] = useState(false);
 
   // Fetch lens options when debate loads
   useEffect(() => {
@@ -118,6 +122,53 @@ export const DebateView = ({
     }
   };
 
+  const handleComplexityChange = async (level: ComplexityLevel) => {
+    if (level === complexityLevel) return;
+    
+    setChangingComplexity(true);
+    
+    try {
+      const complexityPrompt = level === "simple" 
+        ? "Explain like I'm 12 years old - use simple language, everyday examples, and avoid jargon"
+        : level === "academic"
+        ? "Use academic language, technical terminology, and scholarly references"
+        : null;
+
+      if (!complexityPrompt) {
+        // Reset to original
+        setTempDebate(null);
+        setComplexityLevel("default");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("generate-arguments", {
+        body: {
+          statement: debate.statement,
+          type: "initial",
+          perspectives: [complexityPrompt],
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setTempDebate({
+        statement: debate.statement,
+        summary: data.summary,
+        argumentsFor: data.arguments.for,
+        argumentsAgainst: data.arguments.against,
+      });
+      
+      setComplexityLevel(level);
+      toast.success(level === "simple" ? "Simplified version generated" : "Academic version generated");
+    } catch (err) {
+      console.error("Failed to change complexity:", err);
+      toast.error("Failed to change complexity level");
+    } finally {
+      setChangingComplexity(false);
+    }
+  };
+
   const handleCustomLensSubmit = () => {
     if (customLens.trim()) {
       handleRegenerateWithLens(customLens.trim());
@@ -126,6 +177,12 @@ export const DebateView = ({
 
   const clearTempDebate = () => {
     setTempDebate(null);
+    setComplexityLevel("default");
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success("Link copied to clipboard!");
   };
 
   const currentDebate = tempDebate || debate;
@@ -152,7 +209,7 @@ export const DebateView = ({
       y += 3;
     };
 
-    addText(`DIALECTIC: ${currentDebate.statement}`, 16, true);
+    addText(`BOTHSIDES: ${currentDebate.statement}`, 16, true);
     y += 5;
     addText("Summary", 13, true);
     addText(currentDebate.summary);
@@ -168,7 +225,7 @@ export const DebateView = ({
       addText(`${idx + 1}. ${arg.title || 'Argument'}`, 11, true);
       addText(arg.text);
     });
-    doc.save(`dialectic-${Date.now()}.pdf`);
+    doc.save(`bothsides-${Date.now()}.pdf`);
   };
 
   const handleExpandFor = (e: React.MouseEvent) => {
@@ -182,7 +239,7 @@ export const DebateView = ({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-page-in">
       <ConclusionSection 
         statement={currentDebate.statement} 
         argumentsFor={currentDebate.argumentsFor} 
@@ -267,7 +324,7 @@ export const DebateView = ({
                             size="sm" 
                             onClick={handleCustomLensSubmit}
                             disabled={!customLens.trim()}
-                            className="flex-1 text-xs"
+                            className="flex-1 text-xs bg-greek-gold hover:bg-greek-gold/90 text-foreground"
                           >
                             Apply
                           </Button>
@@ -300,11 +357,57 @@ export const DebateView = ({
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* Complexity Toggle */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={changingComplexity}
+                  className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto hover:bg-accent"
+                >
+                  <BookOpen className={cn("h-4 w-4", changingComplexity && "animate-pulse")} />
+                  {changingComplexity ? "Loading..." : complexityLevel === "simple" ? "Simple" : complexityLevel === "academic" ? "Academic" : "Complexity"}
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem 
+                  onClick={() => handleComplexityChange("academic")}
+                  className={cn("cursor-pointer", complexityLevel === "academic" && "bg-accent")}
+                >
+                  📚 Academic Version
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleComplexityChange("default")}
+                  className={cn("cursor-pointer", complexityLevel === "default" && "bg-accent")}
+                >
+                  ✔️ Default
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleComplexityChange("simple")}
+                  className={cn("cursor-pointer", complexityLevel === "simple" && "bg-accent")}
+                >
+                  🧒 Explain Like I'm 12
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleShare}
+              className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto hover:bg-accent"
+            >
+              <Share2 className="h-4 w-4" />
+              Share
+            </Button>
+
             <Button 
               variant="outline" 
               size="sm" 
               onClick={onReset} 
-              className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 text-white hover:text-white border-sky-700 w-full sm:w-auto bg-amber-800 hover:bg-amber-700"
+              className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto bg-greek-gold hover:bg-greek-gold/90 text-foreground font-semibold border-greek-gold"
             >
               <RotateCcw className="h-4 w-4" />
               New Debate
@@ -322,7 +425,7 @@ export const DebateView = ({
           <div className="border border-for-border bg-for-bg p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide flex items-center gap-2">
-                <span className="text-greek">⟢</span> FOR
+                <span className="text-greek-gold">⟢</span> FOR
               </h2>
               
               <button 

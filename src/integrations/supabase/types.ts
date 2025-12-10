@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      debate_votes: {
+        Row: {
+          created_at: string
+          debate_id: string
+          id: string
+          user_id: string
+          vote_type: number
+        }
+        Insert: {
+          created_at?: string
+          debate_id: string
+          id?: string
+          user_id: string
+          vote_type: number
+        }
+        Update: {
+          created_at?: string
+          debate_id?: string
+          id?: string
+          user_id?: string
+          vote_type?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_votes_debate_id_fkey"
+            columns: ["debate_id"]
+            isOneToOne: false
+            referencedRelation: "debates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debates: {
         Row: {
           arguments_data: Json
@@ -24,6 +56,7 @@ export type Database = {
           statement: string
           summary: string
           user_id: string | null
+          votes: number
         }
         Insert: {
           arguments_data: Json
@@ -34,6 +67,7 @@ export type Database = {
           statement: string
           summary: string
           user_id?: string | null
+          votes?: number
         }
         Update: {
           arguments_data?: Json
@@ -44,6 +78,7 @@ export type Database = {
           statement?: string
           summary?: string
           user_id?: string | null
+          votes?: number
         }
         Relationships: []
       }

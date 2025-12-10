@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,8 +12,9 @@
     --card-foreground: 30 20% 15%;
     --popover: 42 30% 98%;
     --popover-foreground: 30 20% 15%;
-    --primary: 35 35% 25%;
-    --primary-foreground: 40 25% 96%;
+    --primary: 45 70% 50%;
+    --primary-foreground: 30 20% 15%;
+    --primary-hover: 45 70% 45%;
     --secondary: 40 15% 92%;
     --secondary-foreground: 30 20% 15%;
     --muted: 35 20% 90%;
@@ -24,7 +25,7 @@
     --destructive-foreground: 0 0% 100%;
     --border: 35 20% 80%;
     --input: 35 20% 85%;
-    --ring: 35 35% 25%;
+    --ring: 45 70% 50%;
     --for-bg: 200 25% 97%;
     --for-border: 200 20% 70%;
     --for-hover: 200 25% 95%;
@@ -45,8 +46,9 @@
     --card-foreground: 40 20% 92%;
     --popover: 222 20% 14%;
     --popover-foreground: 40 20% 92%;
-    --primary: 40 30% 75%;
+    --primary: 45 60% 50%;
     --primary-foreground: 222 25% 10%;
+    --primary-hover: 45 60% 45%;
     --secondary: 222 15% 20%;
     --secondary-foreground: 40 20% 92%;
     --muted: 222 15% 22%;
@@ -57,14 +59,14 @@
     --destructive-foreground: 0 0% 100%;
     --border: 222 15% 25%;
     --input: 222 15% 25%;
-    --ring: 40 30% 75%;
+    --ring: 45 60% 50%;
     --for-bg: 200 15% 14%;
     --for-border: 200 15% 30%;
     --for-hover: 200 15% 18%;
     --against-bg: 15 15% 14%;
     --against-border: 15 15% 30%;
     --against-hover: 15 15% 18%;
-    --greek-gold: 45 60% 45%;
+    --greek-gold: 45 60% 50%;
     --greek-olive: 80 25% 30%;
     --greek-terracotta: 20 40% 40%;
     --greek-marble: 222 10% 20%;
@@ -77,23 +79,25 @@
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes pulse-glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes page-in { 
+  from { opacity: 0; transform: translateY(8px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
 
 .animate-float { animation: float 6s ease-in-out infinite; }
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+.animate-page-in { animation: page-in 0.4s ease-out forwards; }
 
 .greek-pattern {
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h10v10H0V0zm10 10h10v10H10V10zm10-10h10v10H20V0zm10 10h10v10H30V10zm10-10h10v10H40V0zm10 10h10v10H50V10z' fill='%23C9A227' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
 }
 
 .meander-border { position: relative; }
-.meander-border::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, hsl(var(--greek-gold)) 0%, hsl(var(--greek-terracotta)) 50%, hsl(var(--greek-gold)) 100%);
-}
 
 .pillar-shadow { box-shadow: inset 2px 0 8px -2px hsl(var(--border)), inset -2px 0 8px -2px hsl(var(--border)); }
 
 .font-serif { font-family: 'Playfair Display', Georgia, serif; }
 .font-body { font-family: 'Lora', Georgia, serif; }
 .font-sans { font-family: 'Source Sans 3', sans-serif; }
+.font-logo { font-family: 'Cormorant Garamond', Georgia, serif; }
