@@ -61,7 +61,7 @@ export const ArgumentCard = ({
 
         <div className="space-y-4 pr-10">
           <div className="space-y-3">
-            {title && <h3 className="font-serif font-semibold text-lg text-foreground tracking-wide">
+            {title && <h3 className="font-serif font-medium text-lg text-foreground tracking-wide">
                 {title}
               </h3>}
             {!isMinimized && <>
@@ -77,7 +77,7 @@ export const ArgumentCard = ({
                       Sources
                     </p>
                     <div className="flex flex-col gap-2">
-                      {sources.map((source, idx) => <CitationTooltip key={idx} source={source} index={idx + 1} className="text-foreground" />)}
+                      {sources.map((source, idx) => <CitationTooltip key={idx} source={source} index={idx + 1} />)}
                     </div>
                   </div>}
               </>}

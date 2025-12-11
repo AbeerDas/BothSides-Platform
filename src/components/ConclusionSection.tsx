@@ -62,7 +62,7 @@ export const ConclusionSection = ({
       <button onClick={generateConclusion} className="w-full p-6 flex items-center justify-between gap-4 hover:bg-muted/50 transition-colors">
         <div className="flex items-center gap-3">
           <Lightbulb className="h-5 w-5 text-greek-gold" />
-          <h3 className="font-serif font-bold text-lg text-foreground tracking-wide">What's our Final Conclusion?</h3>
+          <h3 className="font-serif font-medium text-lg text-foreground tracking-wide">What's our Final Conclusion?</h3>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <span className="text-sm">Click to {conclusion ? (isExpanded ? 'hide' : 'show') : 'generate'}</span>

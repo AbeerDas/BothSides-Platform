@@ -8,6 +8,7 @@ interface Source {
 interface CitationTooltipProps {
   source: Source;
   index: number;
+  className?: string;
 }
 
 export const CitationTooltip = ({ source, index }: CitationTooltipProps) => {
@@ -19,7 +20,7 @@ export const CitationTooltip = ({ source, index }: CitationTooltipProps) => {
       href={displayUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-block text-xs font-body text-primary border-b border-border hover:border-primary transition-colors py-1"
+      className="inline-block text-xs font-body text-muted-foreground border-b border-border hover:border-muted-foreground transition-colors py-1"
     >
       {displayTitle}
       <ExternalLink className="inline h-3 w-3 ml-1" />

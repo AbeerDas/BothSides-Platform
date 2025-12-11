@@ -77,7 +77,7 @@ export default function PublicDomain() {
         <div className="container mx-auto px-4 py-12 max-w-6xl">
           <div className="space-y-8">
             <div className="text-center space-y-2">
-              <h1 className="font-serif font-bold text-4xl text-foreground tracking-tight">Public Debates</h1>
+              <h1 className="font-serif font-medium text-4xl text-foreground tracking-tight">Public Debates</h1>
               <p className="text-muted-foreground">
                 Explore debates from the community
               </p>
@@ -102,23 +102,23 @@ export default function PublicDomain() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredDebates.map(debate => (
-                  <Card key={debate.id} className="p-6 cursor-pointer hover:shadow-lg transition-shadow hover:border-greek-gold" onClick={() => navigate(`/debate/${debate.slug}`)}>
-                    <div className="flex gap-3">
-                      <VoteButtons debateId={debate.id} initialVotes={debate.votes} className="flex-col" />
-                      <div className="flex-1 min-w-0 space-y-3">
-                        <h3 className="font-serif font-semibold text-lg line-clamp-3 hover:text-greek-gold transition-colors">
-                          {debate.statement}
-                        </h3>
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <p>
-                            By: {debate.profiles?.username || "Anonymous"}
-                          </p>
-                          <p>
-                            {formatDistanceToNow(new Date(debate.created_at), {
-                              addSuffix: true
-                            })}
-                          </p>
-                        </div>
+                  <Card key={debate.id} className="p-6 cursor-pointer transition-all border border-transparent dark:border-transparent hover:border-greek-gold group" onClick={() => navigate(`/debate/${debate.slug}`)}>
+                    <div className="flex flex-col gap-3">
+                      <h3 className="font-serif font-medium text-lg line-clamp-3 group-hover:text-greek-gold transition-colors">
+                        {debate.statement}
+                      </h3>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <p>
+                          By: {debate.profiles?.username || "Anonymous"}
+                        </p>
+                        <p>
+                          {formatDistanceToNow(new Date(debate.created_at), {
+                            addSuffix: true
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex justify-end">
+                        <VoteButtons debateId={debate.id} initialVotes={debate.votes} />
                       </div>
                     </div>
                   </Card>

@@ -39,7 +39,7 @@ interface PublicDebate {
   username?: string;
   votes: number;
 }
-const RANDOM_TOPICS = ["Remote work is more productive than office work", "Social media does more harm than good", "Universal basic income should be implemented", "AI will create more jobs than it destroys", "College education is overrated", "LeBron James is better than Michael Jordan", "Electric vehicles are better than gas cars", "Cryptocurrency will replace traditional currency", "Space exploration is worth the investment", "Veganism is the most ethical diet choice", "Nuclear energy is the solution to climate change", "Standardized testing should be abolished", "Violent video games cause real-world violence", "Social media influencers have too much power", "Cancel culture has gone too far", "The metaverse will transform how we live", "4-day work weeks should become standard", "Billionaires should not exist", "Privacy is dead in the digital age", "Genetic engineering should be used on humans", "Automation will lead to mass unemployment", "The Olympics should be held in one permanent location", "Zoos are cruel and should be banned", "Homework does more harm than good", "The death penalty should be abolished", "Minimum wage should be $20/hour", "Fast fashion should be banned", "Voting should be mandatory", "Plastic surgery should have age restrictions", "Self-driving cars will never be safe", "Traditional marriage is outdated", "Cursive handwriting should still be taught", "Celebrities should stay out of politics", "NFTs are worthless", "Countries should have open borders", "Philosophy should be taught in elementary school", "Professional athletes are overpaid", "True altruism doesn't exist", "Beauty standards are harmful to society", "College athletes should be paid", "Streaming killed the music industry", "Tipping culture should be abolished", "Democracy is the best form of government", "Free will is an illusion", "Aliens definitely exist", "Art made by AI isn't real art"];
+const RANDOM_TOPICS = ["Remote work is more productive than office work", "Social media does more harm than good", "Universal basic income should be implemented", "AI will create more jobs than it destroys", "College education is overrated", "LeBron James is better than Michael Jordan", "Cryptocurrency will replace traditional currency", "Space exploration is worth the investment", "Veganism is the most ethical diet choice", "Nuclear energy is the solution to climate change", "Standardized testing should be abolished", "Violent video games cause real-world violence", "Social media influencers have too much power", "Cancel culture has gone too far", "The metaverse will transform how we live", "4-day work weeks should become standard", "Billionaires should not exist", "Privacy is dead in the digital age", "Genetic engineering should be used on humans", "Automation will lead to mass unemployment", "The Olympics should be held in one permanent location", "Zoos are cruel and should be banned", "Homework does more harm than good", "The death penalty should be abolished", "Minimum wage should be $20/hour", "Fast fashion should be banned", "Voting should be mandatory", "Plastic surgery should have age restrictions", "Self-driving cars will never be safe", "Traditional marriage is outdated", "Cursive handwriting should still be taught", "Celebrities should stay out of politics", "NFTs are worthless", "Countries should have open borders", "Philosophy should be taught in elementary school", "Professional athletes are overpaid", "True altruism doesn't exist", "Beauty standards are harmful to society", "College athletes should be paid", "Streaming killed the music industry", "Tipping culture should be abolished", "Democracy is the best form of government", "Free will is an illusion", "Aliens definitely exist", "Art made by AI isn't real art"];
 const Index = () => {
   const [statement, setStatement] = useState("");
   const [debate, setDebate] = useState<DebateData | null>(null);
@@ -220,7 +220,7 @@ const Index = () => {
             {!debate && <>
                 <div className="text-center space-y-3 pt-2 animate-fade-in">
                   <Scale className="h-10 w-10 mx-auto text-greek-gold animate-float" strokeWidth={1.5} />
-                  <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground">Explore All Sides of an Argument</h1>
+                  <h1 className="font-serif text-2xl md:text-3xl font-medium text-foreground">Explore All Sides of an Argument</h1>
                   <p className="font-body text-sm text-muted-foreground max-w-xl mx-auto">The Art of the Dialectic</p>
                 </div>
 
@@ -229,7 +229,7 @@ const Index = () => {
                     <h3 className="text-lg font-serif font-semibold text-foreground flex items-center gap-2">
                       <span className="text-greek-gold">⟢</span> What's Your Take?
                     </h3>
-                    <Textarea value={statement} onChange={e => setStatement(e.target.value)} placeholder="LeBron is better than Michael Jordan, UBI should be implemented, Electric cars are better than gas cars..." className="min-h-[100px] font-body text-base resize-none" />
+                    <Textarea value={statement} onChange={e => setStatement(e.target.value)} placeholder="LeBron is better than Michael Jordan, UBI should be implemented, Social media does more harm than good..." className="min-h-[100px] font-body text-base resize-none" />
                     <Button variant="ghost" size="sm" onClick={handleRandomTopic} className="gap-2 text-muted-foreground hover:text-foreground">
                       <Dices className="h-4 w-4" /> Random topic
                     </Button>
@@ -247,21 +247,21 @@ const Index = () => {
 
                 {publicDebates.length > 0 && <div className="space-y-6 pt-4">
                     <div className="flex items-center justify-between">
-                      <h2 className="font-serif text-xl font-bold text-foreground">Recent Debates in the Agora</h2>
+                      <h2 className="font-serif text-xl font-medium text-foreground">Recent Debates in the Agora</h2>
                       <Button variant="outline" onClick={() => navigate("/public")} className="text-xs uppercase tracking-wider">View All</Button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {publicDebates.map(d => <Card key={d.id} className="p-4 bg-card border border-border hover:border-greek-gold cursor-pointer group" onClick={() => navigate(`/debate/${d.slug}`)}>
-                          <div className="flex gap-3">
-                            <VoteButtons debateId={d.id} initialVotes={d.votes} className="flex-col" />
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-serif font-semibold text-foreground line-clamp-2 group-hover:text-greek-gold transition-colors">{d.statement}</h3>
-                              <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
-                                <span>{d.username}</span>
-                                <span>{formatDistanceToNow(new Date(d.created_at), {
+                      {publicDebates.map(d => <Card key={d.id} className="p-4 bg-card border border-transparent dark:border-transparent hover:border-greek-gold dark:hover:border-greek-gold cursor-pointer group transition-all" onClick={() => navigate(`/debate/${d.slug}`)}>
+                          <div className="flex flex-col gap-2">
+                            <h3 className="font-serif font-medium text-foreground line-clamp-2 group-hover:text-greek-gold transition-colors">{d.statement}</h3>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>{d.username}</span>
+                              <span>{formatDistanceToNow(new Date(d.created_at), {
                             addSuffix: true
                           })}</span>
-                              </div>
+                            </div>
+                            <div className="flex justify-end">
+                              <VoteButtons debateId={d.id} initialVotes={d.votes} />
                             </div>
                           </div>
                         </Card>)}

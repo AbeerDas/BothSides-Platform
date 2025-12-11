@@ -213,7 +213,7 @@ export const DebateView = ({
       <div className="border border-border bg-card p-4 md:p-6 space-y-4 animate-fade-in pillar-shadow">
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-4">
-            <h2 className="font-serif font-bold text-xl md:text-2xl text-foreground tracking-wide">
+            <h2 className="font-serif font-medium text-xl md:text-2xl text-foreground tracking-wide">
               {currentDebate.statement}
             </h2>
             {tempDebate && <Button variant="ghost" size="sm" onClick={clearTempDebate} className="text-xs shrink-0">
@@ -250,7 +250,7 @@ export const DebateView = ({
                     {showCustomInput ? <div className="p-2 space-y-2">
                         <Input placeholder="Enter custom lens..." value={customLens} onChange={e => setCustomLens(e.target.value)} onKeyDown={e => e.key === "Enter" && handleCustomLensSubmit()} className="text-sm" autoFocus />
                         <div className="flex gap-2">
-                          <Button size="sm" onClick={handleCustomLensSubmit} disabled={!customLens.trim()} className="flex-1 text-xs bg-greek-gold hover:bg-greek-gold/90 text-foreground">
+                          <Button size="sm" onClick={handleCustomLensSubmit} disabled={!customLens.trim()} className="flex-1 text-xs bg-amber-800 hover:bg-amber-700 text-white">
                             Apply
                           </Button>
                           <Button size="sm" variant="ghost" onClick={() => {
@@ -310,8 +310,8 @@ export const DebateView = ({
         <div className={cn("transition-all duration-300 ease-in-out relative", expandedSide === "for" ? "lg:w-full" : expandedSide === "against" ? "lg:hidden" : "lg:flex-1")}>
           <div className="border border-for-border bg-for-bg p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide flex items-center gap-2">
-                <span className="bg-inherit text-slate-50">⟢</span> FOR
+              <h2 className="font-serif font-semibold text-xl text-foreground uppercase tracking-wide flex items-center gap-2">
+                <span className="text-foreground">⟢</span> FOR
               </h2>
               
               <button onClick={handleExpandFor} className="flex items-center gap-1 text-sm font-sans text-muted-foreground hover:text-foreground transition-colors">
@@ -347,7 +347,7 @@ export const DebateView = ({
         <div className={cn("transition-all duration-300 ease-in-out relative", expandedSide === "against" ? "lg:w-full" : expandedSide === "for" ? "lg:hidden" : "lg:flex-1")}>
           <div className="border border-against-border bg-against-bg p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif font-bold text-2xl text-foreground uppercase tracking-wide flex items-center gap-2">
+              <h2 className="font-serif font-semibold text-xl text-foreground uppercase tracking-wide flex items-center gap-2">
                 <span className="text-greek-terracotta">ᯓ</span> AGAINST
               </h2>
               

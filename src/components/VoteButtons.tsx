@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { AuthModal } from "./AuthModal";
@@ -52,6 +52,7 @@ export const VoteButtons = ({ debateId, initialVotes, className }: VoteButtonsPr
 
   const handleVote = async (voteType: 1 | -1, e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     
     if (!user) {
       setShowAuthModal(true);
@@ -116,7 +117,7 @@ export const VoteButtons = ({ debateId, initialVotes, className }: VoteButtonsPr
 
   return (
     <>
-      <div className={cn("flex items-center gap-1", className)} onClick={(e) => e.stopPropagation()}>
+      <div className={cn("flex items-center gap-1.5", className)} onClick={(e) => e.stopPropagation()}>
         <button
           onClick={(e) => handleVote(1, e)}
           disabled={isLoading}
@@ -125,10 +126,10 @@ export const VoteButtons = ({ debateId, initialVotes, className }: VoteButtonsPr
             userVote === 1 && "text-greek-gold"
           )}
         >
-          <ChevronUp className="h-4 w-4" />
+          <ThumbsUp className="h-3.5 w-3.5" />
         </button>
         <span className={cn(
-          "text-sm font-medium min-w-[20px] text-center",
+          "text-xs font-medium min-w-[16px] text-center",
           votes > 0 && "text-greek-gold",
           votes < 0 && "text-greek-terracotta"
         )}>
@@ -142,7 +143,7 @@ export const VoteButtons = ({ debateId, initialVotes, className }: VoteButtonsPr
             userVote === -1 && "text-greek-terracotta"
           )}
         >
-          <ChevronDown className="h-4 w-4" />
+          <ThumbsDown className="h-3.5 w-3.5" />
         </button>
       </div>
       
