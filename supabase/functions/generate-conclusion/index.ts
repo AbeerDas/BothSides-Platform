@@ -37,7 +37,7 @@ ${formatArguments(argumentsFor)}
 Arguments AGAINST:
 ${formatArguments(argumentsAgainst)}
 
-Based on ALL the arguments and counter-arguments presented above, provide a final conclusion in 1-2 sentences. You MUST take a clear stance (either for or against) and explain why that position is most reasonable given the evidence. Be direct and definitive.`;
+Based on ALL the arguments and counter-arguments presented above, provide a final conclusion. You MUST explicitly state either "I support" or "I oppose" the statement at the very beginning of your response, then explain why in 1-2 sentences. Never be neutral or balanced - always pick a definitive side.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

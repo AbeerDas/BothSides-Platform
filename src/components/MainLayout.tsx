@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { PageTransition } from "./PageTransition";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -12,15 +13,17 @@ interface MainLayoutProps {
 export const MainLayout = ({ children, className, withPadding = true }: MainLayoutProps) => {
   return (
     <PageTransition>
-      <div className="min-h-screen bg-background flex">
+      <div className="h-screen bg-background flex overflow-hidden">
         <AppSidebar />
-        <main className={cn(
-          "flex-1 ml-14 md:ml-56 transition-all duration-300",
-          withPadding && "p-6 md:p-8",
-          className
-        )}>
-          {children}
-        </main>
+        <ScrollArea className="flex-1 ml-12 md:ml-52">
+          <main className={cn(
+            "min-h-screen",
+            withPadding && "p-6 md:p-8",
+            className
+          )}>
+            {children}
+          </main>
+        </ScrollArea>
       </div>
     </PageTransition>
   );

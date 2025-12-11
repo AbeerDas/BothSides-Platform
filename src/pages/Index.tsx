@@ -236,13 +236,10 @@ const Index = () => {
               <h1 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
                 Explore All Sides of an Argument
               </h1>
-              <p className="font-body text-sm text-muted-foreground max-w-xl mx-auto">
-                The Art of the Dialectic
-              </p>
             </div>
 
             <div className="max-w-2xl mx-auto">
-              <div className="p-6 md:p-8 bg-card/80 backdrop-blur-sm border border-border/50 shadow-lg space-y-4">
+              <div className="p-6 md:p-8 bg-card/60 backdrop-blur-md border border-border/30 shadow-xl space-y-4">
                 <h3 className="text-base font-serif font-medium text-foreground flex items-center gap-2">
                   <span className="text-greek-gold">⟢</span> What's Your Take?
                 </h3>
@@ -252,30 +249,47 @@ const Index = () => {
                   placeholder="LeBron is better than Michael Jordan, UBI should be implemented, Social media does more harm than good..."
                   className="min-h-[100px] font-body text-base resize-none bg-background/50"
                 />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRandomTopic}
-                  className="gap-2 text-muted-foreground hover:text-foreground"
-                >
-                  <Dices className="h-4 w-4" /> Random topic
-                </Button>
 
-                <div className="space-y-4 pt-2">
-                  <div>
-                    <label className="text-sm font-serif font-medium text-foreground mb-2 block">
-                      Add Perspectives (Optional)
-                    </label>
-                    <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
+                {/* Perspective pills display */}
+                {perspectives.length > 0 && (
+                  <div className="flex flex-wrap gap-2 animate-in fade-in duration-300">
+                    {perspectives.map(perspective => (
+                      <div 
+                        key={perspective} 
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary text-foreground text-xs font-sans border border-border rounded-sm"
+                      >
+                        <span>{perspective}</span>
+                        <button 
+                          onClick={() => setPerspectives(perspectives.filter(p => p !== perspective))} 
+                          className="hover:text-destructive transition-colors"
+                        >
+                          <span className="text-xs">×</span>
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  <Button
-                    onClick={generateInitialArguments}
-                    disabled={!statement.trim()}
-                    size="lg"
-                    className="w-full font-sans text-sm uppercase tracking-wider text-white font-medium bg-amber-800 hover:bg-amber-700"
-                  >
-                    Generate <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                )}
+
+                <div className="space-y-3 pt-2">
+                  <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRandomTopic}
+                      className="gap-2 text-muted-foreground hover:text-foreground"
+                    >
+                      <Dices className="h-4 w-4" /> Random topic
+                    </Button>
+                    <Button
+                      onClick={generateInitialArguments}
+                      disabled={!statement.trim()}
+                      size="sm"
+                      className="ml-auto font-sans text-xs uppercase tracking-wider text-white font-medium bg-amber-800 hover:bg-amber-700"
+                    >
+                      Generate <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
