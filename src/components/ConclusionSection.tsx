@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Scale, CheckCircle2, XCircle, MinusCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, Scale, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -19,27 +19,37 @@ interface ConclusionSectionProps {
   statement: string;
   argumentsFor: Argument[];
   argumentsAgainst: Argument[];
+  debateSlug?: string;
 }
 
-type Stance = "for" | "against" | "balanced";
+type Stance = "for" | "against";
 
 export const ConclusionSection = ({
   statement,
   argumentsFor,
-  argumentsAgainst
+  argumentsAgainst,
+  debateSlug
 }: ConclusionSectionProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [conclusion, setConclusion] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [stance, setStance] = useState<Stance>("balanced");
+  const [stance, setStance] = useState<Stance>("for");
   const [reasoning, setReasoning] = useState<string[]>([]);
+  const previousArgsRef = useRef<string>("");
+
+  // Create a hash of arguments to detect changes
+  const getArgsHash = () => {
+    return JSON.stringify({ for: argumentsFor.length, against: argumentsAgainst.length, statement });
+  };
 
   useEffect(() => {
-    // Auto-generate conclusion when component mounts
-    if (!conclusion) {
+    const currentHash = getArgsHash();
+    // Only regenerate if arguments actually changed
+    if (currentHash !== previousArgsRef.current) {
+      previousArgsRef.current = currentHash;
       generateConclusion();
     }
-  }, []);
+  }, [argumentsFor, argumentsAgainst, statement]);
 
   const generateConclusion = async () => {
     setIsLoading(true);
@@ -56,23 +66,28 @@ export const ConclusionSection = ({
 
       setConclusion(data.conclusion);
       
-      // Determine stance based on conclusion content
+      // Determine stance - always pick one (never balanced)
       const lowerConclusion = data.conclusion.toLowerCase();
-      if (lowerConclusion.includes("lean towards supporting") || 
-          lowerConclusion.includes("stronger case for") ||
-          lowerConclusion.includes("evidence favors")) {
-        setStance("for");
-      } else if (lowerConclusion.includes("lean towards opposing") || 
-                 lowerConclusion.includes("stronger case against") ||
-                 lowerConclusion.includes("evidence suggests against")) {
+      if (lowerConclusion.includes("against") || 
+          lowerConclusion.includes("opposing") ||
+          lowerConclusion.includes("reject") ||
+          lowerConclusion.includes("not support")) {
         setStance("against");
       } else {
-        setStance("balanced");
+        setStance("for");
       }
 
       // Extract key reasoning points
       const sentences = data.conclusion.split(/[.!?]+/).filter((s: string) => s.trim().length > 20);
       setReasoning(sentences.slice(0, 3));
+
+      // Save conclusion to database if we have a slug
+      if (debateSlug) {
+        await supabase
+          .from('debates')
+          .update({ summary: data.conclusion })
+          .eq('slug', debateSlug);
+      }
     } catch (error) {
       console.error('Error generating conclusion:', error);
       setConclusion("Unable to generate conclusion at this time.");
@@ -81,91 +96,78 @@ export const ConclusionSection = ({
     }
   };
 
-  const StanceIcon = stance === "for" 
-    ? CheckCircle2 
-    : stance === "against" 
-      ? XCircle 
-      : MinusCircle;
+  const StanceIcon = stance === "for" ? CheckCircle2 : XCircle;
 
-  const stanceColor = stance === "for"
-    ? "text-for-accent"
-    : stance === "against"
-      ? "text-against-accent"
-      : "text-greek-gold";
+  const stanceColor = stance === "for" ? "text-for-accent" : "text-against-accent";
 
-  const stanceLabel = stance === "for"
-    ? "Leans For"
-    : stance === "against"
-      ? "Leans Against"
-      : "Balanced";
+  const stanceLabel = stance === "for" ? "For" : "Against";
 
   return (
     <Card className="border border-border bg-card overflow-hidden">
       <button 
         onClick={() => setIsExpanded(!isExpanded)} 
-        className="w-full p-5 flex items-center justify-between gap-4 hover:bg-muted/30 transition-colors"
+        className="w-full p-4 flex items-center justify-between gap-4 hover:bg-muted/30 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <Scale className="h-5 w-5 text-greek-gold" />
-          <h3 className="font-serif font-medium text-base text-foreground">
+          <Scale className="h-4 w-4 text-greek-gold" />
+          <h3 className="font-serif font-medium text-sm text-foreground">
             Final Conclusion
           </h3>
           {!isLoading && conclusion && (
-            <span className={cn("text-xs font-sans uppercase tracking-wider flex items-center gap-1", stanceColor)}>
-              <StanceIcon className="h-3.5 w-3.5" />
+            <span className={cn("text-[10px] font-sans uppercase tracking-wider flex items-center gap-1", stanceColor)}>
+              <StanceIcon className="h-3 w-3" />
               {stanceLabel}
             </span>
           )}
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           {isExpanded ? (
-            <ChevronUp className="h-5 w-5" />
+            <ChevronUp className="h-4 w-4" />
           ) : (
-            <ChevronDown className="h-5 w-5" />
+            <ChevronDown className="h-4 w-4" />
           )}
         </div>
       </button>
 
       {isExpanded && (
-        <div className="px-5 pb-5 animate-fade-in space-y-4">
+        <div className="px-4 pb-4 animate-fade-in space-y-3">
           {isLoading ? (
-            <div className="space-y-3">
-              <div className="h-4 w-full bg-muted/50 animate-pulse" />
-              <div className="h-4 w-5/6 bg-muted/50 animate-pulse" />
-              <div className="h-4 w-4/5 bg-muted/50 animate-pulse" />
+            <div className="space-y-2">
+              <div className="h-3 w-full bg-muted/50 animate-shimmer" />
+              <div className="h-3 w-5/6 bg-muted/50 animate-shimmer" />
+              <div className="h-3 w-4/5 bg-muted/50 animate-shimmer" />
             </div>
           ) : (
             <>
               {/* Stance Indicator */}
               <div className={cn(
-                "flex items-center gap-3 p-3 border-l-4",
+                "flex items-center gap-3 p-2.5 border-l-4",
                 stance === "for" && "border-for-accent bg-for-bg/50",
-                stance === "against" && "border-against-accent bg-against-bg/50",
-                stance === "balanced" && "border-greek-gold bg-muted/30"
+                stance === "against" && "border-against-accent bg-against-bg/50"
               )}>
-                <StanceIcon className={cn("h-5 w-5", stanceColor)} />
+                <StanceIcon className={cn("h-4 w-4", stanceColor)} />
                 <div>
-                  <p className={cn("text-sm font-medium", stanceColor)}>{stanceLabel}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Based on analysis of {argumentsFor.length + argumentsAgainst.length} arguments
+                  <p className={cn("text-xs font-medium", stanceColor)}>{stanceLabel}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Based on {argumentsFor.length + argumentsAgainst.length} arguments
                   </p>
                 </div>
               </div>
 
               {/* Main Conclusion */}
-              <p className="text-sm font-body leading-relaxed text-foreground">
+              <p className="text-xs font-body leading-relaxed text-foreground">
                 {conclusion}
               </p>
 
               {/* Key Reasoning Points */}
               {reasoning.length > 0 && (
-                <div className="pt-2 space-y-2">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-sans">
+                <div className="pt-1 space-y-1.5">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-sans">
                     Key Points
                   </p>
-                  <ul className="space-y-1">
+                  <ul className="space-y-0.5">
                     {reasoning.map((point, idx) => (
-                      <li key={idx} className="text-xs text-muted-foreground flex items-start gap-2">
+                      <li key={idx} className="text-[10px] text-muted-foreground flex items-start gap-2">
                         <span className="text-greek-gold mt-0.5">•</span>
                         <span>{point.trim()}</span>
                       </li>

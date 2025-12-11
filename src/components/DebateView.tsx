@@ -229,6 +229,7 @@ export const DebateView = ({
   return (
     <div className="space-y-6 animate-fade-in">
       <ConclusionSection 
+        key={`${currentDebate.statement}-${currentDebate.argumentsFor.length}-${currentDebate.argumentsAgainst.length}`}
         statement={currentDebate.statement} 
         argumentsFor={currentDebate.argumentsFor} 
         argumentsAgainst={currentDebate.argumentsAgainst} 

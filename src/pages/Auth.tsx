@@ -57,9 +57,9 @@ export default function Auth() {
 
   return (
     <MainLayout className="flex items-center justify-center">
-      <div className="w-full max-w-sm space-y-8">
-        <div className="text-center space-y-2">
-          <h1 className="font-serif text-2xl text-foreground">
+      <div className="w-full max-w-xs space-y-6">
+        <div className="text-center space-y-1">
+          <h1 className="font-serif text-xl text-foreground leading-tight">
             {isLogin ? "Welcome back" : "Sign up below to unlock"}
           </h1>
           <p className="text-muted-foreground text-sm font-body">
@@ -69,55 +69,40 @@ export default function Auth() {
           </p>
         </div>
 
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-3">
           {!isLogin && (
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Username
-              </label>
-              <Input
-                type="text"
-                placeholder="Choose a username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="bg-background/50 border-border/50"
-              />
-            </div>
+            <Input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="bg-background/50 border-border/50 text-sm"
+            />
           )}
           
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Email
-            </label>
-            <Input
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="bg-background/50 border-border/50"
-            />
-          </div>
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="bg-background/50 border-border/50 text-sm"
+          />
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Password
-            </label>
-            <Input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="bg-background/50 border-border/50"
-            />
-          </div>
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="bg-background/50 border-border/50 text-sm"
+          />
 
           <Button
             type="submit"
-            className="w-full bg-amber-800 hover:bg-amber-700 text-white font-medium"
+            className="w-full bg-amber-800 hover:bg-amber-700 text-white font-medium text-sm"
             disabled={loading}
           >
             {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
