@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { NavBar } from "@/components/NavBar";
+import { MainLayout } from "@/components/MainLayout";
 import { DebateView } from "@/components/DebateView";
+import { SkeletonDebateView } from "@/components/SkeletonDebate";
 import { toast } from "sonner";
 
 interface Source {
@@ -63,35 +64,12 @@ export default function DebateDetail() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <NavBar />
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <p className="text-muted-foreground font-serif">Loading debate...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!debate) {
-    return (
-      <div className="min-h-screen bg-background">
-        <NavBar />
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <p className="text-muted-foreground font-serif">Debate not found</p>
-        </div>
-      </div>
-    );
-  }
-
   const handleRefute = async (side: "for" | "against", path: number[]) => {
     if (!slug || !debate || isRefuting) return;
     
     setIsRefuting(true);
     
     try {
-      // Get the target argument to refute
       const targetArguments = side === "for" ? debate.argumentsFor : debate.argumentsAgainst;
       let targetArg: any = targetArguments[path[0]];
       
@@ -103,7 +81,6 @@ export default function DebateDetail() {
         throw new Error("Target argument not found");
       }
 
-      // Generate refutation using the correct API format
       const { data: refutationData, error: refutationError } = await supabase.functions.invoke(
         "generate-arguments",
         {
@@ -118,17 +95,14 @@ export default function DebateDetail() {
 
       if (refutationError) throw refutationError;
 
-      // Create a deep copy of the debate
       const updatedDebate = JSON.parse(JSON.stringify(debate));
       const targetSide = side === "for" ? updatedDebate.argumentsFor : updatedDebate.argumentsAgainst;
       
-      // Navigate to the correct argument
       let current: any = targetSide[path[0]];
       for (let i = 1; i < path.length; i++) {
         current = current.refutations[path[i]];
       }
       
-      // Add the refutation
       if (!current.refutations) current.refutations = [];
       current.refutations.push({
         title: refutationData.title,
@@ -138,7 +112,6 @@ export default function DebateDetail() {
         refutations: []
       });
 
-      // Save to database
       const { error: updateError } = await supabase
         .from("debates")
         .update({
@@ -151,7 +124,6 @@ export default function DebateDetail() {
 
       if (updateError) throw updateError;
 
-      // Update local state
       setDebate(updatedDebate);
       toast.success("Refutation added successfully!");
     } catch (error: any) {
@@ -163,17 +135,24 @@ export default function DebateDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-background greek-pattern">
-      <NavBar />
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
-        <DebateView
-          debate={debate}
-          onRefute={handleRefute}
-          onReset={() => navigate("/")}
-          onAddArgument={async () => {}}
-          addingArgumentSide={null}
-        />
+    <MainLayout>
+      <div className="max-w-5xl mx-auto">
+        {loading ? (
+          <SkeletonDebateView />
+        ) : !debate ? (
+          <div className="text-center py-12 text-muted-foreground font-serif">
+            Debate not found
+          </div>
+        ) : (
+          <DebateView
+            debate={debate}
+            onRefute={handleRefute}
+            onReset={() => navigate("/")}
+            onAddArgument={async () => {}}
+            addingArgumentSide={null}
+          />
+        )}
       </div>
-    </div>
+    </MainLayout>
   );
 }
