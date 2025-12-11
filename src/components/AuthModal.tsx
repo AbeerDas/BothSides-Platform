@@ -66,14 +66,14 @@ export const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) { resetForm(); onClose(); } }}>
-      <DialogContent className="sm:max-w-md bg-card">
+      <DialogContent className="sm:max-w-md bg-card border-none" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle className="font-serif text-2xl text-center">
             {isLogin ? "Sign In" : "Sign Up"}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-4" onClick={(e) => e.stopPropagation()}>
           {!isLogin && (
             <div className="space-y-2">
               <label className="text-sm font-medium">Username</label>
@@ -82,6 +82,7 @@ export const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
                 placeholder="Choose a username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
                 required
               />
             </div>
@@ -94,6 +95,7 @@ export const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
               placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
               required
             />
           </div>
@@ -105,6 +107,7 @@ export const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
               required
               minLength={6}
             />
@@ -112,7 +115,7 @@ export const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
 
           <Button
             type="submit"
-            className="w-full bg-greek-gold hover:bg-greek-gold/90 text-foreground font-semibold"
+            className="w-full bg-amber-800 hover:bg-amber-700 text-white font-semibold"
             disabled={loading}
           >
             {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
@@ -122,7 +125,7 @@ export const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
         <div className="text-center">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={(e) => { e.stopPropagation(); setIsLogin(!isLogin); }}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}

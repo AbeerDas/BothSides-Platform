@@ -57,10 +57,10 @@ export default function Auth() {
       <div className="min-h-screen bg-background">
         <NavBar />
         <div className="flex items-center justify-center px-4 py-12">
-          <Card className="w-full max-w-md p-8 space-y-6">
+          <Card className="w-full max-w-md p-8 space-y-6 border-none">
             <div className="text-center space-y-4">
               <Scale className="h-12 w-12 mx-auto text-greek-gold" />
-              <h1 className="font-serif font-bold text-3xl text-foreground uppercase tracking-tight">
+              <h1 className="font-serif font-medium text-3xl text-foreground tracking-tight">
                 {isLogin ? "Sign In" : "Sign Up"}
               </h1>
               <p className="text-muted-foreground">
@@ -107,7 +107,7 @@ export default function Auth() {
 
               <Button
                 type="submit"
-                className="w-full bg-greek-gold hover:bg-greek-gold/90 text-foreground font-semibold"
+                className="w-full bg-amber-800 hover:bg-amber-700 text-white font-semibold"
                 disabled={loading}
               >
                 {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}

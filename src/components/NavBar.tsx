@@ -49,16 +49,17 @@ export const NavBar = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
   const ThemeToggle = () => <Button variant="ghost" size="icon" onClick={toggleTheme} className="hover:bg-transparent">
-      {theme === "dark" ? <Sun className="h-5 w-5 text-greek-gold" /> : <Moon className="h-5 w-5 text-muted-foreground" />}
+      {theme === "dark" ? <Sun className="h-5 w-5 text-greek-gold" /> : <Moon className="h-5 w-5 text-foreground" />}
     </Button>;
-  return <nav className="border-b border-border bg-card/80 backdrop-blur-sm">
-      <div className="container mx-auto px-4 py-4">
+
+  return <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+      <div className="container mx-auto px-4 py-2.5">
         <div className="flex items-center justify-between">
           <button onClick={handleLogoClick} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="relative">
-              <Scale className="h-7 w-7 text-greek-gold" />
+              <Scale className="h-6 w-6 text-greek-gold" />
             </div>
-            <h1 className="font-logo font-semibold text-2xl text-foreground tracking-tight italic">
+            <h1 className="font-logo font-semibold text-xl text-foreground tracking-tight italic">
               BothSides
             </h1>
           </button>
@@ -68,10 +69,10 @@ export const NavBar = () => {
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="hover:bg-transparent">
-                    <Menu className="h-6 w-6" />
+                    <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] bg-card">
+                <SheetContent side="right" className="w-[280px] bg-card border-none">
                   <div className="flex flex-col gap-4 mt-8">
                     <button onClick={() => handleNavigate("/")} className="flex items-center gap-3 px-4 py-3 text-left font-body text-sm hover:bg-accent rounded-md transition-colors">
                       <History className="h-5 w-5" />
@@ -86,7 +87,7 @@ export const NavBar = () => {
                     {user ? <button onClick={handleSignOut} className="flex items-center gap-3 px-4 py-3 text-left font-body text-sm hover:bg-accent rounded-md transition-colors">
                         <LogOut className="h-5 w-5" />
                         Sign Out
-                      </button> : <button onClick={() => handleNavigate("/auth")} className="flex items-center gap-3 px-4 py-3 text-left font-body text-sm bg-greek-gold text-foreground font-semibold hover:bg-greek-gold/90 rounded-md transition-colors">
+                      </button> : <button onClick={() => handleNavigate("/auth")} className="flex items-center gap-3 px-4 py-3 text-left font-body text-sm bg-amber-800 text-white font-semibold hover:bg-amber-700 rounded-md transition-colors">
                         <LogIn className="h-5 w-5" />
                         Sign In
                       </button>}
@@ -96,15 +97,15 @@ export const NavBar = () => {
             </div> : <div className="flex items-center gap-4">
               <RecentLogsDropdown />
               
-              <Button variant="ghost" onClick={() => navigate("/public")} className="text-sm font-body hover:bg-transparent hover:underline">
+              <button onClick={() => navigate("/public")} className="text-sm font-body text-foreground hover:text-greek-gold transition-colors">
                 Public Debates
-              </Button>
+              </button>
 
-              {user ? <Button variant="ghost" onClick={handleSignOut} className="text-sm font-body hover:bg-transparent hover:underline">
+              {user ? <button onClick={handleSignOut} className="text-sm font-body text-foreground hover:text-greek-gold transition-colors">
                   Sign Out
-                </Button> : <Button onClick={() => navigate("/auth")} className="text-sm font-body text-foreground font-semibold bg-amber-800 hover:bg-amber-700">
+                </button> : <button onClick={() => navigate("/auth")} className="text-sm font-body text-foreground hover:text-greek-gold transition-colors">
                   Sign In
-                </Button>}
+                </button>}
 
               <ThemeToggle />
             </div>}
