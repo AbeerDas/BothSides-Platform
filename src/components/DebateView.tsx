@@ -3,16 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArgumentCard } from "./ArgumentCard";
 import { ConclusionSection } from "./ConclusionSection";
-import { Download, RotateCcw, ChevronLeft, ChevronRight, RefreshCw, ChevronDown, Share2, BookOpen } from "lucide-react";
+import { Download, RotateCcw, ChevronLeft, ChevronRight, RefreshCw, ChevronDown, Share2, BookOpen, Heart, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 interface Source {
   title: string;
   url: string;
 }
+
 interface Argument {
   title?: string;
   subheading?: string;
@@ -20,12 +22,14 @@ interface Argument {
   sources: Source[];
   refutations?: Argument[];
 }
+
 interface DebateData {
   statement: string;
   summary: string;
   argumentsFor: Argument[];
   argumentsAgainst: Argument[];
 }
+
 interface DebateViewProps {
   debate: DebateData;
   onRefute: (side: "for" | "against", path: number[]) => void;
@@ -33,7 +37,9 @@ interface DebateViewProps {
   onAddArgument: (side: "for" | "against") => void;
   addingArgumentSide: "for" | "against" | null;
 }
+
 type ComplexityLevel = "academic" | "default" | "simple";
+
 export const DebateView = ({
   debate,
   onRefute,
@@ -50,16 +56,14 @@ export const DebateView = ({
   const [tempDebate, setTempDebate] = useState<DebateData | null>(null);
   const [complexityLevel, setComplexityLevel] = useState<ComplexityLevel>("default");
   const [changingComplexity, setChangingComplexity] = useState(false);
+  const [allPointsExpanded, setAllPointsExpanded] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
 
-  // Fetch lens options when debate loads
   useEffect(() => {
     const fetchLensOptions = async () => {
       setLoadingLenses(true);
       try {
-        const {
-          data,
-          error
-        } = await supabase.functions.invoke("generate-arguments", {
+        const { data, error } = await supabase.functions.invoke("generate-arguments", {
           body: {
             type: "generate-lenses",
             statement: debate.statement
@@ -76,15 +80,13 @@ export const DebateView = ({
     };
     fetchLensOptions();
   }, [debate.statement]);
+
   const handleRegenerateWithLens = async (lens: string) => {
     setRegenerating(true);
     setShowCustomInput(false);
     setCustomLens("");
     try {
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke("generate-arguments", {
+      const { data, error } = await supabase.functions.invoke("generate-arguments", {
         body: {
           statement: debate.statement,
           type: "initial",
@@ -94,7 +96,6 @@ export const DebateView = ({
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      // Set temporary debate (not saved to DB)
       setTempDebate({
         statement: debate.statement,
         summary: data.summary,
@@ -109,21 +110,24 @@ export const DebateView = ({
       setRegenerating(false);
     }
   };
+
   const handleComplexityChange = async (level: ComplexityLevel) => {
     if (level === complexityLevel) return;
     setChangingComplexity(true);
     try {
-      const complexityPrompt = level === "simple" ? "Explain like I'm 12 years old - use simple language, everyday examples, and avoid jargon" : level === "academic" ? "Use academic language, technical terminology, and scholarly references" : null;
+      const complexityPrompt = level === "simple" 
+        ? "Explain like I'm 12 years old - use simple language, everyday examples, and avoid jargon" 
+        : level === "academic" 
+          ? "Use academic language, technical terminology, and scholarly references" 
+          : null;
+      
       if (!complexityPrompt) {
-        // Reset to original
         setTempDebate(null);
         setComplexityLevel("default");
         return;
       }
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke("generate-arguments", {
+
+      const { data, error } = await supabase.functions.invoke("generate-arguments", {
         body: {
           statement: debate.statement,
           type: "initial",
@@ -132,6 +136,7 @@ export const DebateView = ({
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
+
       setTempDebate({
         statement: debate.statement,
         summary: data.summary,
@@ -147,26 +152,32 @@ export const DebateView = ({
       setChangingComplexity(false);
     }
   };
+
   const handleCustomLensSubmit = () => {
     if (customLens.trim()) {
       handleRegenerateWithLens(customLens.trim());
     }
   };
+
   const clearTempDebate = () => {
     setTempDebate(null);
     setComplexityLevel("default");
   };
+
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success("Link copied to clipboard!");
   };
+
   const currentDebate = tempDebate || debate;
+
   const handleExportPDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 20;
     const lineHeight = 7;
     let y = margin;
+
     const addText = (text: string, fontSize = 11, isBold = false) => {
       doc.setFontSize(fontSize);
       doc.setFont("helvetica", isBold ? "bold" : "normal");
@@ -181,6 +192,7 @@ export const DebateView = ({
       });
       y += 3;
     };
+
     addText(`BOTHSIDES: ${currentDebate.statement}`, 16, true);
     y += 5;
     addText("Summary", 13, true);
@@ -199,186 +211,360 @@ export const DebateView = ({
     });
     doc.save(`bothsides-${Date.now()}.pdf`);
   };
+
   const handleExpandFor = (e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedSide(expandedSide === "for" ? null : "for");
   };
+
   const handleExpandAgainst = (e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedSide(expandedSide === "against" ? null : "against");
   };
-  return <div className="space-y-8 animate-page-in">
-      <ConclusionSection statement={currentDebate.statement} argumentsFor={currentDebate.argumentsFor} argumentsAgainst={currentDebate.argumentsAgainst} />
 
-      <div className="border border-border bg-card p-4 md:p-6 space-y-4 animate-fade-in pillar-shadow">
+  const toggleAllPoints = () => {
+    setAllPointsExpanded(!allPointsExpanded);
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <ConclusionSection 
+        statement={currentDebate.statement} 
+        argumentsFor={currentDebate.argumentsFor} 
+        argumentsAgainst={currentDebate.argumentsAgainst} 
+      />
+
+      <div className="border border-border bg-card p-5 space-y-4">
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-4">
-            <h2 className="font-serif font-medium text-xl md:text-2xl text-foreground tracking-wide">
+            <h2 className="font-serif font-medium text-xl text-foreground">
               {currentDebate.statement}
             </h2>
-            {tempDebate && <Button variant="ghost" size="sm" onClick={clearTempDebate} className="text-xs shrink-0">
+            {tempDebate && (
+              <Button variant="ghost" size="sm" onClick={clearTempDebate} className="text-xs shrink-0">
                 Back to Original
-              </Button>}
+              </Button>
+            )}
           </div>
-          <p className="font-body text-sm md:text-base text-muted-foreground leading-relaxed">
+          <p className="font-body text-sm text-muted-foreground leading-relaxed">
             {currentDebate.summary}
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
-            <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto hover:bg-accent">
-              <Download className="h-4 w-4" />
-              Export PDF
-            </Button>
+          {/* Action buttons - reordered */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-border">
+            <div className="flex flex-wrap gap-2">
+              {/* Share */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleShare} 
+                className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+                Share
+              </Button>
 
-            {/* Lens Regeneration Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" disabled={regenerating || loadingLenses} className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto hover:bg-accent">
-                  <RefreshCw className={cn("h-4 w-4", regenerating && "animate-spin")} />
-                  {regenerating ? "Regenerating..." : "New Lens"}
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                {loadingLenses ? <DropdownMenuItem disabled>
-                    Loading perspectives...
-                  </DropdownMenuItem> : <>
-                    {lensOptions.map((lens, idx) => <DropdownMenuItem key={idx} onClick={() => handleRegenerateWithLens(lens)} className="cursor-pointer">
-                        {lens}
-                      </DropdownMenuItem>)}
-                    <DropdownMenuSeparator />
-                    {showCustomInput ? <div className="p-2 space-y-2">
-                        <Input placeholder="Enter custom lens..." value={customLens} onChange={e => setCustomLens(e.target.value)} onKeyDown={e => e.key === "Enter" && handleCustomLensSubmit()} className="text-sm" autoFocus />
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={handleCustomLensSubmit} disabled={!customLens.trim()} className="flex-1 text-xs bg-amber-800 hover:bg-amber-700 text-white">
-                            Apply
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => {
-                      setShowCustomInput(false);
-                      setCustomLens("");
-                    }} className="text-xs">
-                            Cancel
-                          </Button>
+              {/* Complexity */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={changingComplexity} 
+                    className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8"
+                  >
+                    <BookOpen className={cn("h-3.5 w-3.5", changingComplexity && "animate-pulse")} />
+                    {changingComplexity ? "..." : complexityLevel === "simple" ? "Simple" : complexityLevel === "academic" ? "Academic" : "Complexity"}
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem 
+                    onClick={() => handleComplexityChange("academic")} 
+                    className={cn("cursor-pointer text-xs", complexityLevel === "academic" && "bg-accent")}
+                  >
+                    📚 Academic
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => handleComplexityChange("default")} 
+                    className={cn("cursor-pointer text-xs", complexityLevel === "default" && "bg-accent")}
+                  >
+                    ✔️ Default
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => handleComplexityChange("simple")} 
+                    className={cn("cursor-pointer text-xs", complexityLevel === "simple" && "bg-accent")}
+                  >
+                    🧒 Simple
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* New Lens */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={regenerating || loadingLenses} 
+                    className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8"
+                  >
+                    <RefreshCw className={cn("h-3.5 w-3.5", regenerating && "animate-spin")} />
+                    {regenerating ? "..." : "Lens"}
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  {loadingLenses ? (
+                    <DropdownMenuItem disabled className="text-xs">Loading...</DropdownMenuItem>
+                  ) : (
+                    <>
+                      {lensOptions.map((lens, idx) => (
+                        <DropdownMenuItem 
+                          key={idx} 
+                          onClick={() => handleRegenerateWithLens(lens)} 
+                          className="cursor-pointer text-xs"
+                        >
+                          {lens}
+                        </DropdownMenuItem>
+                      ))}
+                      <DropdownMenuSeparator />
+                      {showCustomInput ? (
+                        <div className="p-2 space-y-2">
+                          <Input 
+                            placeholder="Custom lens..." 
+                            value={customLens} 
+                            onChange={e => setCustomLens(e.target.value)} 
+                            onKeyDown={e => e.key === "Enter" && handleCustomLensSubmit()} 
+                            className="text-xs h-8" 
+                            autoFocus 
+                          />
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              onClick={handleCustomLensSubmit} 
+                              disabled={!customLens.trim()} 
+                              className="flex-1 text-xs bg-amber-800 hover:bg-amber-700 text-white h-7"
+                            >
+                              Apply
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              onClick={() => { setShowCustomInput(false); setCustomLens(""); }} 
+                              className="text-xs h-7"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
-                      </div> : <DropdownMenuItem onClick={e => {
-                  e.preventDefault();
-                  setShowCustomInput(true);
-                }} className="cursor-pointer text-muted-foreground">
-                        Other (custom lens)...
-                      </DropdownMenuItem>}
-                  </>}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                      ) : (
+                        <DropdownMenuItem 
+                          onClick={e => { e.preventDefault(); setShowCustomInput(true); }} 
+                          className="cursor-pointer text-xs text-muted-foreground"
+                        >
+                          Other...
+                        </DropdownMenuItem>
+                      )}
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            {/* Complexity Toggle */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" disabled={changingComplexity} className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto hover:bg-accent">
-                  <BookOpen className={cn("h-4 w-4", changingComplexity && "animate-pulse")} />
-                  {changingComplexity ? "Loading..." : complexityLevel === "simple" ? "Simple" : complexityLevel === "academic" ? "Academic" : "Complexity"}
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem onClick={() => handleComplexityChange("academic")} className={cn("cursor-pointer", complexityLevel === "academic" && "bg-accent")}>
-                  📚 Academic Version
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleComplexityChange("default")} className={cn("cursor-pointer", complexityLevel === "default" && "bg-accent")}>
-                  ✔️ Default
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleComplexityChange("simple")} className={cn("cursor-pointer", complexityLevel === "simple" && "bg-accent")}>
-                  🧒 Explain Like I'm 12
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              {/* Export */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleExportPDF} 
+                className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Export
+              </Button>
 
-            <Button variant="outline" size="sm" onClick={handleShare} className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto hover:bg-accent">
-              <Share2 className="h-4 w-4" />
-              Share
-            </Button>
+              {/* New Debate */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onReset} 
+                className="gap-1.5 font-sans text-[10px] uppercase tracking-wider bg-amber-800 hover:bg-amber-700 text-white h-8"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                New
+              </Button>
+            </div>
 
-            <Button variant="outline" size="sm" onClick={onReset} className="gap-2 font-sans text-xs uppercase tracking-wider transition-all duration-200 w-full sm:w-auto text-foreground font-semibold bg-amber-800 hover:bg-amber-700">
-              <RotateCcw className="h-4 w-4" />
-              New Debate
+            {/* Heart button - far right */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsLiked(!isLiked)}
+              className={cn(
+                "h-8 w-8 p-0",
+                isLiked && "text-red-500"
+              )}
+            >
+              <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 mt-8">
+      <div className="flex flex-col lg:flex-row gap-5">
         {/* FOR Panel */}
-        <div className={cn("transition-all duration-300 ease-in-out relative", expandedSide === "for" ? "lg:w-full" : expandedSide === "against" ? "lg:hidden" : "lg:flex-1")}>
-          <div className="border border-for-border bg-for-bg p-6 space-y-4">
+        <div className={cn(
+          "transition-all duration-300 ease-in-out relative",
+          expandedSide === "for" ? "lg:w-full" : expandedSide === "against" ? "lg:hidden" : "lg:flex-1"
+        )}>
+          <div className="border border-for-border bg-for-bg p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif font-semibold text-xl text-foreground uppercase tracking-wide flex items-center gap-2">
+              <h2 className="font-serif font-medium text-lg text-foreground uppercase tracking-wide flex items-center gap-2">
                 <span className="text-foreground">⟢</span> FOR
               </h2>
               
-              <button onClick={handleExpandFor} className="flex items-center gap-1 text-sm font-sans text-muted-foreground hover:text-foreground transition-colors">
-                {expandedSide === "for" ? <>
-                    <ChevronLeft className="h-4 w-4" />
-                    <span>Show Both</span>
-                    <ChevronRight className="h-4 w-4" />
-                  </> : <>
-                    <span>Expand</span>
-                    <ChevronRight className="h-4 w-4" />
-                  </>}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleAllPoints}
+                  className="flex items-center gap-1 text-xs font-sans text-muted-foreground hover:text-foreground transition-colors"
+                  title={allPointsExpanded ? "Collapse all points" : "Expand all points"}
+                >
+                  {allPointsExpanded ? (
+                    <ChevronsDownUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronsUpDown className="h-4 w-4" />
+                  )}
+                </button>
+                <button 
+                  onClick={handleExpandFor} 
+                  className="flex items-center gap-1 text-xs font-sans text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {expandedSide === "for" ? (
+                    <>
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      <span>Both</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </>
+                  ) : (
+                    <>
+                      <span>Expand</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-4">
-              {currentDebate.argumentsFor?.map((arg, idx) => <ArgumentCard key={idx} title={arg.title} subheading={arg.subheading} text={arg.text} sources={arg.sources} side="for" onRefute={subPath => onRefute("for", subPath)} refutations={arg.refutations} path={[idx]} />)}
+            <div className="space-y-3">
+              {currentDebate.argumentsFor?.map((arg, idx) => (
+                <ArgumentCard 
+                  key={idx} 
+                  title={arg.title} 
+                  subheading={arg.subheading} 
+                  text={arg.text} 
+                  sources={arg.sources} 
+                  side="for" 
+                  onRefute={subPath => onRefute("for", subPath)} 
+                  refutations={arg.refutations} 
+                  path={[idx]}
+                  forceExpanded={allPointsExpanded}
+                />
+              ))}
             </div>
             
-            {addingArgumentSide === "for" && <div className="text-sm font-body text-muted-foreground italic animate-fade-in">
+            {addingArgumentSide === "for" && (
+              <div className="text-xs font-body text-muted-foreground italic animate-fade-in">
                 Generating argument<span className="animate-pulse">...</span>
-              </div>}
+              </div>
+            )}
             
-            <Button onClick={e => {
-            e.stopPropagation();
-            onAddArgument("for");
-          }} variant="outline" className="w-full font-sans text-xs uppercase tracking-wider mt-4 hover:bg-for-hover" disabled={addingArgumentSide === "for" || !!tempDebate}>
+            <Button 
+              onClick={e => { e.stopPropagation(); onAddArgument("for"); }} 
+              variant="outline" 
+              className="w-full font-sans text-xs uppercase tracking-wider mt-3 hover:bg-for-hover h-9" 
+              disabled={addingArgumentSide === "for" || !!tempDebate}
+            >
               + Add Argument
             </Button>
           </div>
         </div>
 
         {/* AGAINST Panel */}
-        <div className={cn("transition-all duration-300 ease-in-out relative", expandedSide === "against" ? "lg:w-full" : expandedSide === "for" ? "lg:hidden" : "lg:flex-1")}>
-          <div className="border border-against-border bg-against-bg p-6 space-y-4">
+        <div className={cn(
+          "transition-all duration-300 ease-in-out relative",
+          expandedSide === "against" ? "lg:w-full" : expandedSide === "for" ? "lg:hidden" : "lg:flex-1"
+        )}>
+          <div className="border border-against-border bg-against-bg p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-serif font-semibold text-xl text-foreground uppercase tracking-wide flex items-center gap-2">
+              <h2 className="font-serif font-medium text-lg text-foreground uppercase tracking-wide flex items-center gap-2">
                 <span className="text-greek-terracotta">ᯓ</span> AGAINST
               </h2>
               
-              <button onClick={handleExpandAgainst} className="flex items-center gap-1 text-sm font-sans text-muted-foreground hover:text-foreground transition-colors">
-                {expandedSide === "against" ? <>
-                    <ChevronLeft className="h-4 w-4" />
-                    <span>Show Both</span>
-                    <ChevronRight className="h-4 w-4" />
-                  </> : <>
-                    <ChevronLeft className="h-4 w-4" />
-                    <span>Expand</span>
-                  </>}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleAllPoints}
+                  className="flex items-center gap-1 text-xs font-sans text-muted-foreground hover:text-foreground transition-colors"
+                  title={allPointsExpanded ? "Collapse all points" : "Expand all points"}
+                >
+                  {allPointsExpanded ? (
+                    <ChevronsDownUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronsUpDown className="h-4 w-4" />
+                  )}
+                </button>
+                <button 
+                  onClick={handleExpandAgainst} 
+                  className="flex items-center gap-1 text-xs font-sans text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {expandedSide === "against" ? (
+                    <>
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      <span>Both</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </>
+                  ) : (
+                    <>
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      <span>Expand</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-4">
-              {currentDebate.argumentsAgainst?.map((arg, idx) => <ArgumentCard key={idx} title={arg.title} subheading={arg.subheading} text={arg.text} sources={arg.sources} side="against" onRefute={subPath => onRefute("against", subPath)} refutations={arg.refutations} path={[idx]} />)}
+            <div className="space-y-3">
+              {currentDebate.argumentsAgainst?.map((arg, idx) => (
+                <ArgumentCard 
+                  key={idx} 
+                  title={arg.title} 
+                  subheading={arg.subheading} 
+                  text={arg.text} 
+                  sources={arg.sources} 
+                  side="against" 
+                  onRefute={subPath => onRefute("against", subPath)} 
+                  refutations={arg.refutations} 
+                  path={[idx]}
+                  forceExpanded={allPointsExpanded}
+                />
+              ))}
             </div>
             
-            {addingArgumentSide === "against" && <div className="text-sm font-body text-muted-foreground italic animate-fade-in">
+            {addingArgumentSide === "against" && (
+              <div className="text-xs font-body text-muted-foreground italic animate-fade-in">
                 Generating argument<span className="animate-pulse">...</span>
-              </div>}
+              </div>
+            )}
             
-            <Button onClick={e => {
-            e.stopPropagation();
-            onAddArgument("against");
-          }} variant="outline" className="w-full font-sans text-xs uppercase tracking-wider mt-4 hover:bg-against-hover" disabled={addingArgumentSide === "against" || !!tempDebate}>
+            <Button 
+              onClick={e => { e.stopPropagation(); onAddArgument("against"); }} 
+              variant="outline" 
+              className="w-full font-sans text-xs uppercase tracking-wider mt-3 hover:bg-against-hover h-9" 
+              disabled={addingArgumentSide === "against" || !!tempDebate}
+            >
               + Add Argument
             </Button>
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
