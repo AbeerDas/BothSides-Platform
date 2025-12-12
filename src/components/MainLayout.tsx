@@ -68,7 +68,7 @@ export const MainLayout = ({ children, className, withPadding = true }: MainLayo
                     <Menu className="h-6 w-6" />
                   </button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[85vw] max-w-sm p-0">
+                <SheetContent side="left" className="w-[70vw] max-w-[280px] p-0 border-r-0">
                   <AppSidebar isMobileSheet onClose={() => setSidebarOpen(false)} />
                 </SheetContent>
               </Sheet>

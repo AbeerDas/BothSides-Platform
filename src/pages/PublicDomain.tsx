@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
-import { Search, X } from "lucide-react";
+import { Search, X, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -121,32 +121,12 @@ export default function PublicDomain() {
 
         {/* Tag Filter */}
         {allTags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 justify-center">
-            {selectedTags.length > 0 && (
-              <button
-                onClick={() => setSelectedTags([])}
-                className="text-xs text-muted-foreground hover:text-foreground underline mr-2"
-              >
-                Clear filters
-              </button>
-            )}
-            {allTags.slice(0, 20).map(tag => (
-              <Badge
-                key={tag}
-                variant={selectedTags.includes(tag) ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer text-[10px] capitalize",
-                  selectedTags.includes(tag) && "bg-amber-800 hover:bg-amber-700"
-                )}
-                onClick={() => toggleTag(tag)}
-              >
-                {tag}
-                {selectedTags.includes(tag) && (
-                  <X className="h-2.5 w-2.5 ml-1" />
-                )}
-              </Badge>
-            ))}
-          </div>
+          <TagFilter 
+            allTags={allTags} 
+            selectedTags={selectedTags} 
+            onTagToggle={toggleTag} 
+            onClear={() => setSelectedTags([])} 
+          />
         )}
 
         {loading ? (
@@ -207,5 +187,67 @@ export default function PublicDomain() {
         )}
       </div>
     </MainLayout>
+  );
+}
+
+// TagFilter component with show more functionality
+function TagFilter({ 
+  allTags, 
+  selectedTags, 
+  onTagToggle, 
+  onClear 
+}: { 
+  allTags: string[]; 
+  selectedTags: string[]; 
+  onTagToggle: (tag: string) => void; 
+  onClear: () => void;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const visibleTags = showAll ? allTags : allTags.slice(0, 20);
+  const hasMore = allTags.length > 20;
+
+  return (
+    <div className="flex flex-wrap gap-1.5 justify-center">
+      {selectedTags.length > 0 && (
+        <button
+          onClick={onClear}
+          className="text-xs text-muted-foreground hover:text-foreground underline mr-2"
+        >
+          Clear filters
+        </button>
+      )}
+      {visibleTags.map(tag => (
+        <Badge
+          key={tag}
+          variant={selectedTags.includes(tag) ? "default" : "outline"}
+          className={cn(
+            "cursor-pointer text-[10px] capitalize",
+            selectedTags.includes(tag) && "bg-amber-800 hover:bg-amber-700"
+          )}
+          onClick={() => onTagToggle(tag)}
+        >
+          {tag}
+          {selectedTags.includes(tag) && (
+            <X className="h-2.5 w-2.5 ml-1" />
+          )}
+        </Badge>
+      ))}
+      {hasMore && (
+        <Badge
+          variant="outline"
+          className="cursor-pointer text-[10px] gap-1"
+          onClick={() => setShowAll(!showAll)}
+        >
+          {showAll ? (
+            <>Show Less</>
+          ) : (
+            <>
+              <Plus className="h-2.5 w-2.5" />
+              {allTags.length - 20} more
+            </>
+          )}
+        </Badge>
+      )}
+    </div>
   );
 }
