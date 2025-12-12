@@ -43,28 +43,34 @@ export const MobileInput = ({
   const filteredPerspectives = PERSPECTIVES.filter(p => p.toLowerCase().includes(searchValue.toLowerCase()) && !perspectives.includes(p));
   return <>
       {/* Fixed bottom input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 z-40">
         {/* Perspective pills */}
-        {perspectives.length > 0 && <div className="flex flex-wrap gap-1.5 mb-2">
-            {perspectives.map(p => <span key={p} className="inline-flex items-center gap-1 px-2 py-0.5 bg-secondary text-foreground text-[10px] border border-border">
+        {perspectives.length > 0 && <div className="flex flex-wrap gap-2 mb-3">
+            {perspectives.map(p => <span key={p} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-foreground text-xs border border-border">
                 {p}
                 <button onClick={() => removePerspective(p)} className="hover:text-destructive">
-                  <X className="h-2.5 w-2.5" />
+                  <X className="h-3 w-3" />
                 </button>
               </span>)}
           </div>}
 
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-3">
           <div className="flex-1 relative">
-            <Textarea value={statement} onChange={e => setStatement(e.target.value)} className="min-h-[44px] max-h-[120px] pr-10 resize-none text-sm" rows={1} placeholder="LeBron is better than MJ..." />
+            <Textarea 
+              value={statement} 
+              onChange={e => setStatement(e.target.value)} 
+              className="min-h-[52px] max-h-[140px] resize-none text-base py-3.5 px-4" 
+              rows={1} 
+              placeholder="LeBron is better than MJ..." 
+            />
           </div>
           
-          <Button variant="outline" size="icon" onClick={() => setShowOptionsModal(true)} className="h-10 w-10 shrink-0">
-            <MoreHorizontal className="h-4 w-4" />
+          <Button variant="outline" size="icon" onClick={() => setShowOptionsModal(true)} className="h-12 w-12 shrink-0">
+            <MoreHorizontal className="h-5 w-5" />
           </Button>
 
-          <Button onClick={onGenerate} disabled={!statement.trim() || isGenerating} size="icon" className="h-10 w-10 shrink-0 bg-amber-800 hover:bg-amber-700 text-white">
-            <ArrowUp className="h-4 w-4" />
+          <Button onClick={onGenerate} disabled={!statement.trim() || isGenerating} size="icon" className="h-12 w-12 shrink-0 bg-amber-800 hover:bg-amber-700 text-white">
+            <ArrowUp className="h-5 w-5" />
           </Button>
         </div>
       </div>

@@ -282,26 +282,25 @@ const Index = () => {
 
   return (
     <MainLayout>
-      <div className={cn("max-w-5xl mx-auto space-y-8", isMobile && "pb-24")}>
+      <div className={cn("max-w-5xl mx-auto space-y-8 flex-1 flex flex-col", isMobile && "pb-24")}>
         {!debate && !isGenerating && (
-          <>
-            <div className="text-center space-y-3 pt-4 animate-fade-in">
+          <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh]">
+            <div className="text-center space-y-3 mb-8 animate-fade-in">
               <Scale className="h-10 w-10 mx-auto text-greek-gold animate-float" strokeWidth={1.5} />
               <h1 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
                 Explore All Sides of an Argument
               </h1>
             </div>
 
-            {/* Perplexity-style unified input container */}
-            <div className="max-w-2xl mx-auto">
-              <div className="relative bg-card/80 backdrop-blur-lg border border-border/50 shadow-2xl p-5 md:p-6 space-y-4">
-                <h3 className="text-base font-serif font-medium text-foreground flex items-center gap-2">
-                  <span className="text-greek-gold">⟢</span> What's Your Take?
-                </h3>
-                
-                {/* Perspective pills display above input */}
+            {/* Perplexity-style unified input - the input IS the container */}
+            <div className="w-full max-w-2xl mx-auto">
+              <div className={cn(
+                "relative border border-border/60 bg-card shadow-xl transition-all duration-200",
+                statement.trim() ? "ring-0" : ""
+              )}>
+                {/* Perspective pills inside the input area */}
                 {perspectives.length > 0 && (
-                  <div className="flex flex-wrap gap-2 animate-in fade-in duration-300">
+                  <div className="flex flex-wrap gap-2 p-4 pb-0 animate-in fade-in duration-300">
                     {perspectives.map(perspective => (
                       <div 
                         key={perspective} 
@@ -323,17 +322,17 @@ const Index = () => {
                   value={statement}
                   onChange={(e) => setStatement(e.target.value)}
                   placeholder="LeBron is better than Michael Jordan..."
-                  className="min-h-[100px] font-body text-base resize-none bg-background/50 border-border/50 focus:ring-1 focus:ring-border"
+                  className="min-h-[80px] font-body text-base resize-none border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-4"
                 />
 
-                {/* Bottom toolbar */}
-                <div className="flex items-center justify-between pt-2">
-                  <div className="flex items-center gap-2">
+                {/* Bottom toolbar - seamlessly integrated */}
+                <div className="flex items-center justify-between px-4 pb-4 pt-2">
+                  <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleRandomTopic}
-                      className="gap-2 text-muted-foreground hover:text-foreground h-8"
+                      className="gap-2 text-muted-foreground hover:text-foreground hover:bg-accent/50 h-9"
                     >
                       <Dices className="h-4 w-4" />
                       <span className="hidden sm:inline text-xs">Random</span>
@@ -352,7 +351,7 @@ const Index = () => {
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {isGenerating && <SkeletonDebateView />}
