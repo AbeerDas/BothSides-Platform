@@ -46,9 +46,7 @@ export default function Documentation() {
         {/* Philosophy Section - Featured Card */}
         <section className="mb-16">
           <div className="bg-muted/50 border border-border p-8 md:p-10">
-            <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground mb-6 tracking-tight">
-              The Philosophy of BothSides
-            </h2>
+            <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground mb-6 tracking-tight">The Philosophy</h2>
             <div className="font-serif text-base md:text-lg leading-relaxed text-foreground/90 space-y-6">
               <p className="first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-greek-gold">
                 BothSides was created to help people move beyond polarized discourse by exploring complex issues from multiple perspectives. When you enter a topic, our AI generates clear, well-supported arguments for and against it, giving you the material you need to think critically rather than accept a single narrative.
