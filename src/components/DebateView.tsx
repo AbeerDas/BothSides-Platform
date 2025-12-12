@@ -11,12 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
 interface Source {
   title: string;
   url: string;
 }
-
 interface Argument {
   title?: string;
   subheading?: string;
@@ -24,14 +22,12 @@ interface Argument {
   sources: Source[];
   refutations?: Argument[];
 }
-
 interface DebateData {
   statement: string;
   summary: string;
   argumentsFor: Argument[];
   argumentsAgainst: Argument[];
 }
-
 interface DebateViewProps {
   debate: DebateData;
   onRefute: (side: "for" | "against", path: number[]) => void;
@@ -40,9 +36,7 @@ interface DebateViewProps {
   addingArgumentSide: "for" | "against" | null;
   debateId?: string;
 }
-
 type ComplexityLevel = "academic" | "default" | "simple";
-
 export const DebateView = ({
   debate,
   onRefute,
@@ -61,12 +55,14 @@ export const DebateView = ({
   const [complexityLevel, setComplexityLevel] = useState<ComplexityLevel>("default");
   const [changingComplexity, setChangingComplexity] = useState(false);
   const [allPointsExpanded, setAllPointsExpanded] = useState(true);
-
   useEffect(() => {
     const fetchLensOptions = async () => {
       setLoadingLenses(true);
       try {
-        const { data, error } = await supabase.functions.invoke("generate-arguments", {
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke("generate-arguments", {
           body: {
             type: "generate-lenses",
             statement: debate.statement
@@ -83,13 +79,15 @@ export const DebateView = ({
     };
     fetchLensOptions();
   }, [debate.statement]);
-
   const handleRegenerateWithLens = async (lens: string) => {
     setRegenerating(true);
     setShowCustomInput(false);
     setCustomLens("");
     try {
-      const { data, error } = await supabase.functions.invoke("generate-arguments", {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke("generate-arguments", {
         body: {
           statement: debate.statement,
           type: "initial",
@@ -98,7 +96,6 @@ export const DebateView = ({
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-
       setTempDebate({
         statement: debate.statement,
         summary: data.summary,
@@ -113,24 +110,20 @@ export const DebateView = ({
       setRegenerating(false);
     }
   };
-
   const handleComplexityChange = async (level: ComplexityLevel) => {
     if (level === complexityLevel) return;
     setChangingComplexity(true);
     try {
-      const complexityPrompt = level === "simple" 
-        ? "Explain like I'm 12 years old - use simple language, everyday examples, and avoid jargon" 
-        : level === "academic" 
-          ? "Use academic language, technical terminology, and scholarly references" 
-          : null;
-      
+      const complexityPrompt = level === "simple" ? "Explain like I'm 12 years old - use simple language, everyday examples, and avoid jargon" : level === "academic" ? "Use academic language, technical terminology, and scholarly references" : null;
       if (!complexityPrompt) {
         setTempDebate(null);
         setComplexityLevel("default");
         return;
       }
-
-      const { data, error } = await supabase.functions.invoke("generate-arguments", {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke("generate-arguments", {
         body: {
           statement: debate.statement,
           type: "initial",
@@ -139,7 +132,6 @@ export const DebateView = ({
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-
       setTempDebate({
         statement: debate.statement,
         summary: data.summary,
@@ -155,32 +147,26 @@ export const DebateView = ({
       setChangingComplexity(false);
     }
   };
-
   const handleCustomLensSubmit = () => {
     if (customLens.trim()) {
       handleRegenerateWithLens(customLens.trim());
     }
   };
-
   const clearTempDebate = () => {
     setTempDebate(null);
     setComplexityLevel("default");
   };
-
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success("Link copied to clipboard!");
   };
-
   const currentDebate = tempDebate || debate;
-
   const handleExportPDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 25;
     const lineHeight = 6;
     let y = margin;
-
     const addText = (text: string, fontSize = 11, isBold = false, isItalic = false) => {
       doc.setFontSize(fontSize);
       doc.setFont("times", isBold ? "bold" : isItalic ? "italic" : "normal");
@@ -195,7 +181,6 @@ export const DebateView = ({
       });
       y += 2;
     };
-
     const addSeparator = () => {
       y += 3;
       doc.setDrawColor(180);
@@ -206,18 +191,21 @@ export const DebateView = ({
     // Header
     doc.setFont("times", "bold");
     doc.setFontSize(24);
-    doc.text("BothSides", pageWidth / 2, y, { align: "center" });
+    doc.text("BothSides", pageWidth / 2, y, {
+      align: "center"
+    });
     y += 10;
-    
+
     // Statement as subtitle
     doc.setFont("times", "italic");
     doc.setFontSize(14);
     const statementLines = doc.splitTextToSize(currentDebate.statement, pageWidth - 2 * margin);
     statementLines.forEach((line: string) => {
-      doc.text(line, pageWidth / 2, y, { align: "center" });
+      doc.text(line, pageWidth / 2, y, {
+        align: "center"
+      });
       y += 7;
     });
-    
     addSeparator();
 
     // Executive Summary
@@ -230,7 +218,6 @@ export const DebateView = ({
     addText("Conclusion", 14, true);
     y += 2;
     addText("This analysis examines both perspectives on the topic, weighing the evidence and arguments presented by each side.", 11);
-    
     addSeparator();
 
     // Arguments FOR
@@ -247,7 +234,6 @@ export const DebateView = ({
       }
       y += 3;
     });
-    
     addSeparator();
 
     // Arguments AGAINST
@@ -271,30 +257,27 @@ export const DebateView = ({
       doc.setPage(i);
       doc.setFont("times", "italic");
       doc.setFontSize(9);
-      doc.text(`Generated by BothSides | Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: "center" });
+      doc.text(`Generated by BothSides | Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, {
+        align: "center"
+      });
     }
 
     // Create filename from statement
     const filename = currentDebate.statement.substring(0, 50).replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-').toLowerCase();
     doc.save(`${filename || 'bothsides-debate'}.pdf`);
   };
-
   const handleExpandFor = (e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedSide(expandedSide === "for" ? null : "for");
   };
-
   const handleExpandAgainst = (e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedSide(expandedSide === "against" ? null : "against");
   };
-
   const toggleAllPoints = () => {
     setAllPointsExpanded(!allPointsExpanded);
   };
-
-  return (
-    <div className="space-y-6 animate-fade-in">
+  return <div className="space-y-6 animate-fade-in">
       {/* Title and buttons section - clean, no card */}
       <div className="space-y-4">
         <div className="space-y-3">
@@ -302,54 +285,30 @@ export const DebateView = ({
             <h2 className="font-serif font-medium text-2xl text-foreground">
               {currentDebate.statement}
             </h2>
-            {tempDebate && (
-              <Button variant="ghost" size="sm" onClick={clearTempDebate} className="text-xs shrink-0">
+            {tempDebate && <Button variant="ghost" size="sm" onClick={clearTempDebate} className="text-xs shrink-0">
                 Back to Original
-              </Button>
-            )}
+              </Button>}
           </div>
           <p className="font-body text-sm text-muted-foreground leading-relaxed">
             {currentDebate.summary}
           </p>
           
           {/* Action buttons - reordered: Collapse All, Share, Complexity, Lens, Export, New + Heart */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-border/50">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-border/50 mb">
             <div className="flex flex-wrap items-center gap-2">
               {/* Collapse All toggle - controls ArgumentCard collapse */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleAllPoints}
-                className="gap-1.5 font-sans text-[10px] uppercase tracking-wider h-8"
-              >
-                {allPointsExpanded ? (
-                  <><ChevronsDownUp className="h-3.5 w-3.5" /> Collapse</>
-                ) : (
-                  <><ChevronsUpDown className="h-3.5 w-3.5" /> Expand</>
-                )}
+              <Button variant="outline" size="sm" onClick={toggleAllPoints} className="gap-1.5 font-sans text-[10px] uppercase tracking-wider h-8">
+                {allPointsExpanded ? <><ChevronsDownUp className="h-3.5 w-3.5" /> Collapse</> : <><ChevronsUpDown className="h-3.5 w-3.5" /> Expand</>}
               </Button>
 
               {/* Show Both Toggle */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setExpandedSide(null)}
-                className={cn(
-                  "gap-1.5 font-sans text-[10px] uppercase tracking-wider h-8",
-                  expandedSide === null && "bg-accent"
-                )}
-              >
+              <Button variant="outline" size="sm" onClick={() => setExpandedSide(null)} className={cn("gap-1.5 font-sans text-[10px] uppercase tracking-wider h-8", expandedSide === null && "bg-accent")}>
                 <ArrowLeftRight className="h-3.5 w-3.5" />
                 Both
               </Button>
 
               {/* Share */}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleShare} 
-                className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8"
-              >
+              <Button variant="outline" size="sm" onClick={handleShare} className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8">
                 <Share2 className="h-3.5 w-3.5" />
                 Share
               </Button>
@@ -357,34 +316,20 @@ export const DebateView = ({
               {/* Complexity */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    disabled={changingComplexity} 
-                    className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8"
-                  >
+                  <Button variant="outline" size="sm" disabled={changingComplexity} className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8">
                     <BookOpen className={cn("h-3.5 w-3.5", changingComplexity && "animate-pulse")} />
                     {changingComplexity ? "..." : complexityLevel === "simple" ? "Simple" : complexityLevel === "academic" ? "Academic" : "Complexity"}
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                  <DropdownMenuItem 
-                    onClick={() => handleComplexityChange("academic")} 
-                    className={cn("cursor-pointer text-xs", complexityLevel === "academic" && "bg-accent")}
-                  >
+                  <DropdownMenuItem onClick={() => handleComplexityChange("academic")} className={cn("cursor-pointer text-xs", complexityLevel === "academic" && "bg-accent")}>
                     📚 Academic
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => handleComplexityChange("default")} 
-                    className={cn("cursor-pointer text-xs", complexityLevel === "default" && "bg-accent")}
-                  >
+                  <DropdownMenuItem onClick={() => handleComplexityChange("default")} className={cn("cursor-pointer text-xs", complexityLevel === "default" && "bg-accent")}>
                     ✔️ Default
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => handleComplexityChange("simple")} 
-                    className={cn("cursor-pointer text-xs", complexityLevel === "simple" && "bg-accent")}
-                  >
+                  <DropdownMenuItem onClick={() => handleComplexityChange("simple")} className={cn("cursor-pointer text-xs", complexityLevel === "simple" && "bg-accent")}>
                     🧒 Simple
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -393,238 +338,133 @@ export const DebateView = ({
               {/* New Lens */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    disabled={regenerating || loadingLenses} 
-                    className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8"
-                  >
+                  <Button variant="outline" size="sm" disabled={regenerating || loadingLenses} className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8">
                     <RefreshCw className={cn("h-3.5 w-3.5", regenerating && "animate-spin")} />
                     {regenerating ? "..." : "Lens"}
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
-                  {loadingLenses ? (
-                    <DropdownMenuItem disabled className="text-xs">Loading...</DropdownMenuItem>
-                  ) : (
-                    <>
-                      {lensOptions.map((lens, idx) => (
-                        <DropdownMenuItem 
-                          key={idx} 
-                          onClick={() => handleRegenerateWithLens(lens)} 
-                          className="cursor-pointer text-xs"
-                        >
+                  {loadingLenses ? <DropdownMenuItem disabled className="text-xs">Loading...</DropdownMenuItem> : <>
+                      {lensOptions.map((lens, idx) => <DropdownMenuItem key={idx} onClick={() => handleRegenerateWithLens(lens)} className="cursor-pointer text-xs">
                           {lens}
-                        </DropdownMenuItem>
-                      ))}
+                        </DropdownMenuItem>)}
                       <DropdownMenuSeparator />
-                      {showCustomInput ? (
-                        <div className="p-2 space-y-2">
-                          <Input 
-                            placeholder="Custom lens..." 
-                            value={customLens} 
-                            onChange={e => setCustomLens(e.target.value)} 
-                            onKeyDown={e => e.key === "Enter" && handleCustomLensSubmit()} 
-                            className="text-xs h-8" 
-                            autoFocus 
-                          />
+                      {showCustomInput ? <div className="p-2 space-y-2">
+                          <Input placeholder="Custom lens..." value={customLens} onChange={e => setCustomLens(e.target.value)} onKeyDown={e => e.key === "Enter" && handleCustomLensSubmit()} className="text-xs h-8" autoFocus />
                           <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              onClick={handleCustomLensSubmit} 
-                              disabled={!customLens.trim()} 
-                              className="flex-1 text-xs bg-amber-800 hover:bg-amber-700 text-white h-7"
-                            >
+                            <Button size="sm" onClick={handleCustomLensSubmit} disabled={!customLens.trim()} className="flex-1 text-xs bg-amber-800 hover:bg-amber-700 text-white h-7">
                               Apply
                             </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              onClick={() => { setShowCustomInput(false); setCustomLens(""); }} 
-                              className="text-xs h-7"
-                            >
+                            <Button size="sm" variant="ghost" onClick={() => {
+                        setShowCustomInput(false);
+                        setCustomLens("");
+                      }} className="text-xs h-7">
                               Cancel
                             </Button>
                           </div>
-                        </div>
-                      ) : (
-                        <DropdownMenuItem 
-                          onClick={e => { e.preventDefault(); setShowCustomInput(true); }} 
-                          className="cursor-pointer text-xs text-muted-foreground"
-                        >
+                        </div> : <DropdownMenuItem onClick={e => {
+                    e.preventDefault();
+                    setShowCustomInput(true);
+                  }} className="cursor-pointer text-xs text-muted-foreground">
                           Other...
-                        </DropdownMenuItem>
-                      )}
-                    </>
-                  )}
+                        </DropdownMenuItem>}
+                    </>}
                 </DropdownMenuContent>
               </DropdownMenu>
 
               {/* Export */}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleExportPDF} 
-                className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8"
-              >
+              <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8">
                 <Download className="h-3.5 w-3.5" />
                 Export
               </Button>
 
               {/* New Debate */}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={onReset} 
-                className="gap-1.5 font-sans text-[10px] uppercase tracking-wider bg-amber-800 hover:bg-amber-700 text-white h-8"
-              >
+              <Button variant="outline" size="sm" onClick={onReset} className="gap-1.5 font-sans text-[10px] uppercase tracking-wider bg-amber-800 hover:bg-amber-700 text-white h-8">
                 <RotateCcw className="h-3.5 w-3.5" />
                 New
               </Button>
             </div>
 
             {/* Heart button - far right */}
-            {debateId && (
-              <LikeButton debateId={debateId} size="md" />
-            )}
+            {debateId && <LikeButton debateId={debateId} size="md" />}
           </div>
         </div>
       </div>
 
       {/* Conclusion - now below title */}
-      <ConclusionSection 
-        key={`${currentDebate.statement}-${currentDebate.argumentsFor.length}-${currentDebate.argumentsAgainst.length}`}
-        statement={currentDebate.statement} 
-        argumentsFor={currentDebate.argumentsFor} 
-        argumentsAgainst={currentDebate.argumentsAgainst} 
-      />
+      <ConclusionSection key={`${currentDebate.statement}-${currentDebate.argumentsFor.length}-${currentDebate.argumentsAgainst.length}`} statement={currentDebate.statement} argumentsFor={currentDebate.argumentsFor} argumentsAgainst={currentDebate.argumentsAgainst} />
 
       <div className="flex flex-col lg:flex-row gap-5">
         {/* FOR Panel */}
-        <div className={cn(
-          "transition-all duration-300 ease-in-out relative",
-          expandedSide === "for" ? "lg:w-full" : expandedSide === "against" ? "lg:hidden" : "lg:flex-1"
-        )}>
+        <div className={cn("transition-all duration-300 ease-in-out relative", expandedSide === "for" ? "lg:w-full" : expandedSide === "against" ? "lg:hidden" : "lg:flex-1")}>
           <div className="border border-for-border bg-for-bg p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-serif font-medium text-lg text-foreground uppercase tracking-wide flex items-center gap-2">
                 <span className="text-foreground">⟢</span> FOR
               </h2>
               
-              <button 
-                onClick={handleExpandFor} 
-                className="flex items-center gap-1 text-xs font-sans text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {expandedSide === "for" ? (
-                  <>
+              <button onClick={handleExpandFor} className="flex items-center gap-1 text-xs font-sans text-muted-foreground hover:text-foreground transition-colors">
+                {expandedSide === "for" ? <>
                     <ChevronLeft className="h-3.5 w-3.5" />
                     <span>Both</span>
                     <ChevronRight className="h-3.5 w-3.5" />
-                  </>
-                ) : (
-                  <>
+                  </> : <>
                     <span>Expand</span>
                     <ChevronRight className="h-3.5 w-3.5" />
-                  </>
-                )}
+                  </>}
               </button>
             </div>
 
             <div className="space-y-3">
-              {currentDebate.argumentsFor?.map((arg, idx) => (
-                <ArgumentCard 
-                  key={idx} 
-                  title={arg.title} 
-                  subheading={arg.subheading} 
-                  text={arg.text} 
-                  sources={arg.sources} 
-                  side="for" 
-                  onRefute={subPath => onRefute("for", subPath)} 
-                  refutations={arg.refutations} 
-                  path={[idx]}
-                  forceExpanded={allPointsExpanded}
-                />
-              ))}
+              {currentDebate.argumentsFor?.map((arg, idx) => <ArgumentCard key={idx} title={arg.title} subheading={arg.subheading} text={arg.text} sources={arg.sources} side="for" onRefute={subPath => onRefute("for", subPath)} refutations={arg.refutations} path={[idx]} forceExpanded={allPointsExpanded} />)}
             </div>
             
-            {addingArgumentSide === "for" && (
-              <SkeletonArgumentCard side="for" />
-            )}
+            {addingArgumentSide === "for" && <SkeletonArgumentCard side="for" />}
             
-            <Button 
-              onClick={e => { e.stopPropagation(); onAddArgument("for"); }} 
-              variant="outline" 
-              className="w-full font-sans text-xs uppercase tracking-wider mt-3 hover:bg-for-hover h-9" 
-              disabled={addingArgumentSide === "for" || !!tempDebate}
-            >
+            <Button onClick={e => {
+            e.stopPropagation();
+            onAddArgument("for");
+          }} variant="outline" className="w-full font-sans text-xs uppercase tracking-wider mt-3 hover:bg-for-hover h-9" disabled={addingArgumentSide === "for" || !!tempDebate}>
               + Add Argument
             </Button>
           </div>
         </div>
 
         {/* AGAINST Panel */}
-        <div className={cn(
-          "transition-all duration-300 ease-in-out relative",
-          expandedSide === "against" ? "lg:w-full" : expandedSide === "for" ? "lg:hidden" : "lg:flex-1"
-        )}>
+        <div className={cn("transition-all duration-300 ease-in-out relative", expandedSide === "against" ? "lg:w-full" : expandedSide === "for" ? "lg:hidden" : "lg:flex-1")}>
           <div className="border border-against-border bg-against-bg p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-serif font-medium text-lg text-foreground uppercase tracking-wide flex items-center gap-2">
                 <span className="text-greek-terracotta">ᯓ</span> AGAINST
               </h2>
               
-              <button 
-                onClick={handleExpandAgainst} 
-                className="flex items-center gap-1 text-xs font-sans text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {expandedSide === "against" ? (
-                  <>
+              <button onClick={handleExpandAgainst} className="flex items-center gap-1 text-xs font-sans text-muted-foreground hover:text-foreground transition-colors">
+                {expandedSide === "against" ? <>
                     <ChevronLeft className="h-3.5 w-3.5" />
                     <span>Both</span>
                     <ChevronRight className="h-3.5 w-3.5" />
-                  </>
-                ) : (
-                  <>
+                  </> : <>
                     <ChevronLeft className="h-3.5 w-3.5" />
                     <span>Expand</span>
-                  </>
-                )}
+                  </>}
               </button>
             </div>
 
             <div className="space-y-3">
-              {currentDebate.argumentsAgainst?.map((arg, idx) => (
-                <ArgumentCard 
-                  key={idx} 
-                  title={arg.title} 
-                  subheading={arg.subheading} 
-                  text={arg.text} 
-                  sources={arg.sources} 
-                  side="against" 
-                  onRefute={subPath => onRefute("against", subPath)} 
-                  refutations={arg.refutations} 
-                  path={[idx]}
-                  forceExpanded={allPointsExpanded}
-                />
-              ))}
+              {currentDebate.argumentsAgainst?.map((arg, idx) => <ArgumentCard key={idx} title={arg.title} subheading={arg.subheading} text={arg.text} sources={arg.sources} side="against" onRefute={subPath => onRefute("against", subPath)} refutations={arg.refutations} path={[idx]} forceExpanded={allPointsExpanded} />)}
             </div>
             
-            {addingArgumentSide === "against" && (
-              <SkeletonArgumentCard side="against" />
-            )}
+            {addingArgumentSide === "against" && <SkeletonArgumentCard side="against" />}
             
-            <Button 
-              onClick={e => { e.stopPropagation(); onAddArgument("against"); }} 
-              variant="outline" 
-              className="w-full font-sans text-xs uppercase tracking-wider mt-3 hover:bg-against-hover h-9" 
-              disabled={addingArgumentSide === "against" || !!tempDebate}
-            >
+            <Button onClick={e => {
+            e.stopPropagation();
+            onAddArgument("against");
+          }} variant="outline" className="w-full font-sans text-xs uppercase tracking-wider mt-3 hover:bg-against-hover h-9" disabled={addingArgumentSide === "against" || !!tempDebate}>
               + Add Argument
             </Button>
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
