@@ -20,6 +20,7 @@ export const MainLayout = ({ children, className, withPadding = true }: MainLayo
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -32,6 +33,27 @@ export const MainLayout = ({ children, className, withPadding = true }: MainLayo
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Listen for sidebar state changes (only relevant for desktop)
+  useEffect(() => {
+    if (isMobile) return;
+    
+    const handleStorageChange = () => {
+      const sidebar = document.querySelector('aside');
+      if (sidebar) {
+        setSidebarCollapsed(sidebar.classList.contains('w-12'));
+      }
+    };
+    
+    const observer = new MutationObserver(handleStorageChange);
+    const sidebar = document.querySelector('aside');
+    if (sidebar) {
+      observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+      handleStorageChange();
+    }
+    
+    return () => observer.disconnect();
+  }, [isMobile]);
 
   if (isMobile) {
     return (
@@ -81,29 +103,6 @@ export const MainLayout = ({ children, className, withPadding = true }: MainLayo
       </PageTransition>
     );
   }
-
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  // Listen for sidebar state changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      // Check if sidebar is collapsed based on DOM (workaround)
-      const sidebar = document.querySelector('aside');
-      if (sidebar) {
-        setSidebarCollapsed(sidebar.classList.contains('w-12'));
-      }
-    };
-    
-    // Set up a mutation observer to watch for sidebar width changes
-    const observer = new MutationObserver(handleStorageChange);
-    const sidebar = document.querySelector('aside');
-    if (sidebar) {
-      observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
-      handleStorageChange(); // Initial check
-    }
-    
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <PageTransition>
