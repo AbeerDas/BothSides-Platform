@@ -245,7 +245,7 @@ const Index = () => {
   }
   return <MainLayout>
       <div className={cn("max-w-5xl mx-auto space-y-8 flex-1 flex flex-col", isMobile && "pb-24")}>
-        {!debate && !isGenerating && <div className="flex-1 flex flex-col items-center justify-center min-h-[70vh]">
+        {!debate && !isGenerating && <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-3 mb-8 animate-fade-in">
               <Scale className="h-10 w-10 mx-auto text-greek-gold animate-float" strokeWidth={1.5} />
               <h1 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
