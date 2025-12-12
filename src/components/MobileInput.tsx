@@ -56,13 +56,7 @@ export const MobileInput = ({
 
         <div className="flex items-end gap-3">
           <div className="flex-1 relative">
-            <Textarea 
-              value={statement} 
-              onChange={e => setStatement(e.target.value)} 
-              className="min-h-[52px] max-h-[140px] resize-none text-base py-3.5 px-4" 
-              rows={1} 
-              placeholder="LeBron is better than MJ..." 
-            />
+            <Textarea value={statement} onChange={e => setStatement(e.target.value)} className="min-h-[52px] max-h-[140px] resize-none text-base py-3.5 px-4" rows={1} placeholder="LeBron is the GOAT..." />
           </div>
           
           <Button variant="outline" size="icon" onClick={() => setShowOptionsModal(true)} className="h-12 w-12 shrink-0">
