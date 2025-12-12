@@ -30,8 +30,10 @@ export default function DebateDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [debate, setDebate] = useState<DebateData | null>(null);
+  const [debateId, setDebateId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRefuting, setIsRefuting] = useState(false);
+  const [addingArgumentSide, setAddingArgumentSide] = useState<"for" | "against" | null>(null);
 
   useEffect(() => {
     loadDebate();
@@ -50,6 +52,7 @@ export default function DebateDetail() {
       if (error) throw error;
 
       const argumentsData = data.arguments_data as any;
+      setDebateId(data.id);
       setDebate({
         statement: data.statement,
         summary: data.summary,
@@ -134,6 +137,50 @@ export default function DebateDetail() {
     }
   };
 
+  const handleAddArgument = async (side: "for" | "against") => {
+    if (!debate || !slug) return;
+    setAddingArgumentSide(side);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-arguments', {
+        body: {
+          statement: debate.statement,
+          type: 'add-argument',
+          side,
+          existingArguments: side === 'for' 
+            ? debate.argumentsFor 
+            : debate.argumentsAgainst
+        }
+      });
+
+      if (error) throw error;
+
+      const updatedDebate = {
+        ...debate,
+        ...(side === 'for' 
+          ? { argumentsFor: [...debate.argumentsFor, data] }
+          : { argumentsAgainst: [...debate.argumentsAgainst, data] })
+      };
+
+      setDebate(updatedDebate);
+
+      await supabase
+        .from('debates')
+        .update({
+          arguments_data: {
+            for: updatedDebate.argumentsFor,
+            against: updatedDebate.argumentsAgainst
+          } as any
+        })
+        .eq("slug", slug);
+
+      toast.success("Argument added!");
+    } catch (error: any) {
+      toast.error("Failed to add argument");
+    } finally {
+      setAddingArgumentSide(null);
+    }
+  };
+
   return (
     <MainLayout>
       <div className="max-w-5xl mx-auto">
@@ -148,8 +195,9 @@ export default function DebateDetail() {
             debate={debate}
             onRefute={handleRefute}
             onReset={() => navigate("/")}
-            onAddArgument={async () => {}}
-            addingArgumentSide={null}
+            onAddArgument={handleAddArgument}
+            addingArgumentSide={addingArgumentSide}
+            debateId={debateId || undefined}
           />
         )}
       </div>

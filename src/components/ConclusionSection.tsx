@@ -70,20 +70,24 @@ export const ConclusionSection = ({
 
       setConclusion(data.conclusion);
       
-      // Parse stance from the conclusion text
-      const lowerConclusion = data.conclusion.toLowerCase();
-      const firstSentence = data.conclusion.split(/[.!?]/)[0].toLowerCase();
+      // Parse stance - look for our exact phrasing first
+      const conclusionLower = data.conclusion.toLowerCase();
       
-      // Check first sentence for explicit stance indicators
-      if (firstSentence.includes("i oppose") || 
-          firstSentence.includes("i reject") ||
-          firstSentence.includes("against") ||
-          firstSentence.includes("not support") ||
-          firstSentence.includes("disagree")) {
+      if (conclusionLower.startsWith("i oppose this statement") || 
+          conclusionLower.includes("i oppose this statement")) {
         setStance("against");
-      } else {
-        // Default to "for" since the prompt asks for explicit stance
+      } else if (conclusionLower.startsWith("i support this statement") || 
+                 conclusionLower.includes("i support this statement")) {
         setStance("for");
+      } else {
+        // Fallback: check for general stance indicators
+        const againstIndicators = ["i oppose", "i reject", "i disagree", "against", "does not support", "fails"];
+        const forIndicators = ["i support", "i agree", "i endorse", "supports", "is correct", "is better"];
+        
+        const hasAgainst = againstIndicators.some(ind => conclusionLower.includes(ind));
+        const hasFor = forIndicators.some(ind => conclusionLower.includes(ind));
+        
+        setStance(hasAgainst && !hasFor ? "against" : "for");
       }
 
       // Extract key reasoning points

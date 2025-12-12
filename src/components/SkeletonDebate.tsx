@@ -9,6 +9,24 @@ const ShimmerLine = ({ className }: { className?: string }) => (
   </div>
 );
 
+export const SkeletonArgumentCard = ({ side }: { side: "for" | "against" }) => (
+  <div className={cn(
+    "p-5 md:p-6 border space-y-4 animate-pulse",
+    side === "for" ? "bg-for-bg/50 border-for-border" : "bg-against-bg/50 border-against-border"
+  )}>
+    <ShimmerLine className="h-5 w-3/4" />
+    <ShimmerLine className="h-4 w-1/2" />
+    <div className="space-y-2">
+      <ShimmerLine className="h-4 w-full" />
+      <ShimmerLine className="h-4 w-full" />
+      <ShimmerLine className="h-4 w-5/6" />
+    </div>
+    <div className="pt-3 border-t border-border">
+      <ShimmerLine className="h-8 w-32" />
+    </div>
+  </div>
+);
+
 export const SkeletonCard = ({ side }: { side: "for" | "against" }) => (
   <div className={cn(
     "p-5 md:p-6 border space-y-4",
