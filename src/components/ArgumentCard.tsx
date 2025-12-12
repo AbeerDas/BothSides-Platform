@@ -74,17 +74,8 @@ export const ArgumentCard = ({
         "p-4 transition-all duration-300 border shadow-sm animate-fade-in relative",
         side === "for" ? "bg-for-bg border-for-border" : "bg-against-bg border-against-border"
       )}>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={handleMinimize} 
-          className="absolute top-2 right-2 z-10 h-7 w-7 hover:bg-accent" 
-          title={isMinimized ? "Expand" : "Minimize"}
-        >
-          {isMinimized ? <Maximize2 className="h-3.5 w-3.5" /> : <Minimize2 className="h-3.5 w-3.5" />}
-        </Button>
 
-        <div className="space-y-3 pr-8">
+        <div className="space-y-3">
           <div className="space-y-2">
             {title && (
               <h3 className="font-serif font-medium text-base text-foreground">

@@ -38,22 +38,22 @@ export const MainLayout = ({ children, className, withPadding = true }: MainLayo
       <PageTransition>
         <div className="min-h-screen bg-background flex flex-col">
           {/* Mobile Header */}
-          <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50">
-            <div className="flex items-center gap-3">
+          <header className="flex items-center justify-between px-3 py-3 border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50">
+            <div className="flex items-center gap-2">
               <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
                 <SheetTrigger asChild>
-                  <button className="p-2 -ml-2 text-foreground">
-                    <Menu className="h-5 w-5" />
+                  <button className="p-2 text-foreground">
+                    <Menu className="h-6 w-6" />
                   </button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-72 p-0">
+                <SheetContent side="left" className="w-[85vw] max-w-sm p-0">
                   <AppSidebar isMobileSheet onClose={() => setSidebarOpen(false)} />
                 </SheetContent>
               </Sheet>
               
               <button onClick={() => navigate("/")} className="flex items-center gap-2">
-                <Scale className="h-5 w-5 text-greek-gold" />
-                <span className="font-logo text-base text-foreground tracking-tight italic">
+                <Scale className="h-6 w-6 text-greek-gold" />
+                <span className="font-logo text-lg text-foreground tracking-tight italic">
                   BothSides
                 </span>
               </button>
@@ -64,7 +64,7 @@ export const MainLayout = ({ children, className, withPadding = true }: MainLayo
                 onClick={() => navigate("/auth")}
                 className="p-2 text-foreground"
               >
-                <LogIn className="h-5 w-5" />
+                <LogIn className="h-6 w-6" />
               </button>
             )}
           </header>
@@ -72,7 +72,7 @@ export const MainLayout = ({ children, className, withPadding = true }: MainLayo
           {/* Mobile Content */}
           <main className={cn(
             "flex-1",
-            withPadding && "p-4",
+            withPadding && "px-3 py-4",
             className
           )}>
             {children}
@@ -82,19 +82,47 @@ export const MainLayout = ({ children, className, withPadding = true }: MainLayo
     );
   }
 
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Listen for sidebar state changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Check if sidebar is collapsed based on DOM (workaround)
+      const sidebar = document.querySelector('aside');
+      if (sidebar) {
+        setSidebarCollapsed(sidebar.classList.contains('w-12'));
+      }
+    };
+    
+    // Set up a mutation observer to watch for sidebar width changes
+    const observer = new MutationObserver(handleStorageChange);
+    const sidebar = document.querySelector('aside');
+    if (sidebar) {
+      observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+      handleStorageChange(); // Initial check
+    }
+    
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <PageTransition>
-      <div className="h-screen bg-background flex overflow-hidden">
+      <div className="h-screen bg-background flex overflow-hidden w-full">
         <AppSidebar />
-        <ScrollArea className="flex-1 ml-12 lg:ml-52">
-          <main className={cn(
-            "min-h-screen",
-            withPadding && "p-6 md:p-8",
-            className
-          )}>
-            {children}
-          </main>
-        </ScrollArea>
+        <div className={cn(
+          "flex-1 transition-all duration-300 overflow-hidden",
+          sidebarCollapsed ? "ml-12" : "ml-52"
+        )}>
+          <ScrollArea className="h-full w-full">
+            <main className={cn(
+              "min-h-screen w-full flex flex-col",
+              withPadding && "p-6 md:p-8",
+              className
+            )}>
+              {children}
+            </main>
+          </ScrollArea>
+        </div>
       </div>
     </PageTransition>
   );

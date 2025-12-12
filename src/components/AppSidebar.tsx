@@ -110,13 +110,14 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
       <button
         onClick={onClick || (() => path && handleNavigate(path))}
         className={cn(
-          "w-full flex items-center gap-3 px-3 py-2 text-[11px] transition-colors",
+          "w-full flex items-center gap-3 px-3 py-2 transition-colors",
+          isMobileSheet ? "text-sm py-3" : "text-[11px]",
           active 
             ? "text-greek-gold bg-accent/50" 
             : "text-muted-foreground hover:text-foreground hover:bg-accent/30"
         )}
       >
-        <Icon className="h-3.5 w-3.5 shrink-0" />
+        <Icon className={cn("shrink-0", isMobileSheet ? "h-5 w-5" : "h-3.5 w-3.5")} />
         {(!isCollapsed || isMobileSheet) && <span className="truncate">{label}</span>}
       </button>
     );
@@ -147,9 +148,12 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
     if (isCollapsible) {
       return (
         <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-          <CollapsibleTrigger className="w-full px-3 py-1 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground font-medium hover:text-foreground transition-colors">
+          <CollapsibleTrigger className={cn(
+            "w-full px-3 py-1 flex items-center justify-between uppercase tracking-wider text-muted-foreground font-medium hover:text-foreground transition-colors",
+            isMobileSheet ? "text-xs py-2" : "text-[10px]"
+          )}>
             <span>{title}</span>
-            <ChevronDown className={cn("h-3 w-3 transition-transform", isOpen && "rotate-180")} />
+            <ChevronDown className={cn("transition-transform", isOpen && "rotate-180", isMobileSheet ? "h-4 w-4" : "h-3 w-3")} />
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="space-y-0.5 pt-1">
@@ -158,7 +162,8 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
                   key={debate.slug}
                   onClick={() => handleNavigate(`/debate/${debate.slug}`)}
                   className={cn(
-                    "w-full text-left px-3 py-1 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors truncate",
+                    "w-full text-left px-3 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors truncate",
+                    isMobileSheet ? "text-sm py-2.5" : "text-[10px] py-1",
                     location.pathname === `/debate/${debate.slug}` && "text-greek-gold bg-accent/50"
                   )}
                   title={debate.statement}
@@ -176,7 +181,10 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
     
     return (
       <div className="space-y-1">
-        <p className="px-3 text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+        <p className={cn(
+          "px-3 uppercase tracking-wider text-muted-foreground font-medium",
+          isMobileSheet ? "text-xs py-1" : "text-[10px]"
+        )}>
           {title}
         </p>
         <div className="space-y-0.5">
@@ -185,7 +193,8 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
               key={debate.slug}
               onClick={() => handleNavigate(`/debate/${debate.slug}`)}
               className={cn(
-                "w-full text-left px-3 py-1 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors truncate",
+                "w-full text-left px-3 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors truncate",
+                isMobileSheet ? "text-sm py-2.5" : "text-[10px] py-1",
                 location.pathname === `/debate/${debate.slug}` && "text-greek-gold bg-accent/50"
               )}
               title={debate.statement}
@@ -205,20 +214,20 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
     return (
       <div className="flex flex-col h-full bg-background">
         {/* Logo */}
-        <div className="p-4 border-b border-border">
+        <div className="p-5 border-b border-border">
           <button 
             onClick={() => handleNavigate("/")}
-            className="flex items-center gap-2"
+            className="flex items-center gap-3"
           >
-            <Scale className="h-5 w-5 text-greek-gold" />
-            <span className="font-logo text-lg text-foreground tracking-tight italic">
+            <Scale className="h-7 w-7 text-greek-gold" />
+            <span className="font-logo text-xl text-foreground tracking-tight italic">
               BothSides
             </span>
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="p-2 space-y-0.5">
+        <nav className="p-3 space-y-1">
           <NavItem icon={Home} label="Home" path="/" />
           <NavItem icon={Globe} label="Public Debates" path="/public" />
           <NavItem 
@@ -229,8 +238,8 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
         </nav>
 
         {/* Debate Lists */}
-        <ScrollArea className="flex-1 px-2">
-          <div className="space-y-3 py-2">
+        <ScrollArea className="flex-1 px-3">
+          <div className="space-y-4 py-3">
             <DebateList title="Recent Debates" debates={recentDebates} />
             {user && (
               <DebateList 
@@ -245,7 +254,7 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
         </ScrollArea>
 
         {/* Bottom Section */}
-        <div className="p-2 border-t border-border">
+        <div className="p-3 border-t border-border">
           {user ? (
             <NavItem icon={LogOut} label="Sign Out" onClick={handleSignOut} />
           ) : (
@@ -274,34 +283,40 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
     >
       {/* Logo + Expand Button Row */}
       <div className="p-2.5 border-b border-border flex items-center justify-between relative">
+        {/* Logo area - shows expand icon on hover when collapsed */}
         <button 
-          onClick={() => handleNavigate("/")}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          onClick={isCollapsed ? handleExpandClick : () => handleNavigate("/")}
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity relative group"
         >
-          <Scale className="h-4 w-4 text-greek-gold shrink-0" />
-          {!isCollapsed && (
-            <span className="font-logo text-sm text-foreground tracking-tight italic">
-              BothSides
-            </span>
+          {isCollapsed ? (
+            <div className="relative h-4 w-4">
+              <Scale className={cn(
+                "h-4 w-4 text-greek-gold shrink-0 absolute inset-0 transition-opacity",
+                isHoveringBar ? "opacity-0" : "opacity-100"
+              )} />
+              <PanelLeft className={cn(
+                "h-4 w-4 text-muted-foreground hover:text-foreground shrink-0 absolute inset-0 transition-opacity",
+                isHoveringBar ? "opacity-100" : "opacity-0"
+              )} />
+            </div>
+          ) : (
+            <>
+              <Scale className="h-4 w-4 text-greek-gold shrink-0" />
+              <span className="font-logo text-sm text-foreground tracking-tight italic">
+                BothSides
+              </span>
+            </>
           )}
         </button>
 
-        {/* Expand/Collapse Button */}
-        {!isCollapsed ? (
+        {/* Collapse Button - only when expanded */}
+        {!isCollapsed && (
           <button
             onClick={handleExpandClick}
             className="p-1 text-muted-foreground hover:text-foreground transition-colors"
             title="Collapse sidebar"
           >
             <ChevronLeft className="h-3 w-3" />
-          </button>
-        ) : isHoveringBar && (
-          <button
-            onClick={handleExpandClick}
-            className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors bg-background"
-            title="Expand sidebar"
-          >
-            <PanelLeft className="h-3 w-3" />
           </button>
         )}
       </div>
