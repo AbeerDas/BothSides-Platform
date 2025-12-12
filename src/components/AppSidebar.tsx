@@ -241,7 +241,7 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
         {/* Debate Lists */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-4 py-3">
-            <DebateList title="Recent Debates" debates={recentDebates} />
+            <DebateList title="Recent Public Debates" debates={recentDebates} />
             {user && (
               <DebateList 
                 title="My Debates" 
@@ -343,7 +343,7 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
         {/* Debate Lists - Scrollable */}
         <ScrollArea className="flex-1 px-1.5">
           <div className="space-y-3 py-2">
-            <DebateList title="Recent Debates" debates={recentDebates} />
+            <DebateList title="Recent Public Debates" debates={recentDebates} />
             {user && (
               <DebateList 
                 title="My Debates" 

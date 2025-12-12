@@ -22,11 +22,13 @@ const PERSPECTIVES = [
 interface PerspectivePillsProps {
   perspectives: string[];
   onChange: (perspectives: string[]) => void;
+  className?: string;
 }
 
 export const PerspectivePills = ({
   perspectives,
-  onChange
+  onChange,
+  className
 }: PerspectivePillsProps) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -55,7 +57,7 @@ export const PerspectivePills = ({
   );
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn("flex items-center gap-2", className)}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button 
