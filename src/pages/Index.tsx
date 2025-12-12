@@ -270,7 +270,7 @@ const Index = () => {
 
                 {/* Bottom toolbar - seamlessly integrated */}
                 <div className="flex items-center justify-between px-4 pb-4 pt-2">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-40">
                     <Button variant="ghost" size="sm" onClick={handleRandomTopic} className="gap-2 text-muted-foreground hover:text-foreground hover:bg-accent/50 h-9">
                       <Dices className="h-4 w-4" />
                       <span className="hidden sm:inline text-xs">Random</span>
