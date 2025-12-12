@@ -5,7 +5,7 @@ import { ArgumentCard } from "./ArgumentCard";
 import { ConclusionSection } from "./ConclusionSection";
 import { LikeButton } from "./LikeButton";
 import { SkeletonArgumentCard } from "./SkeletonDebate";
-import { Download, RotateCcw, ChevronLeft, ChevronRight, RefreshCw, ChevronDown, Share2, BookOpen, ChevronsDownUp, ChevronsUpDown, ArrowLeftRight } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, RefreshCw, ChevronDown, Share2, BookOpen, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -220,16 +220,24 @@ export const DebateView = ({
     
     addSeparator();
 
-    // Executive Summary
-    addText("Executive Summary", 14, true);
+    // Summary of For Arguments
+    addText("Summary of Arguments in Favor", 14, true);
     y += 2;
-    addText(currentDebate.summary, 11, false, true);
+    const forSummary = currentDebate.argumentsFor.map((arg, i) => `${i + 1}. ${arg.title || 'Point'}: ${arg.text.substring(0, 150)}...`).join(' ');
+    addText(`The proponents of this position present ${currentDebate.argumentsFor.length} key arguments. ${forSummary}`, 11);
     y += 5;
 
-    // Conclusion placeholder - will be filled when available
+    // Summary of Against Arguments
+    addText("Summary of Arguments Against", 14, true);
+    y += 2;
+    const againstSummary = currentDebate.argumentsAgainst.map((arg, i) => `${i + 1}. ${arg.title || 'Point'}: ${arg.text.substring(0, 150)}...`).join(' ');
+    addText(`Those opposing this position put forward ${currentDebate.argumentsAgainst.length} main counterpoints. ${againstSummary}`, 11);
+    y += 5;
+
+    // Conclusion
     addText("Conclusion", 14, true);
     y += 2;
-    addText("This analysis examines both perspectives on the topic, weighing the evidence and arguments presented by each side.", 11);
+    addText(`This analysis examines both perspectives on "${currentDebate.statement}". The debate presents compelling arguments on both sides, with proponents emphasizing key benefits while opponents raise significant concerns. Ultimately, the strength of each position depends on the values and priorities one brings to the discussion.`, 11);
     
     addSeparator();
 
@@ -312,8 +320,8 @@ export const DebateView = ({
             {currentDebate.summary}
           </p>
           
-          {/* Action buttons - reordered: Collapse All, Share, Complexity, Lens, Export, New + Heart */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-border/50">
+          {/* Action buttons - reordered: Collapse All, Complexity, Lens, Export, Share + Heart */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-border/50 mb-6">
             <div className="flex flex-wrap items-center gap-2">
               {/* Collapse All toggle - controls ArgumentCard collapse */}
               <Button
@@ -327,31 +335,6 @@ export const DebateView = ({
                 ) : (
                   <><ChevronsUpDown className="h-3.5 w-3.5" /> Expand</>
                 )}
-              </Button>
-
-              {/* Show Both Toggle */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setExpandedSide(null)}
-                className={cn(
-                  "gap-1.5 font-sans text-[10px] uppercase tracking-wider h-8",
-                  expandedSide === null && "bg-accent"
-                )}
-              >
-                <ArrowLeftRight className="h-3.5 w-3.5" />
-                Both
-              </Button>
-
-              {/* Share */}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleShare} 
-                className="gap-1.5 font-sans text-[10px] uppercase tracking-wider hover:bg-accent h-8"
-              >
-                <Share2 className="h-3.5 w-3.5" />
-                Share
               </Button>
 
               {/* Complexity */}
@@ -472,15 +455,14 @@ export const DebateView = ({
                 Export
               </Button>
 
-              {/* New Debate */}
+              {/* Share - now at end with amber background */}
               <Button 
-                variant="outline" 
                 size="sm" 
-                onClick={onReset} 
+                onClick={handleShare} 
                 className="gap-1.5 font-sans text-[10px] uppercase tracking-wider bg-amber-800 hover:bg-amber-700 text-white h-8"
               >
-                <RotateCcw className="h-3.5 w-3.5" />
-                New
+                <Share2 className="h-3.5 w-3.5" />
+                Share
               </Button>
             </div>
 
