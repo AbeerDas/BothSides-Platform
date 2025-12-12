@@ -33,7 +33,7 @@ export default function Documentation() {
   return <MainLayout>
       <article className="max-w-3xl mx-auto">
         {/* Header */}
-        <header className="text-center mb-16 pb-8 ">
+        <header className="text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
             <Scale className="h-10 w-10 text-greek-gold" strokeWidth={1.5} />
             <h1 className="font-serif text-4xl font-medium text-foreground">
