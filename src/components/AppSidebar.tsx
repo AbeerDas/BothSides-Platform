@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Scale, Globe, Home, LogIn, LogOut, ChevronLeft, ChevronRight, Sun, Moon, ChevronDown, PanelLeft } from "lucide-react";
+import { Scale, Globe, Home, LogIn, LogOut, ChevronLeft, Sun, Moon, ChevronDown, PanelLeft, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -230,6 +230,7 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
         <nav className="p-3 space-y-1">
           <NavItem icon={Home} label="Home" path="/" />
           <NavItem icon={Globe} label="Public Debates" path="/public" />
+          <NavItem icon={FileText} label="Documentation" path="/docs" />
           <NavItem 
             icon={theme === "dark" ? Sun : Moon} 
             label={theme === "dark" ? "Light Mode" : "Dark Mode"} 
@@ -282,20 +283,26 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
       }}
     >
       {/* Logo + Expand Button Row */}
-      <div className="p-2.5 border-b border-border flex items-center justify-between relative">
+      <div className={cn(
+        "p-2.5 border-b border-border flex items-center relative",
+        isCollapsed ? "justify-center" : "justify-between"
+      )}>
         {/* Logo area - shows expand icon on hover when collapsed */}
         <button 
           onClick={isCollapsed ? handleExpandClick : () => handleNavigate("/")}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity relative group"
+          className={cn(
+            "flex items-center gap-2 hover:opacity-80 transition-opacity relative group",
+            isCollapsed && "justify-center w-full"
+          )}
         >
           {isCollapsed ? (
-            <div className="relative h-4 w-4">
+            <div className="relative h-4 w-4 flex items-center justify-center">
               <Scale className={cn(
-                "h-4 w-4 text-greek-gold shrink-0 absolute inset-0 transition-opacity",
+                "h-4 w-4 text-greek-gold shrink-0 absolute transition-opacity",
                 isHoveringBar ? "opacity-0" : "opacity-100"
               )} />
               <PanelLeft className={cn(
-                "h-4 w-4 text-muted-foreground hover:text-foreground shrink-0 absolute inset-0 transition-opacity",
+                "h-4 w-4 text-muted-foreground hover:text-foreground shrink-0 absolute transition-opacity",
                 isHoveringBar ? "opacity-100" : "opacity-0"
               )} />
             </div>
@@ -321,11 +328,11 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
         )}
       </div>
 
-      {/* Navigation */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <nav className="p-1.5 space-y-0.5">
+        <nav className={cn("p-1.5 space-y-0.5", isCollapsed && "flex flex-col items-center")}>
           <NavItem icon={Home} label="Home" path="/" />
           <NavItem icon={Globe} label="Public Debates" path="/public" />
+          <NavItem icon={FileText} label="Documentation" path="/docs" />
           <NavItem 
             icon={theme === "dark" ? Sun : Moon} 
             label={theme === "dark" ? "Light Mode" : "Dark Mode"} 

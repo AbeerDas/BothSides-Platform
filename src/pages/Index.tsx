@@ -58,6 +58,9 @@ const Index = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
+  // Determine what view to show (but don't return early before all hooks)
+  const showMobileHome = isMobile && !debate && !isGenerating;
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -257,8 +260,8 @@ const Index = () => {
     }
   };
 
-  // Mobile home view
-  if (isMobile && !debate && !isGenerating) {
+  // Mobile home view - rendered differently but no early return
+  if (showMobileHome) {
     return (
       <MainLayout withPadding={false}>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-6">
@@ -284,7 +287,7 @@ const Index = () => {
     <MainLayout>
       <div className={cn("max-w-5xl mx-auto space-y-8 flex-1 flex flex-col", isMobile && "pb-24")}>
         {!debate && !isGenerating && (
-          <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="flex-1 flex flex-col items-center justify-center min-h-[70vh]">
             <div className="text-center space-y-3 mb-8 animate-fade-in">
               <Scale className="h-10 w-10 mx-auto text-greek-gold animate-float" strokeWidth={1.5} />
               <h1 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
@@ -294,10 +297,7 @@ const Index = () => {
 
             {/* Perplexity-style unified input - the input IS the container */}
             <div className="w-full max-w-2xl mx-auto">
-              <div className={cn(
-                "relative border border-border/60 bg-card shadow-xl transition-all duration-200",
-                statement.trim() ? "ring-0" : ""
-              )}>
+              <div className="relative border border-border/60 bg-card shadow-xl transition-all duration-200">
                 {/* Perspective pills inside the input area */}
                 {perspectives.length > 0 && (
                   <div className="flex flex-wrap gap-2 p-4 pb-0 animate-in fade-in duration-300">
@@ -322,7 +322,7 @@ const Index = () => {
                   value={statement}
                   onChange={(e) => setStatement(e.target.value)}
                   placeholder="LeBron is better than Michael Jordan..."
-                  className="min-h-[80px] font-body text-base resize-none border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-4"
+                  className="min-h-[120px] font-body text-base resize-none border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-4"
                 />
 
                 {/* Bottom toolbar - seamlessly integrated */}

@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import PublicDomain from "./pages/PublicDomain";
 import DebateDetail from "./pages/DebateDetail";
+import Documentation from "./pages/Documentation";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/public" element={<PublicDomain />} />
+            <Route path="/docs" element={<Documentation />} />
             <Route path="/debate/:slug" element={<DebateDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
