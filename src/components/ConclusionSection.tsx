@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Scale, CheckCircle2, XCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +39,11 @@ export const ConclusionSection = ({
 
   // Create a hash of arguments to detect changes
   const getArgsHash = () => {
-    return JSON.stringify({ for: argumentsFor.length, against: argumentsAgainst.length, statement });
+    return JSON.stringify({ 
+      for: argumentsFor.map(a => a.text), 
+      against: argumentsAgainst.map(a => a.text), 
+      statement 
+    });
   };
 
   useEffect(() => {
@@ -66,14 +70,19 @@ export const ConclusionSection = ({
 
       setConclusion(data.conclusion);
       
-      // Determine stance - always pick one (never balanced)
+      // Parse stance from the conclusion text
       const lowerConclusion = data.conclusion.toLowerCase();
-      if (lowerConclusion.includes("against") || 
-          lowerConclusion.includes("opposing") ||
-          lowerConclusion.includes("reject") ||
-          lowerConclusion.includes("not support")) {
+      const firstSentence = data.conclusion.split(/[.!?]/)[0].toLowerCase();
+      
+      // Check first sentence for explicit stance indicators
+      if (firstSentence.includes("i oppose") || 
+          firstSentence.includes("i reject") ||
+          firstSentence.includes("against") ||
+          firstSentence.includes("not support") ||
+          firstSentence.includes("disagree")) {
         setStance("against");
       } else {
+        // Default to "for" since the prompt asks for explicit stance
         setStance("for");
       }
 
@@ -97,10 +106,9 @@ export const ConclusionSection = ({
   };
 
   const StanceIcon = stance === "for" ? CheckCircle2 : XCircle;
-
-  const stanceColor = stance === "for" ? "text-for-accent" : "text-against-accent";
-
+  const stanceColor = stance === "for" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400";
   const stanceLabel = stance === "for" ? "For" : "Against";
+  const stanceBg = stance === "for" ? "border-green-500/50 bg-green-500/5" : "border-red-500/50 bg-red-500/5";
 
   return (
     <Card className="border border-border bg-card overflow-hidden">
@@ -109,12 +117,11 @@ export const ConclusionSection = ({
         className="w-full p-4 flex items-center justify-between gap-4 hover:bg-muted/30 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <Scale className="h-4 w-4 text-greek-gold" />
           <h3 className="font-serif font-medium text-sm text-foreground">
             Final Conclusion
           </h3>
           {!isLoading && conclusion && (
-            <span className={cn("text-[10px] font-sans uppercase tracking-wider flex items-center gap-1", stanceColor)}>
+            <span className={cn("text-[10px] font-sans uppercase tracking-wider flex items-center gap-1 px-2 py-0.5 border", stanceBg, stanceColor)}>
               <StanceIcon className="h-3 w-3" />
               {stanceLabel}
             </span>
@@ -133,23 +140,25 @@ export const ConclusionSection = ({
         <div className="px-4 pb-4 animate-fade-in space-y-3">
           {isLoading ? (
             <div className="space-y-2">
-              <div className="h-3 w-full bg-muted/50 animate-shimmer" />
-              <div className="h-3 w-5/6 bg-muted/50 animate-shimmer" />
-              <div className="h-3 w-4/5 bg-muted/50 animate-shimmer" />
+              <div className="h-3 w-full bg-muted/50 animate-shimmer rounded" />
+              <div className="h-3 w-5/6 bg-muted/50 animate-shimmer rounded" />
+              <div className="h-3 w-4/5 bg-muted/50 animate-shimmer rounded" />
             </div>
           ) : (
             <>
               {/* Stance Indicator */}
               <div className={cn(
                 "flex items-center gap-3 p-2.5 border-l-4",
-                stance === "for" && "border-for-accent bg-for-bg/50",
-                stance === "against" && "border-against-accent bg-against-bg/50"
+                stance === "for" && "border-green-500 bg-green-500/5",
+                stance === "against" && "border-red-500 bg-red-500/5"
               )}>
                 <StanceIcon className={cn("h-4 w-4", stanceColor)} />
                 <div>
-                  <p className={cn("text-xs font-medium", stanceColor)}>{stanceLabel}</p>
+                  <p className={cn("text-xs font-medium", stanceColor)}>
+                    {stance === "for" ? "Supports the Statement" : "Opposes the Statement"}
+                  </p>
                   <p className="text-[10px] text-muted-foreground">
-                    Based on {argumentsFor.length + argumentsAgainst.length} arguments
+                    Based on {argumentsFor.length + argumentsAgainst.length} arguments analyzed
                   </p>
                 </div>
               </div>

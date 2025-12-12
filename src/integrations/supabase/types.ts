@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      debate_likes: {
+        Row: {
+          created_at: string
+          debate_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          debate_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          debate_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debate_likes_debate_id_fkey"
+            columns: ["debate_id"]
+            isOneToOne: false
+            referencedRelation: "debates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debate_votes: {
         Row: {
           created_at: string
@@ -52,9 +81,11 @@ export type Database = {
           created_at: string
           id: string
           is_public: boolean
+          likes: number | null
           slug: string
           statement: string
           summary: string
+          tags: string[] | null
           user_id: string | null
           votes: number
         }
@@ -63,9 +94,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_public?: boolean
+          likes?: number | null
           slug: string
           statement: string
           summary: string
+          tags?: string[] | null
           user_id?: string | null
           votes?: number
         }
@@ -74,9 +107,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_public?: boolean
+          likes?: number | null
           slug?: string
           statement?: string
           summary?: string
+          tags?: string[] | null
           user_id?: string | null
           votes?: number
         }
