@@ -7,8 +7,11 @@ import { DebateView } from "@/components/DebateView";
 import { PerspectivePills } from "@/components/PerspectivePills";
 import { SkeletonDebateView } from "@/components/SkeletonDebate";
 import { MainLayout } from "@/components/MainLayout";
-import { ArrowRight, Scale, Dices } from "lucide-react";
+import { MobileInput } from "@/components/MobileInput";
+import { ArrowRight, Scale, Dices, X } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface Source {
   title: string;
@@ -40,42 +43,7 @@ const RANDOM_TOPICS = [
   "Cryptocurrency will replace traditional currency",
   "Space exploration is worth the investment",
   "Veganism is the most ethical diet choice",
-  "Nuclear energy is the solution to climate change",
-  "Standardized testing should be abolished",
-  "Violent video games cause real-world violence",
-  "Social media influencers have too much power",
-  "Cancel culture has gone too far",
-  "The metaverse will transform how we live",
-  "4-day work weeks should become standard",
-  "Billionaires should not exist",
-  "Privacy is dead in the digital age",
-  "Genetic engineering should be used on humans",
-  "Automation will lead to mass unemployment",
-  "The Olympics should be held in one permanent location",
-  "Zoos are cruel and should be banned",
-  "Homework does more harm than good",
-  "The death penalty should be abolished",
-  "Minimum wage should be $20/hour",
-  "Fast fashion should be banned",
-  "Voting should be mandatory",
-  "Plastic surgery should have age restrictions",
-  "Self-driving cars will never be safe",
-  "Traditional marriage is outdated",
-  "Cursive handwriting should still be taught",
-  "Celebrities should stay out of politics",
-  "NFTs are worthless",
-  "Countries should have open borders",
-  "Philosophy should be taught in elementary school",
-  "Professional athletes are overpaid",
-  "True altruism doesn't exist",
-  "Beauty standards are harmful to society",
-  "College athletes should be paid",
-  "Streaming killed the music industry",
-  "Tipping culture should be abolished",
-  "Democracy is the best form of government",
-  "Free will is an illusion",
-  "Aliens definitely exist",
-  "Art made by AI isn't real art"
+  "Nuclear energy is the solution to climate change"
 ];
 
 const Index = () => {
@@ -87,6 +55,7 @@ const Index = () => {
   const [currentDebateSlug, setCurrentDebateSlug] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -125,6 +94,20 @@ const Index = () => {
       setDebate(debateData);
 
       const slug = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Generate tags
+      let tags: string[] = [];
+      try {
+        const { data: tagData } = await supabase.functions.invoke('generate-tags', {
+          body: { statement, summary: data.summary }
+        });
+        if (tagData?.tags) {
+          tags = tagData.tags;
+        }
+      } catch (tagError) {
+        console.error('Error generating tags:', tagError);
+      }
+
       const { error: saveError } = await supabase.from('debates').insert({
         slug,
         statement,
@@ -133,7 +116,8 @@ const Index = () => {
           for: data.arguments.for,
           against: data.arguments.against
         },
-        user_id: user?.id || null
+        user_id: user?.id || null,
+        tags
       });
 
       if (saveError) {
@@ -226,9 +210,76 @@ const Index = () => {
     setStatement(topic);
   };
 
+  const handleAddArgument = async (side: "for" | "against") => {
+    if (!debate) return;
+    setAddingArgumentSide(side);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-arguments', {
+        body: {
+          statement: debate.statement,
+          type: 'add-argument',
+          side,
+          existingArguments: side === 'for' 
+            ? debate.argumentsFor 
+            : debate.argumentsAgainst
+        }
+      });
+
+      if (error) throw error;
+
+      const updatedDebate = {
+        ...debate,
+        ...(side === 'for' 
+          ? { argumentsFor: [...debate.argumentsFor, data] }
+          : { argumentsAgainst: [...debate.argumentsAgainst, data] })
+      };
+
+      setDebate(updatedDebate);
+
+      if (currentDebateSlug) {
+        await supabase
+          .from('debates')
+          .update({
+            arguments_data: {
+              for: updatedDebate.argumentsFor,
+              against: updatedDebate.argumentsAgainst
+            } as any
+          })
+          .eq("slug", currentDebateSlug);
+      }
+    } catch (error: any) {
+      toast.error("Failed to add argument");
+    } finally {
+      setAddingArgumentSide(null);
+    }
+  };
+
+  // Mobile home view
+  if (isMobile && !debate && !isGenerating) {
+    return (
+      <MainLayout withPadding={false}>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] px-6">
+          <Scale className="h-12 w-12 text-greek-gold mb-6" strokeWidth={1.5} />
+          <h1 className="font-serif text-2xl font-medium text-foreground text-center">
+            What's Your Take?
+          </h1>
+        </div>
+        
+        <MobileInput
+          statement={statement}
+          setStatement={setStatement}
+          perspectives={perspectives}
+          setPerspectives={setPerspectives}
+          onGenerate={generateInitialArguments}
+          isGenerating={isGenerating}
+        />
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className={cn("max-w-5xl mx-auto space-y-8", isMobile && "pb-24")}>
         {!debate && !isGenerating && (
           <>
             <div className="text-center space-y-3 pt-4 animate-fade-in">
@@ -238,58 +289,63 @@ const Index = () => {
               </h1>
             </div>
 
+            {/* Perplexity-style unified input container */}
             <div className="max-w-2xl mx-auto">
-              <div className="p-6 md:p-8 bg-card/60 backdrop-blur-md border border-border/30 shadow-xl space-y-4">
+              <div className="relative bg-card/80 backdrop-blur-lg border border-border/50 shadow-2xl p-5 md:p-6 space-y-4">
                 <h3 className="text-base font-serif font-medium text-foreground flex items-center gap-2">
                   <span className="text-greek-gold">⟢</span> What's Your Take?
                 </h3>
-                <Textarea
-                  value={statement}
-                  onChange={(e) => setStatement(e.target.value)}
-                  placeholder="LeBron is better than Michael Jordan, UBI should be implemented, Social media does more harm than good..."
-                  className="min-h-[100px] font-body text-base resize-none bg-background/50"
-                />
-
-                {/* Perspective pills display */}
+                
+                {/* Perspective pills display above input */}
                 {perspectives.length > 0 && (
                   <div className="flex flex-wrap gap-2 animate-in fade-in duration-300">
                     {perspectives.map(perspective => (
                       <div 
                         key={perspective} 
-                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary text-foreground text-xs font-sans border border-border rounded-sm"
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-secondary text-foreground text-xs font-sans border border-border"
                       >
                         <span>{perspective}</span>
                         <button 
                           onClick={() => setPerspectives(perspectives.filter(p => p !== perspective))} 
                           className="hover:text-destructive transition-colors"
                         >
-                          <span className="text-xs">×</span>
+                          <X className="h-3 w-3" />
                         </button>
                       </div>
                     ))}
                   </div>
                 )}
 
-                <div className="space-y-3 pt-2">
-                  <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
+                <Textarea
+                  value={statement}
+                  onChange={(e) => setStatement(e.target.value)}
+                  placeholder="LeBron is better than Michael Jordan..."
+                  className="min-h-[100px] font-body text-base resize-none bg-background/50 border-border/50 focus:ring-1 focus:ring-border"
+                />
+
+                {/* Bottom toolbar */}
+                <div className="flex items-center justify-between pt-2">
                   <div className="flex items-center gap-2">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleRandomTopic}
-                      className="gap-2 text-muted-foreground hover:text-foreground"
+                      className="gap-2 text-muted-foreground hover:text-foreground h-8"
                     >
-                      <Dices className="h-4 w-4" /> Random topic
+                      <Dices className="h-4 w-4" />
+                      <span className="hidden sm:inline text-xs">Random</span>
                     </Button>
-                    <Button
-                      onClick={generateInitialArguments}
-                      disabled={!statement.trim()}
-                      size="sm"
-                      className="ml-auto font-sans text-xs uppercase tracking-wider text-white font-medium bg-amber-800 hover:bg-amber-700"
-                    >
-                      Generate <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-                    </Button>
+                    <PerspectivePills perspectives={perspectives} onChange={setPerspectives} />
                   </div>
+                  
+                  <Button
+                    onClick={generateInitialArguments}
+                    disabled={!statement.trim()}
+                    size="sm"
+                    className="font-sans text-xs uppercase tracking-wider text-white font-medium bg-amber-800 hover:bg-amber-700 h-9 px-4"
+                  >
+                    Generate <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -303,48 +359,7 @@ const Index = () => {
             debate={debate}
             onRefute={handleRefute}
             onReset={resetDebate}
-            onAddArgument={async (side) => {
-              setAddingArgumentSide(side);
-              try {
-                const { data, error } = await supabase.functions.invoke('generate-arguments', {
-                  body: {
-                    statement: debate.statement,
-                    type: 'add-argument',
-                    side,
-                    existingArguments: side === 'for' 
-                      ? debate.argumentsFor 
-                      : debate.argumentsAgainst
-                  }
-                });
-
-                if (error) throw error;
-
-                const updatedDebate = {
-                  ...debate,
-                  ...(side === 'for' 
-                    ? { argumentsFor: [...debate.argumentsFor, data] }
-                    : { argumentsAgainst: [...debate.argumentsAgainst, data] })
-                };
-
-                setDebate(updatedDebate);
-
-                if (currentDebateSlug) {
-                  await supabase
-                    .from('debates')
-                    .update({
-                      arguments_data: {
-                        for: updatedDebate.argumentsFor,
-                        against: updatedDebate.argumentsAgainst
-                      } as any
-                    })
-                    .eq("slug", currentDebateSlug);
-                }
-              } catch (error: any) {
-                toast.error("Failed to add argument");
-              } finally {
-                setAddingArgumentSide(null);
-              }
-            }}
+            onAddArgument={handleAddArgument}
             addingArgumentSide={addingArgumentSide}
           />
         )}

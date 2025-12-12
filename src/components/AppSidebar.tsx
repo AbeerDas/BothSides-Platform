@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Scale, Globe, Home, LogIn, LogOut, ChevronLeft, ChevronRight, Sun, Moon, ChevronDown } from "lucide-react";
+import { Scale, Globe, Home, LogIn, LogOut, ChevronLeft, ChevronRight, Sun, Moon, ChevronDown, PanelLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -14,10 +14,15 @@ interface Debate {
   created_at: string;
 }
 
-export const AppSidebar = () => {
+interface AppSidebarProps {
+  isMobileSheet?: boolean;
+  onClose?: () => void;
+}
+
+export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) => {
   const [user, setUser] = useState<any>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isHoveringLogo, setIsHoveringLogo] = useState(false);
+  const [isHoveringBar, setIsHoveringBar] = useState(false);
   const [recentDebates, setRecentDebates] = useState<Debate[]>([]);
   const [myDebates, setMyDebates] = useState<Debate[]>([]);
   const [myDebatesOpen, setMyDebatesOpen] = useState(false);
@@ -43,26 +48,24 @@ export const AppSidebar = () => {
 
   const loadDebates = async () => {
     try {
-      // Load all recent public debates (scrollable)
       const { data: publicDebates } = await supabase
         .from("debates")
         .select("slug, statement, created_at")
         .eq("is_public", true)
         .order("created_at", { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (publicDebates) {
         setRecentDebates(publicDebates);
       }
 
-      // Load user's debates if logged in
       if (user) {
         const { data: userDebates } = await supabase
           .from("debates")
           .select("slug, statement, created_at")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
-          .limit(50);
+          .limit(100);
 
         if (userDebates) {
           setMyDebates(userDebates);
@@ -76,9 +79,19 @@ export const AppSidebar = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/");
+    onClose?.();
+  };
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    onClose?.();
   };
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleExpandClick = () => {
+    setIsCollapsed(!isCollapsed);
+  };
 
   const NavItem = ({ 
     icon: Icon, 
@@ -95,7 +108,7 @@ export const AppSidebar = () => {
     
     const content = (
       <button
-        onClick={onClick || (() => path && navigate(path))}
+        onClick={onClick || (() => path && handleNavigate(path))}
         className={cn(
           "w-full flex items-center gap-3 px-3 py-2 text-[11px] transition-colors",
           active 
@@ -104,11 +117,11 @@ export const AppSidebar = () => {
         )}
       >
         <Icon className="h-3.5 w-3.5 shrink-0" />
-        {!isCollapsed && <span className="truncate">{label}</span>}
+        {(!isCollapsed || isMobileSheet) && <span className="truncate">{label}</span>}
       </button>
     );
 
-    if (isCollapsed) {
+    if (isCollapsed && !isMobileSheet) {
       return (
         <Tooltip>
           <TooltipTrigger asChild>{content}</TooltipTrigger>
@@ -129,7 +142,7 @@ export const AppSidebar = () => {
     isOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
   }) => {
-    if (isCollapsed || debates.length === 0) return null;
+    if ((isCollapsed && !isMobileSheet) || debates.length === 0) return null;
     
     if (isCollapsible) {
       return (
@@ -143,7 +156,7 @@ export const AppSidebar = () => {
               {debates.map((debate) => (
                 <button
                   key={debate.slug}
-                  onClick={() => navigate(`/debate/${debate.slug}`)}
+                  onClick={() => handleNavigate(`/debate/${debate.slug}`)}
                   className={cn(
                     "w-full text-left px-3 py-1 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors truncate",
                     location.pathname === `/debate/${debate.slug}` && "text-greek-gold bg-accent/50"
@@ -170,7 +183,7 @@ export const AppSidebar = () => {
           {debates.map((debate) => (
             <button
               key={debate.slug}
-              onClick={() => navigate(`/debate/${debate.slug}`)}
+              onClick={() => handleNavigate(`/debate/${debate.slug}`)}
               className={cn(
                 "w-full text-left px-3 py-1 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors truncate",
                 location.pathname === `/debate/${debate.slug}` && "text-greek-gold bg-accent/50"
@@ -187,52 +200,108 @@ export const AppSidebar = () => {
     );
   };
 
+  // For mobile sheet mode
+  if (isMobileSheet) {
+    return (
+      <div className="flex flex-col h-full bg-background">
+        {/* Logo */}
+        <div className="p-4 border-b border-border">
+          <button 
+            onClick={() => handleNavigate("/")}
+            className="flex items-center gap-2"
+          >
+            <Scale className="h-5 w-5 text-greek-gold" />
+            <span className="font-logo text-lg text-foreground tracking-tight italic">
+              BothSides
+            </span>
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="p-2 space-y-0.5">
+          <NavItem icon={Home} label="Home" path="/" />
+          <NavItem icon={Globe} label="Public Debates" path="/public" />
+          <NavItem 
+            icon={theme === "dark" ? Sun : Moon} 
+            label={theme === "dark" ? "Light Mode" : "Dark Mode"} 
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")} 
+          />
+        </nav>
+
+        {/* Debate Lists */}
+        <ScrollArea className="flex-1 px-2">
+          <div className="space-y-3 py-2">
+            <DebateList title="Recent Debates" debates={recentDebates} />
+            {user && (
+              <DebateList 
+                title="My Debates" 
+                debates={myDebates} 
+                isCollapsible 
+                isOpen={myDebatesOpen} 
+                onOpenChange={setMyDebatesOpen} 
+              />
+            )}
+          </div>
+        </ScrollArea>
+
+        {/* Bottom Section */}
+        <div className="p-2 border-t border-border">
+          {user ? (
+            <NavItem icon={LogOut} label="Sign Out" onClick={handleSignOut} />
+          ) : (
+            <NavItem icon={LogIn} label="Sign Up / Log In" path="/auth" />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop sidebar
   return (
     <aside 
       className={cn(
         "fixed left-0 top-0 h-screen bg-background border-r border-border z-50 flex flex-col transition-all duration-300",
         isCollapsed ? "w-12" : "w-52"
       )}
+      onMouseEnter={() => isCollapsed && setIsHoveringBar(true)}
+      onMouseLeave={() => setIsHoveringBar(false)}
+      onClick={(e) => {
+        // If collapsed and clicking on empty space (not a button), expand
+        if (isCollapsed && (e.target as HTMLElement).closest('button') === null) {
+          setIsCollapsed(false);
+        }
+      }}
     >
       {/* Logo + Expand Button Row */}
-      <div className="p-2.5 border-b border-border flex items-center justify-between">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button 
-              onClick={() => navigate("/")}
-              onMouseEnter={() => setIsHoveringLogo(true)}
-              onMouseLeave={() => setIsHoveringLogo(false)}
-              className={cn(
-                "flex items-center gap-2 hover:opacity-80 transition-opacity",
-                isCollapsed && isHoveringLogo && "cursor-e-resize"
-              )}
-            >
-              <Scale className="h-4 w-4 text-greek-gold shrink-0" />
-              {!isCollapsed && (
-                <span className="font-logo text-sm text-foreground tracking-tight italic">
-                  BothSides
-                </span>
-              )}
-            </button>
-          </TooltipTrigger>
-          {isCollapsed && (
-            <TooltipContent side="right" className="text-[10px]">
-              BothSides - Home
-            </TooltipContent>
+      <div className="p-2.5 border-b border-border flex items-center justify-between relative">
+        <button 
+          onClick={() => handleNavigate("/")}
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        >
+          <Scale className="h-4 w-4 text-greek-gold shrink-0" />
+          {!isCollapsed && (
+            <span className="font-logo text-sm text-foreground tracking-tight italic">
+              BothSides
+            </span>
           )}
-        </Tooltip>
+        </button>
 
-        {/* Expand/Collapse Button - always visible in expanded, on hover in collapsed */}
-        {(!isCollapsed || isHoveringLogo) && (
+        {/* Expand/Collapse Button */}
+        {!isCollapsed ? (
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={handleExpandClick}
             className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+            title="Collapse sidebar"
           >
-            {isCollapsed ? (
-              <ChevronRight className="h-3 w-3" />
-            ) : (
-              <ChevronLeft className="h-3 w-3" />
-            )}
+            <ChevronLeft className="h-3 w-3" />
+          </button>
+        ) : isHoveringBar && (
+          <button
+            onClick={handleExpandClick}
+            className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors bg-background"
+            title="Expand sidebar"
+          >
+            <PanelLeft className="h-3 w-3" />
           </button>
         )}
       </div>

@@ -1,10 +1,23 @@
 import { useState } from "react";
-import { Dices } from "lucide-react";
+import { Plus, Dices, X, ChevronDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
-const RANDOM_PERSPECTIVES = ["Economist", "Philosopher", "Ethicist", "Historian", "Psychologist", "Sociologist", "Climate Scientist", "Tech Ethicist", "Constitutional Scholar", "Medical Professional", "Urban Planner", "Anthropologist", "Data Scientist", "Legal Scholar", "Theologian", "Military Strategist", "Entrepreneur", "Epidemiologist", "Journalist", "Human Rights Advocate"];
+const PERSPECTIVES = [
+  "Economist", "Philosopher", "Ethicist", "Historian", "Psychologist",
+  "Sociologist", "Climate Scientist", "Tech Ethicist", "Constitutional Scholar",
+  "Medical Professional", "Urban Planner", "Anthropologist", "Data Scientist",
+  "Legal Scholar", "Theologian", "Military Strategist", "Entrepreneur",
+  "Epidemiologist", "Journalist", "Human Rights Advocate", "Futurist",
+  "Game Theorist", "Devil's Advocate", "Utilitarian", "Libertarian",
+  "Conservative", "Progressive", "Environmentalist", "Capitalist"
+];
 
 interface PerspectivePillsProps {
   perspectives: string[];
@@ -15,56 +28,87 @@ export const PerspectivePills = ({
   perspectives,
   onChange
 }: PerspectivePillsProps) => {
-  const [inputValue, setInputValue] = useState("");
+  const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
-  const addPerspective = () => {
-    const trimmed = inputValue.trim();
-    if (trimmed && !perspectives.includes(trimmed)) {
-      onChange([...perspectives, trimmed]);
-      setInputValue("");
+  const addPerspective = (perspective: string) => {
+    if (!perspectives.includes(perspective)) {
+      onChange([...perspectives, perspective]);
     }
+    setSearchValue("");
+    setOpen(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addPerspective();
-    }
+  const removePerspective = (perspective: string) => {
+    onChange(perspectives.filter(p => p !== perspective));
   };
 
   const addRandomPerspective = () => {
-    const available = RANDOM_PERSPECTIVES.filter(p => !perspectives.includes(p));
-    if (available.length === 0) {
-      toast.info("All common perspectives already added");
-      return;
-    }
-    const randomPerspective = available[Math.floor(Math.random() * available.length)];
-    onChange([...perspectives, randomPerspective]);
+    const available = PERSPECTIVES.filter(p => !perspectives.includes(p));
+    if (available.length === 0) return;
+    const random = available[Math.floor(Math.random() * available.length)];
+    onChange([...perspectives, random]);
   };
+
+  const filteredPerspectives = PERSPECTIVES.filter(p => 
+    p.toLowerCase().includes(searchValue.toLowerCase()) && !perspectives.includes(p)
+  );
 
   return (
     <div className="flex items-center gap-2">
-      <Input 
-        placeholder="Add perspective (e.g., Economist)..." 
-        value={inputValue} 
-        onChange={e => setInputValue(e.target.value)} 
-        onKeyDown={handleKeyDown} 
-        className="flex-1 font-sans text-sm h-9" 
-      />
-      <Button 
-        size="sm" 
-        variant="outline"
-        onClick={addPerspective} 
-        disabled={!inputValue.trim()} 
-        className="font-sans text-xs uppercase tracking-wider whitespace-nowrap h-9"
-      >
-        Add
-      </Button>
-      <Button 
-        size="sm" 
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-1.5 h-8 font-sans text-xs"
+          >
+            <Plus className="h-3 w-3" />
+            Add Perspective
+            <ChevronDown className="h-3 w-3 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64 p-0" align="start">
+          <Command>
+            <CommandInput 
+              placeholder="Search perspectives..." 
+              value={searchValue}
+              onValueChange={setSearchValue}
+              className="text-sm"
+            />
+            <CommandList className="max-h-48">
+              <CommandEmpty>
+                {searchValue && (
+                  <button
+                    onClick={() => addPerspective(searchValue)}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-accent"
+                  >
+                    Add "{searchValue}"
+                  </button>
+                )}
+              </CommandEmpty>
+              <CommandGroup>
+                {filteredPerspectives.map(perspective => (
+                  <CommandItem
+                    key={perspective}
+                    value={perspective}
+                    onSelect={() => addPerspective(perspective)}
+                    className="cursor-pointer text-sm"
+                  >
+                    {perspective}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      <Button
         variant="ghost"
-        onClick={addRandomPerspective} 
-        className="font-sans text-xs text-muted-foreground hover:text-foreground h-9 px-2"
+        size="sm"
+        onClick={addRandomPerspective}
+        className="h-8 px-2 text-muted-foreground hover:text-foreground"
         title="Add random perspective"
       >
         <Dices className="h-4 w-4" />

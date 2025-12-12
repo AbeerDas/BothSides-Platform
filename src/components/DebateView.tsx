@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArgumentCard } from "./ArgumentCard";
 import { ConclusionSection } from "./ConclusionSection";
-import { Download, RotateCcw, ChevronLeft, ChevronRight, RefreshCw, ChevronDown, Share2, BookOpen, Heart, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
+import { LikeButton } from "./LikeButton";
+import { SkeletonArgumentCard } from "./SkeletonDebate";
+import { Download, RotateCcw, ChevronLeft, ChevronRight, RefreshCw, ChevronDown, Share2, BookOpen, ChevronsDownUp, ChevronsUpDown, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -36,6 +38,7 @@ interface DebateViewProps {
   onReset: () => void;
   onAddArgument: (side: "for" | "against") => void;
   addingArgumentSide: "for" | "against" | null;
+  debateId?: string;
 }
 
 type ComplexityLevel = "academic" | "default" | "simple";
@@ -45,7 +48,8 @@ export const DebateView = ({
   onRefute,
   onReset,
   onAddArgument,
-  addingArgumentSide
+  addingArgumentSide,
+  debateId
 }: DebateViewProps) => {
   const [expandedSide, setExpandedSide] = useState<"for" | "against" | null>(null);
   const [lensOptions, setLensOptions] = useState<string[]>([]);
@@ -57,7 +61,6 @@ export const DebateView = ({
   const [complexityLevel, setComplexityLevel] = useState<ComplexityLevel>("default");
   const [changingComplexity, setChangingComplexity] = useState(false);
   const [allPointsExpanded, setAllPointsExpanded] = useState(true);
-  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     const fetchLensOptions = async () => {
@@ -102,7 +105,7 @@ export const DebateView = ({
         argumentsFor: data.arguments.for,
         argumentsAgainst: data.arguments.against
       });
-      toast.success(`Regenerated with "${lens}" lens (not saved)`);
+      toast.success(`Regenerated with "${lens}" lens`);
     } catch (err) {
       console.error("Failed to regenerate:", err);
       toast.error("Failed to regenerate debate");
@@ -228,13 +231,7 @@ export const DebateView = ({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <ConclusionSection 
-        key={`${currentDebate.statement}-${currentDebate.argumentsFor.length}-${currentDebate.argumentsAgainst.length}`}
-        statement={currentDebate.statement} 
-        argumentsFor={currentDebate.argumentsFor} 
-        argumentsAgainst={currentDebate.argumentsAgainst} 
-      />
-
+      {/* Title and buttons section - MOVED TO TOP */}
       <div className="border border-border bg-card p-5 space-y-4">
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-4">
@@ -251,9 +248,23 @@ export const DebateView = ({
             {currentDebate.summary}
           </p>
           
-          {/* Action buttons - reordered */}
+          {/* Action buttons - reordered: Share, Complexity, Lens, Export, New + Toggle + Heart */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-border">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Show Both Toggle */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setExpandedSide(null)}
+                className={cn(
+                  "gap-1.5 font-sans text-[10px] uppercase tracking-wider h-8",
+                  expandedSide === null && "bg-accent"
+                )}
+              >
+                <ArrowLeftRight className="h-3.5 w-3.5" />
+                Both
+              </Button>
+
               {/* Share */}
               <Button 
                 variant="outline" 
@@ -396,20 +407,20 @@ export const DebateView = ({
             </div>
 
             {/* Heart button - far right */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsLiked(!isLiked)}
-              className={cn(
-                "h-8 w-8 p-0",
-                isLiked && "text-red-500"
-              )}
-            >
-              <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
-            </Button>
+            {debateId && (
+              <LikeButton debateId={debateId} size="md" />
+            )}
           </div>
         </div>
       </div>
+
+      {/* Conclusion - now below title */}
+      <ConclusionSection 
+        key={`${currentDebate.statement}-${currentDebate.argumentsFor.length}-${currentDebate.argumentsAgainst.length}`}
+        statement={currentDebate.statement} 
+        argumentsFor={currentDebate.argumentsFor} 
+        argumentsAgainst={currentDebate.argumentsAgainst} 
+      />
 
       <div className="flex flex-col lg:flex-row gap-5">
         {/* FOR Panel */}
@@ -473,9 +484,7 @@ export const DebateView = ({
             </div>
             
             {addingArgumentSide === "for" && (
-              <div className="text-xs font-body text-muted-foreground italic animate-fade-in">
-                Generating argument<span className="animate-pulse">...</span>
-              </div>
+              <SkeletonArgumentCard side="for" />
             )}
             
             <Button 
@@ -550,9 +559,7 @@ export const DebateView = ({
             </div>
             
             {addingArgumentSide === "against" && (
-              <div className="text-xs font-body text-muted-foreground italic animate-fade-in">
-                Generating argument<span className="animate-pulse">...</span>
-              </div>
+              <SkeletonArgumentCard side="against" />
             )}
             
             <Button 
