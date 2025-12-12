@@ -91,13 +91,14 @@ export const ArgumentCard = ({
                 {title}
               </h3>
             )}
+            {/* Always show subheading even when minimized */}
+            {subheading && (
+              <p className="text-xs font-body text-muted-foreground italic border-l-2 border-border pl-2">
+                {subheading}
+              </p>
+            )}
             {!isMinimized && (
               <>
-                {subheading && (
-                  <p className="text-xs font-body text-muted-foreground italic border-l-2 border-border pl-2">
-                    {subheading}
-                  </p>
-                )}
                 <p className="text-sm font-body leading-relaxed text-foreground">
                   {text}
                 </p>

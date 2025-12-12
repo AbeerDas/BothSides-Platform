@@ -53,6 +53,7 @@ const Index = () => {
   const [perspectives, setPerspectives] = useState<string[]>([]);
   const [addingArgumentSide, setAddingArgumentSide] = useState<"for" | "against" | null>(null);
   const [currentDebateSlug, setCurrentDebateSlug] = useState<string | null>(null);
+  const [currentDebateId, setCurrentDebateId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -108,7 +109,7 @@ const Index = () => {
         console.error('Error generating tags:', tagError);
       }
 
-      const { error: saveError } = await supabase.from('debates').insert({
+      const { data: insertedData, error: saveError } = await supabase.from('debates').insert({
         slug,
         statement,
         summary: data.summary,
@@ -118,13 +119,14 @@ const Index = () => {
         },
         user_id: user?.id || null,
         tags
-      });
+      }).select('id').single();
 
       if (saveError) {
         console.error('Error saving debate:', saveError);
         toast.error("Debate generated but couldn't save to history");
       } else {
         setCurrentDebateSlug(slug);
+        setCurrentDebateId(insertedData?.id || null);
       }
     } catch (error: any) {
       console.error('Error:', error);
@@ -202,6 +204,7 @@ const Index = () => {
     setStatement("");
     setPerspectives([]);
     setCurrentDebateSlug(null);
+    setCurrentDebateId(null);
     navigate("/");
   };
 
@@ -361,6 +364,7 @@ const Index = () => {
             onReset={resetDebate}
             onAddArgument={handleAddArgument}
             addingArgumentSide={addingArgumentSide}
+            debateId={currentDebateId || undefined}
           />
         )}
       </div>

@@ -37,7 +37,14 @@ ${formatArguments(argumentsFor)}
 Arguments AGAINST:
 ${formatArguments(argumentsAgainst)}
 
-Based on ALL the arguments and counter-arguments presented above, provide a final conclusion. You MUST explicitly state either "I support" or "I oppose" the statement at the very beginning of your response, then explain why in 1-2 sentences. Never be neutral or balanced - always pick a definitive side.`;
+Analyze ALL the arguments presented above. You MUST take a definitive side. 
+
+CRITICAL INSTRUCTIONS:
+- Begin your response with EXACTLY "I support this statement" OR "I oppose this statement" - no other phrasing allowed
+- Then explain your reasoning in 2-3 sentences
+- Never hedge, never say "balanced", never remain neutral
+- Pick the side with stronger arguments and commit fully to that position`;
+
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

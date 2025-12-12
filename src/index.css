@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+}
+
 @layer base {
   :root {
     --background: 40 25% 96%;
@@ -39,9 +43,7 @@
     --radius: 0;
   }
 
-}
-
-.dark {
+  .dark {
     --background: 222 25% 10%;
     --foreground: 40 20% 92%;
     --card: 222 20% 14%;
