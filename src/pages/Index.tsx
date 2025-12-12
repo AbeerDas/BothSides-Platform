@@ -275,7 +275,7 @@ const Index = () => {
                       <Dices className="h-4 w-4" />
                       <span className="hidden sm:inline text-xs">Random</span>
                     </Button>
-                    <PerspectivePills perspectives={perspectives} onChange={setPerspectives} className="mr-2" />
+                    <PerspectivePills perspectives={perspectives} onChange={setPerspectives} className="mr-4" />
                   </div>
                   
                   <Button onClick={generateInitialArguments} disabled={!statement.trim()} size="sm" className="font-sans text-xs uppercase tracking-wider text-white font-medium bg-amber-800 hover:bg-amber-700 h-9 px-4">
