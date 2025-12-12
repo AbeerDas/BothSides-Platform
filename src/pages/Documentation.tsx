@@ -1,10 +1,8 @@
 import { MainLayout } from "@/components/MainLayout";
 import { Scale, ArrowRight, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 export default function Documentation() {
-  return (
-    <MainLayout>
+  return <MainLayout>
       <article className="max-w-3xl mx-auto prose prose-neutral dark:prose-invert prose-headings:font-serif prose-p:font-body prose-p:text-base prose-p:leading-relaxed prose-li:font-body">
         {/* Header */}
         <header className="not-prose text-center mb-12 pb-8 border-b border-border">
@@ -29,7 +27,7 @@ export default function Documentation() {
             for a debate, or simply curious about different viewpoints, BothSides generates comprehensive 
             arguments for and against any statement you provide.
           </p>
-          <p>
+          <p className="my-[24px]">
             Our AI analyzes your topic and constructs well-reasoned arguments supported by relevant 
             sources and citations. This isn't about telling you what to think—it's about giving you 
             the tools to think more deeply.
@@ -196,15 +194,8 @@ export default function Documentation() {
           </p>
           
           <div className="not-prose mt-6">
-            <Button
-              asChild
-              className="gap-2 bg-[#0A66C2] hover:bg-[#004182] text-white"
-            >
-              <a 
-                href="https://www.linkedin.com/in/abeerdas/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
+            <Button asChild className="gap-2 bg-[#0A66C2] hover:bg-[#004182] text-white">
+              <a href="https://www.linkedin.com/in/abeerdas/" target="_blank" rel="noopener noreferrer">
                 <Linkedin className="h-4 w-4" />
                 Connect on LinkedIn
                 <ArrowRight className="h-4 w-4" />
@@ -220,6 +211,5 @@ export default function Documentation() {
           </p>
         </footer>
       </article>
-    </MainLayout>
-  );
+    </MainLayout>;
 }
