@@ -3,34 +3,44 @@ import { Scale, ArrowRight, Linkedin, Mail, GraduationCap, Newspaper, Briefcase,
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-
-const audienceCards = [
-  { icon: GraduationCap, title: "Students", description: "researching essay topics or preparing for debates" },
-  { icon: Newspaper, title: "Journalists", description: "seeking to understand multiple angles of a story" },
-  { icon: Briefcase, title: "Decision Makers", description: "weighing pros and cons of business choices" },
-  { icon: BookOpen, title: "Educators", description: "teaching critical thinking skills" },
-  { icon: Pen, title: "Writers", description: "developing well-rounded characters or storylines" },
-  { icon: Sparkles, title: "Curious Minds", description: "who want to challenge their own assumptions" },
-];
-
+const audienceCards = [{
+  icon: GraduationCap,
+  title: "Students",
+  description: "researching essay topics or preparing for debates"
+}, {
+  icon: Newspaper,
+  title: "Journalists",
+  description: "seeking to understand multiple angles of a story"
+}, {
+  icon: Briefcase,
+  title: "Decision Makers",
+  description: "weighing pros and cons of business choices"
+}, {
+  icon: BookOpen,
+  title: "Educators",
+  description: "teaching critical thinking skills"
+}, {
+  icon: Pen,
+  title: "Writers",
+  description: "developing well-rounded characters or storylines"
+}, {
+  icon: Sparkles,
+  title: "Curious Minds",
+  description: "who want to challenge their own assumptions"
+}];
 export default function Documentation() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
-
-  return (
-    <MainLayout>
+  return <MainLayout>
       <article className="max-w-3xl mx-auto">
         {/* Header */}
-        <header className="text-center mb-16 pb-8 border-b border-border">
+        <header className="text-center mb-16 pb-8 ">
           <div className="flex items-center justify-center gap-3 mb-6">
             <Scale className="h-10 w-10 text-greek-gold" strokeWidth={1.5} />
             <h1 className="font-serif text-4xl font-medium text-foreground">
               BothSides
             </h1>
           </div>
-          <p className="text-lg text-muted-foreground font-body max-w-xl mx-auto">
-            An AI-powered platform for exploring multiple perspectives on any topic. 
-            See both sides of any argument, backed by research and citations.
-          </p>
+          
         </header>
 
         {/* Philosophy Section - Featured Card */}
@@ -191,30 +201,14 @@ export default function Documentation() {
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {audienceCards.map((card, index) => (
-              <div
-                key={card.title}
-                className={cn(
-                  "relative p-6 border border-border bg-card transition-all duration-300 cursor-default overflow-hidden group",
-                  hoveredCard === index && "border-greek-gold shadow-lg"
-                )}
-                onMouseEnter={() => setHoveredCard(index)}
-                onMouseLeave={() => setHoveredCard(null)}
-              >
+            {audienceCards.map((card, index) => <div key={card.title} className={cn("relative p-6 border border-border bg-card transition-all duration-300 cursor-default overflow-hidden group", hoveredCard === index && "border-greek-gold shadow-lg")} onMouseEnter={() => setHoveredCard(index)} onMouseLeave={() => setHoveredCard(null)}>
                 {/* Shimmer effect */}
-                <div className={cn(
-                  "absolute inset-0 bg-gradient-to-r from-transparent via-greek-gold/10 to-transparent -translate-x-full transition-transform duration-700",
-                  hoveredCard === index && "translate-x-full"
-                )} />
+                <div className={cn("absolute inset-0 bg-gradient-to-r from-transparent via-greek-gold/10 to-transparent -translate-x-full transition-transform duration-700", hoveredCard === index && "translate-x-full")} />
                 
-                <card.icon className={cn(
-                  "h-8 w-8 mb-4 transition-colors duration-300",
-                  hoveredCard === index ? "text-greek-gold" : "text-muted-foreground"
-                )} />
+                <card.icon className={cn("h-8 w-8 mb-4 transition-colors duration-300", hoveredCard === index ? "text-greek-gold" : "text-muted-foreground")} />
                 <h3 className="font-serif text-lg font-medium text-foreground mb-2">{card.title}</h3>
                 <p className="font-body text-sm text-muted-foreground">{card.description}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </section>
 
@@ -290,6 +284,5 @@ export default function Documentation() {
           </p>
         </footer>
       </article>
-    </MainLayout>
-  );
+    </MainLayout>;
 }
