@@ -215,21 +215,21 @@ export default function Documentation() {
           </h2>
           
           <div className="space-y-4 font-body text-muted-foreground justify-between items-start">
-            <div className="flex gap-3">
-              <span className="font-serif font-bold text-foreground">Be specific:</span>
-              <span>"Social media affects mental health" will generate more focused arguments than "social media is bad"</span>
+            <div className="gap-3 items-center justify-center flex flex-row">
+              <span className="font-serif font-bold text-foreground">Be Specific</span>
+              <span className="text-right">"Social media affects mental health" will generate more focused arguments than "social media is bad"</span>
             </div>
-            <div className="flex gap-3 justify-between items-start">
-              <span className="font-serif font-bold text-foreground">Use perspectives:</span>
-              <span>Adding an "Economist" lens to a healthcare debate highlights different considerations than a "Medical Professional" lens</span>
-            </div>
-            <div className="flex gap-3">
-              <span className="font-serif font-bold text-foreground">Follow the refutations:</span>
-              <span>The deepest insights often come from following an argument thread several levels deep</span>
+            <div className="gap-3 items-end justify-between flex flex-row">
+              <span className="font-serif font-bold text-foreground">Use Perspectives</span>
+              <span className="text-right">Adding an "Economist" lens to a healthcare debate highlights different considerations than a "Medical Professional" lens</span>
             </div>
             <div className="flex gap-3">
-              <span className="font-serif font-bold text-foreground">Try the complexity slider:</span>
-              <span>Academic mode for research papers, Simple mode for accessible explanations</span>
+              <span className="font-serif font-bold text-foreground">Follow the Refutations</span>
+              <span className="text-right">The deepest insights often come from following an argument thread several levels deep</span>
+            </div>
+            <div className="flex gap-3">
+              <span className="font-serif font-bold text-foreground">Try the Complexity Slider</span>
+              <span className="text-right">Academic mode for research papers, Simple mode for accessible explanations</span>
             </div>
             
           </div>
