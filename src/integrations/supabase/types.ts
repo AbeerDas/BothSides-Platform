@@ -117,6 +117,57 @@ export type Database = {
         }
         Relationships: []
       }
+      news_headlines: {
+        Row: {
+          author: string | null
+          category: string | null
+          content: string | null
+          country: string | null
+          created_at: string
+          description: string | null
+          fetched_date: string
+          id: string
+          published_at: string | null
+          source_id: string | null
+          source_name: string | null
+          title: string
+          url: string
+          url_to_image: string | null
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          content?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          fetched_date?: string
+          id?: string
+          published_at?: string | null
+          source_id?: string | null
+          source_name?: string | null
+          title: string
+          url: string
+          url_to_image?: string | null
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          content?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          fetched_date?: string
+          id?: string
+          published_at?: string | null
+          source_id?: string | null
+          source_name?: string | null
+          title?: string
+          url?: string
+          url_to_image?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
