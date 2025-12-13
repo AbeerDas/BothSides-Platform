@@ -219,7 +219,7 @@ export default function Documentation() {
               <span className="font-serif font-bold text-foreground">Be specific:</span>
               <span>"Social media affects mental health" will generate more focused arguments than "social media is bad"</span>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 justify-between items-start">
               <span className="font-serif font-bold text-foreground">Use perspectives:</span>
               <span>Adding an "Economist" lens to a healthcare debate highlights different considerations than a "Medical Professional" lens</span>
             </div>
