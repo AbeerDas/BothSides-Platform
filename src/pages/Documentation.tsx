@@ -214,7 +214,7 @@ export default function Documentation() {
             Tips for Best Results
           </h2>
           
-          <div className="space-y-4 font-body text-muted-foreground">
+          <div className="space-y-4 font-body text-muted-foreground justify-between items-start">
             <div className="flex gap-3">
               <span className="font-serif font-bold text-foreground">Be specific:</span>
               <span>"Social media affects mental health" will generate more focused arguments than "social media is bad"</span>
@@ -231,10 +231,7 @@ export default function Documentation() {
               <span className="font-serif font-bold text-foreground">Try the complexity slider:</span>
               <span>Academic mode for research papers, Simple mode for accessible explanations</span>
             </div>
-            <div className="flex gap-3">
-              <span className="font-serif font-bold text-foreground">Save and share:</span>
-              <span>Export your debates to PDF or share links with others to continue the discussion</span>
-            </div>
+            
           </div>
         </section>
 
