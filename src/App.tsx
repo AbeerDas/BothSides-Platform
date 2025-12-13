@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import PublicDomain from "./pages/PublicDomain";
 import DebateDetail from "./pages/DebateDetail";
 import Documentation from "./pages/Documentation";
+import News from "./pages/News";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/public" element={<PublicDomain />} />
             <Route path="/docs" element={<Documentation />} />
+            <Route path="/news" element={<News />} />
             <Route path="/debate/:slug" element={<DebateDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
