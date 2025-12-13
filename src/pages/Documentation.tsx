@@ -63,9 +63,7 @@ export default function Documentation() {
 
         {/* How to Use Section */}
         <section className="mb-16">
-          <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground mb-8 tracking-tight border-b border-border pb-4">
-            How to Use BothSides
-          </h2>
+          <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground mb-8 tracking-tight border-b border-border pb-4">How to Use the Platform</h2>
           
           <div className="space-y-8">
             <div className="group">
@@ -247,8 +245,7 @@ export default function Documentation() {
           </h2>
           
           <div className="font-body text-muted-foreground leading-relaxed space-y-4">
-            <p>
-              BothSides was created by <span className="font-serif font-medium text-foreground">Abeer Das</span>, a software engineer studying Systems Design at the University of Waterloo. He is passionate about building tools that promote critical thinking, intellectual honesty, and balanced discourse.
+            <p>BothSides was created by Abeer Das, a software engineer studying Systems Design Engineering at the University of Waterloo. He is passionate about building tools that promote critical thinking, intellectual honesty, and balanced discourse.<span className="font-serif font-medium text-foreground">Abeer Das</span>, a software engineer studying Systems Design at the University of Waterloo. He is passionate about building tools that promote critical thinking, intellectual honesty, and balanced discourse.
             </p>
             <p>
               With experience across three software engineering internships and an ongoing interest in impactful product development, he is always open to feedback, collaboration, and new internship opportunities.
