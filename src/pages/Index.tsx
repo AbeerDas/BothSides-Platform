@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { PerspectivePills } from "@/components/PerspectivePills";
 import { SkeletonDebateView } from "@/components/SkeletonDebate";
 import { MainLayout } from "@/components/MainLayout";
 import { MobileInput } from "@/components/MobileInput";
+import { StatementDiscoveryModal } from "@/components/StatementDiscoveryModal";
 import { ArrowRight, Scale, Dices, X } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -162,10 +163,26 @@ const Index = () => {
   const [currentDebateId, setCurrentDebateId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
+
+  // Statement discovery modal state
+  const [discoveryModalOpen, setDiscoveryModalOpen] = useState(false);
+  const [discoveredStatements, setDiscoveredStatements] = useState<{statement: string; context?: string}[]>([]);
+  const [isAnalyzingText, setIsAnalyzingText] = useState(false);
 
   // Determine what view to show (but don't return early before all hooks)
   const showMobileHome = isMobile && !debate && !isGenerating;
+
+  // Check for prefilled statement from navigation (e.g., from News page)
+  useEffect(() => {
+    if (location.state?.prefillStatement) {
+      setStatement(location.state.prefillStatement);
+      // Clear the state to avoid re-triggering
+      navigate('/', { replace: true, state: {} });
+    }
+  }, [location.state, navigate]);
+
   useEffect(() => {
     supabase.auth.getSession().then(({
       data: {
@@ -183,8 +200,62 @@ const Index = () => {
     });
     return () => subscription.unsubscribe();
   }, []);
-  const generateInitialArguments = async () => {
+  const detectIntentAndGenerate = async () => {
     if (!statement.trim()) return;
+
+    // Simple heuristics for intent detection
+    const wordCount = statement.trim().split(/\s+/).length;
+    const sentenceCount = statement.split(/[.!?]+/).filter((s: string) => s.trim()).length;
+    const hasMultipleParagraphs = statement.includes("\n\n") || statement.includes("\r\n\r\n");
+    
+    // If short (under 40 words), few sentences, no paragraphs -> treat as statement
+    const isStatement = wordCount < 40 && sentenceCount <= 3 && !hasMultipleParagraphs;
+
+    if (isStatement) {
+      // Direct debate generation
+      generateInitialArguments();
+    } else {
+      // Longer text - extract debatable statements
+      setIsAnalyzingText(true);
+      setDiscoveryModalOpen(true);
+      setDiscoveredStatements([]);
+
+      try {
+        const { data, error } = await supabase.functions.invoke('analyze-text', {
+          body: { text: statement, type: 'extract-statements' }
+        });
+
+        if (error) throw error;
+
+        if (data.statements) {
+          setDiscoveredStatements(data.statements);
+        }
+      } catch (error: any) {
+        console.error('Error analyzing text:', error);
+        toast.error("Failed to analyze text. Generating debate directly.");
+        setDiscoveryModalOpen(false);
+        generateInitialArguments();
+      } finally {
+        setIsAnalyzingText(false);
+      }
+    }
+  };
+
+  const handleSelectDiscoveredStatement = (selectedStatement: string) => {
+    setStatement(selectedStatement);
+    setDiscoveryModalOpen(false);
+    // Trigger generation with the selected statement
+    setTimeout(() => {
+      generateWithStatement(selectedStatement);
+    }, 100);
+  };
+
+  const generateInitialArguments = async () => {
+    generateWithStatement(statement);
+  };
+
+  const generateWithStatement = async (statementToUse: string) => {
+    if (!statementToUse.trim()) return;
     setIsGenerating(true);
     try {
       const {
@@ -192,14 +263,14 @@ const Index = () => {
         error
       } = await supabase.functions.invoke('generate-arguments', {
         body: {
-          statement,
+          statement: statementToUse,
           type: 'initial',
           perspectives: perspectives.length > 0 ? perspectives : undefined
         }
       });
       if (error) throw error;
       const debateData = {
-        statement,
+        statement: statementToUse,
         summary: data.summary,
         argumentsFor: data.arguments.for,
         argumentsAgainst: data.arguments.against
@@ -214,7 +285,7 @@ const Index = () => {
           data: tagData
         } = await supabase.functions.invoke('generate-tags', {
           body: {
-            statement,
+            statement: statementToUse,
             summary: data.summary
           }
         });
@@ -229,7 +300,7 @@ const Index = () => {
         error: saveError
       } = await supabase.from('debates').insert({
         slug,
-        statement,
+        statement: statementToUse,
         summary: data.summary,
         arguments_data: {
           for: data.arguments.for,
@@ -362,7 +433,7 @@ const Index = () => {
             </h1>
           </div>
           
-          <MobileInput statement={statement} setStatement={setStatement} perspectives={perspectives} setPerspectives={setPerspectives} onGenerate={generateInitialArguments} isGenerating={isGenerating} />
+          <MobileInput statement={statement} setStatement={setStatement} perspectives={perspectives} setPerspectives={setPerspectives} onGenerate={detectIntentAndGenerate} isGenerating={isGenerating} />
         </> :
     // Desktop view
     <div className={cn("max-w-5xl mx-auto space-y-8 flex-1 flex flex-col", isMobile && "pb-24")}>
@@ -399,7 +470,7 @@ const Index = () => {
                       <PerspectivePills perspectives={perspectives} onChange={setPerspectives} className="mr-3" />
                     </div>
                     
-                    <Button onClick={generateInitialArguments} disabled={!statement.trim()} size="sm" className="font-sans text-xs uppercase tracking-wider text-white font-medium bg-amber-800 hover:bg-amber-700 h-9 px-4">
+                    <Button onClick={detectIntentAndGenerate} disabled={!statement.trim()} size="sm" className="font-sans text-xs uppercase tracking-wider text-white font-medium bg-amber-800 hover:bg-amber-700 h-9 px-4">
                       Generate <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
                     </Button>
                   </div>
@@ -411,6 +482,16 @@ const Index = () => {
 
           {debate && !isGenerating && <DebateView debate={debate} onRefute={handleRefute} onReset={resetDebate} onAddArgument={handleAddArgument} addingArgumentSide={addingArgumentSide} debateId={currentDebateId || undefined} />}
         </div>}
+
+      {/* Statement Discovery Modal */}
+      <StatementDiscoveryModal
+        open={discoveryModalOpen}
+        onOpenChange={setDiscoveryModalOpen}
+        statements={discoveredStatements}
+        isLoading={isAnalyzingText}
+        onSelectStatement={handleSelectDiscoveredStatement}
+        source="text"
+      />
     </MainLayout>;
 };
 export default Index;

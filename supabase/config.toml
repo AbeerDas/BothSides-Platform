@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.generate-tags]
 verify_jwt = false
+
+[functions.analyze-text]
+verify_jwt = false
+
+[functions.fetch-news]
+verify_jwt = false
