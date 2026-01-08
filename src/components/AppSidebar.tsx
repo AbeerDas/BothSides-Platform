@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Scale, Globe, Home, LogIn, LogOut, ChevronLeft, Sun, Moon, ChevronDown, PanelLeft, FileText, Newspaper } from "lucide-react";
+import { Scale, Globe, Home, LogIn, LogOut, ChevronLeft, Sun, Moon, ChevronDown, PanelLeft, FileText, Newspaper, Swords } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -229,9 +229,9 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
         {/* Navigation */}
         <nav className="p-3 space-y-1">
           <NavItem icon={Home} label="Home" path="/" />
+          <NavItem icon={Swords} label="Practice" path="/practice" />
           <NavItem icon={Newspaper} label="Explore News" path="/news" />
           <NavItem icon={Globe} label="Public Debates" path="/public" />
-          <NavItem icon={FileText} label="Documentation" path="/docs" />
           <NavItem 
             icon={theme === "dark" ? Sun : Moon} 
             label={theme === "dark" ? "Light Mode" : "Dark Mode"} 
@@ -332,9 +332,9 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
       <div className="flex-1 flex flex-col overflow-hidden">
         <nav className={cn("p-1.5 space-y-0.5", isCollapsed && "flex flex-col items-center")}>
           <NavItem icon={Home} label="Home" path="/" />
+          <NavItem icon={Swords} label="Practice" path="/practice" />
           <NavItem icon={Newspaper} label="Explore News" path="/news" />
           <NavItem icon={Globe} label="Public Debates" path="/public" />
-          <NavItem icon={FileText} label="Documentation" path="/docs" />
           <NavItem 
             icon={theme === "dark" ? Sun : Moon} 
             label={theme === "dark" ? "Light Mode" : "Dark Mode"} 
