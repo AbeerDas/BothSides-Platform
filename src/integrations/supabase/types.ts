@@ -168,6 +168,36 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_debates: {
+        Row: {
+          created_at: string
+          id: string
+          latest_score: number | null
+          messages: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latest_score?: number | null
+          messages?: Json
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latest_score?: number | null
+          messages?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
