@@ -5,13 +5,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { Send, RotateCcw, Trophy, Loader2, Trash2, Sparkles } from "lucide-react";
+import { Send, RotateCcw, Trophy, Loader2, Wand2, HelpCircle, History } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { FeedbackModal } from "@/components/FeedbackModal";
 import { PracticeHistorySheet } from "@/components/PracticeHistorySheet";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { motion, AnimatePresence } from "framer-motion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Message {
   role: "user" | "assistant";
@@ -43,17 +44,8 @@ interface PracticeDebate {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/debate-chat`;
 const FEEDBACK_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-feedback`;
-
-const SAMPLE_CLAIMS = [
-  "Social media has done more harm than good to society.",
-  "Remote work is better than office work for productivity.",
-  "AI will create more jobs than it destroys.",
-  "Climate change is the most pressing issue of our time.",
-  "Universal basic income should be implemented globally.",
-  "Space exploration is a waste of resources.",
-  "Electric vehicles are not as environmentally friendly as people think.",
-  "Traditional education is becoming obsolete.",
-];
+const POLISH_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/polish-text`;
+const HELP_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-help`;
 
 export default function DebatePractice() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -68,9 +60,13 @@ export default function DebatePractice() {
   const [currentDebateId, setCurrentDebateId] = useState<string | null>(null);
   const [debatesLoading, setDebatesLoading] = useState(false);
   const [editingFromIndex, setEditingFromIndex] = useState<number | null>(null);
+  const [polishLoading, setPolishLoading] = useState(false);
+  const [helpLoading, setHelpLoading] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
   // Check auth status
@@ -106,7 +102,6 @@ export default function DebatePractice() {
 
       if (error) throw error;
       
-      // Transform the data to ensure proper typing
       const transformedData: PracticeDebate[] = (data || []).map(debate => ({
         ...debate,
         messages: (debate.messages as unknown as Message[]) || [],
@@ -158,10 +153,9 @@ export default function DebatePractice() {
     }
   }, [user, currentDebateId]);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const streamChat = async (messagesToSend: Message[]) => {
@@ -199,7 +193,6 @@ export default function DebatePractice() {
       const decoder = new TextDecoder();
       let textBuffer = "";
 
-      // Add empty assistant message to update
       setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
       while (true) {
@@ -268,13 +261,11 @@ export default function DebatePractice() {
         }
       }
 
-      // Save after streaming completes
       const finalMessages = [...messagesToSend, { role: "assistant" as const, content: assistantContent }];
       saveDebate(finalMessages);
     } catch (error) {
       console.error("Stream error:", error);
       toast.error("Failed to connect to debate partner");
-      // Remove empty assistant message on error
       setMessages(prev => prev.filter((_, i) => i !== prev.length - 1));
     } finally {
       setIsLoading(false);
@@ -288,7 +279,6 @@ export default function DebatePractice() {
     
     let newMessages: Message[];
     if (editingFromIndex !== null) {
-      // Truncate messages and continue from edit point
       newMessages = [...messages.slice(0, editingFromIndex), userMessage];
       setEditingFromIndex(null);
     } else {
@@ -336,7 +326,6 @@ export default function DebatePractice() {
       const data = await resp.json();
       setFeedbackData(data);
       
-      // Save score to database
       if (user && data.overallScore) {
         saveDebate(messages, data.overallScore);
       }
@@ -390,86 +379,151 @@ export default function DebatePractice() {
     }
   };
 
-  const handleClearInput = () => {
-    setInput("");
-    setEditingFromIndex(null);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
+  const handlePolishText = async () => {
+    if (!input.trim() || polishLoading) return;
+    
+    setPolishLoading(true);
+    try {
+      const resp = await fetch(POLISH_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ text: input }),
+      });
+
+      if (!resp.ok) throw new Error("Failed to polish text");
+      
+      const data = await resp.json();
+      setInput(data.polished);
+      adjustTextareaHeight();
+      toast.success("Text polished!");
+    } catch (error) {
+      console.error("Polish error:", error);
+      toast.error("Failed to polish text");
+    } finally {
+      setPolishLoading(false);
     }
   };
 
-  const handleSampleClaim = () => {
-    const randomClaim = SAMPLE_CLAIMS[Math.floor(Math.random() * SAMPLE_CLAIMS.length)];
-    setInput(randomClaim);
-    adjustTextareaHeight();
+  const handleHelpMe = async () => {
+    if (helpLoading || !hasStarted) return;
+    
+    setHelpLoading(true);
+    try {
+      const resp = await fetch(HELP_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ messages }),
+      });
+
+      if (!resp.ok) throw new Error("Failed to generate help");
+      
+      const data = await resp.json();
+      setInput(data.suggestion);
+      adjustTextareaHeight();
+      toast.success("Here's a suggested response!");
+    } catch (error) {
+      console.error("Help error:", error);
+      toast.error("Failed to generate suggestion");
+    } finally {
+      setHelpLoading(false);
+    }
   };
 
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + "px";
+      const newHeight = Math.min(textareaRef.current.scrollHeight, 120);
+      textareaRef.current.style.height = newHeight + "px";
+      // Keep textarea in view
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
     }
   };
 
   return (
     <MainLayout withPadding={false}>
-      <div className="flex flex-col h-full">
-        {/* Header */}
-        <div className={cn(
-          "border-b border-border bg-card/50 backdrop-blur-sm",
-          isMobile ? "px-3 py-3" : "px-6 py-4"
-        )}>
-          <div className="flex items-center justify-between max-w-3xl mx-auto w-full">
-            <div className="flex items-center gap-3">
-              {user && (
-                <PracticeHistorySheet
-                  debates={debates}
-                  currentDebateId={currentDebateId}
-                  onSelectDebate={handleSelectDebate}
-                  onDeleteDebate={handleDeleteDebate}
-                  onNewDebate={handleReset}
-                  isLoading={debatesLoading}
-                />
-              )}
-              <div>
-                <h1 className="font-serif text-lg font-medium text-foreground">
-                  Debate Practice
-                </h1>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Sharpen your arguments against an AI opponent
-                </p>
+      <TooltipProvider>
+        <div className="flex flex-col h-full">
+          {/* Sticky Header */}
+          <div className={cn(
+            "border-b border-border bg-card/95 backdrop-blur-sm sticky top-0 z-10",
+            isMobile ? "px-3 py-2" : "px-6 py-4"
+          )}>
+            <div className="flex items-center justify-between max-w-3xl mx-auto w-full">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                {user && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <PracticeHistorySheet
+                          debates={debates}
+                          currentDebateId={currentDebateId}
+                          onSelectDebate={handleSelectDebate}
+                          onDeleteDebate={handleDeleteDebate}
+                          onNewDebate={handleReset}
+                          isLoading={debatesLoading}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>View your saved practice debates</TooltipContent>
+                  </Tooltip>
+                )}
+                {!isMobile && (
+                  <div className="min-w-0">
+                    <h1 className="font-serif text-lg font-medium text-foreground truncate">
+                      Debate Practice
+                    </h1>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                      Sharpen your arguments against an AI opponent
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 md:gap-2">
+                {hasStarted && messages.length >= 4 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size={isMobile ? "icon" : "sm"}
+                        onClick={handleGetFeedback}
+                        disabled={isLoading || feedbackLoading}
+                        className={cn(isMobile ? "h-9 w-9" : "text-xs")}
+                      >
+                        <Trophy className={cn("h-4 w-4", !isMobile && "mr-1.5")} />
+                        {!isMobile && "See how you're doing"}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Get detailed feedback on your debate performance</TooltipContent>
+                  </Tooltip>
+                )}
+                {hasStarted && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleReset}
+                        disabled={isLoading}
+                        className="h-9 w-9"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Start a new debate from scratch</TooltipContent>
+                  </Tooltip>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {hasStarted && messages.length >= 4 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleGetFeedback}
-                  disabled={isLoading || feedbackLoading}
-                  className="text-xs"
-                >
-                  <Trophy className="h-3.5 w-3.5 mr-1.5" />
-                  Feedback
-                </Button>
-              )}
-              {hasStarted && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleReset}
-                  disabled={isLoading}
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
           </div>
-        </div>
 
-        {/* Messages area */}
-        <div className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full" ref={scrollRef}>
+          {/* Messages area */}
+          <div className="flex-1 overflow-auto" ref={scrollRef}>
             <div className={cn(
               "max-w-3xl mx-auto",
               isMobile ? "px-3 py-4" : "px-6 py-6"
@@ -479,160 +533,178 @@ export default function DebatePractice() {
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                     <span className="text-2xl">🥊</span>
                   </div>
-                  <h2 className="font-serif text-xl font-medium text-foreground mb-2">
+                  <h2 className={cn("font-serif font-medium text-foreground mb-2", isMobile ? "text-xl" : "text-2xl")}>
                     Ready to spar?
                   </h2>
-                  <p className="text-sm text-muted-foreground max-w-md">
+                  <p className={cn("text-muted-foreground max-w-md", isMobile ? "text-sm" : "text-base")}>
                     Make a claim below and I'll argue against it. 
                     This is a casual practice space — speak your mind!
                   </p>
                   {!user && (
-                    <p className="text-xs text-muted-foreground mt-4 bg-muted/50 px-3 py-2 rounded-lg">
+                    <p className={cn("text-muted-foreground mt-4 bg-muted/50 px-3 py-2 rounded-lg", isMobile ? "text-xs" : "text-sm")}>
                       Sign in to save your debates and track progress
                     </p>
                   )}
                 </div>
               ) : (
                 <AnimatePresence mode="popLayout">
-                  <div className="space-y-4">
+                  <div className={cn("space-y-5", isMobile ? "text-base" : "text-lg")}>
                     {messages.map((message, index) => (
                       <motion.div
                         key={`${index}-${message.content.slice(0, 20)}`}
-                        initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ 
-                          duration: 0.2,
-                          ease: "easeOut"
-                        }}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
                         className={cn(
                           "flex",
                           message.role === "user" ? "justify-end" : "justify-start"
                         )}
                       >
-                        <div
-                          className={cn(
-                            "max-w-[85%] rounded-lg px-4 py-2.5 group relative",
-                            message.role === "user"
-                              ? "bg-primary text-white"
-                              : "bg-muted text-foreground"
-                          )}
-                        >
-                          {message.role === "user" ? (
-                            <p className="text-sm font-body whitespace-pre-wrap text-white">
+                        {message.role === "user" ? (
+                          <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-primary group relative">
+                            <p className={cn("font-body whitespace-pre-wrap text-primary-foreground", isMobile ? "text-base" : "text-lg")}>
                               {message.content}
                             </p>
-                          ) : (
-                            <MarkdownContent content={message.content} />
-                          )}
-                          {message.role === "assistant" && isLoading && index === messages.length - 1 && !message.content && (
-                            <span className="inline-flex items-center">
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                            </span>
-                          )}
-                          {/* Edit button for user messages */}
-                          {message.role === "user" && !isLoading && (
-                            <button
-                              onClick={() => handleEditFromMessage(index)}
-                              className="absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted"
-                              title="Edit from here"
-                            >
-                              <svg className="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
+                            {!isLoading && (
+                              <button
+                                onClick={() => handleEditFromMessage(index)}
+                                className="absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted"
+                                title="Edit from here"
+                              >
+                                <svg className="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="max-w-[90%]">
+                            <MarkdownContent 
+                              content={message.content} 
+                              className={cn("text-foreground", isMobile ? "text-base leading-relaxed" : "text-lg leading-relaxed")} 
+                            />
+                            {isLoading && index === messages.length - 1 && !message.content && (
+                              <span className="inline-flex items-center mt-2">
+                                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </motion.div>
                     ))}
+                    <div ref={messagesEndRef} />
                   </div>
                 </AnimatePresence>
               )}
             </div>
-          </ScrollArea>
-        </div>
+          </div>
 
-        {/* Input area */}
-        <div className={cn(
-          "border-t border-border bg-background",
-          isMobile ? "px-3 py-3 pb-safe" : "px-6 py-4"
-        )}>
-          {editingFromIndex !== null && (
-            <div className="max-w-3xl mx-auto mb-2">
-              <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-md flex items-center gap-2">
-                <span>Editing from message {editingFromIndex + 1}. New messages will replace what comes after.</span>
-                <button 
-                  onClick={() => setEditingFromIndex(null)} 
-                  className="underline hover:no-underline"
-                >
-                  Cancel
-                </button>
+          {/* Sticky Input area */}
+          <div 
+            ref={inputContainerRef}
+            className={cn(
+              "border-t border-border bg-background sticky bottom-0 z-10",
+              isMobile ? "px-3 py-3 pb-safe" : "px-6 py-4"
+            )}
+          >
+            {editingFromIndex !== null && (
+              <div className="max-w-3xl mx-auto mb-2">
+                <div className={cn(
+                  "text-amber-600 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-md flex items-center gap-2",
+                  isMobile ? "text-xs" : "text-sm"
+                )}>
+                  <span>Editing from message {editingFromIndex + 1}. New messages will replace what comes after.</span>
+                  <button 
+                    onClick={() => setEditingFromIndex(null)} 
+                    className="underline hover:no-underline"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-          <div className="max-w-3xl mx-auto flex gap-2">
-            {/* Clear and Sample buttons */}
-            <div className="flex flex-col gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleClearInput}
-                disabled={!input.trim()}
-                className="h-[22px] w-11 shrink-0"
-                title="Clear input"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleSampleClaim}
+            )}
+            <div className="max-w-3xl mx-auto flex gap-2 items-end">
+              {/* Help and Polish buttons */}
+              <div className="flex flex-col gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleHelpMe}
+                      disabled={!hasStarted || helpLoading || isLoading}
+                      className="h-[22px] w-11 shrink-0"
+                    >
+                      {helpLoading ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <HelpCircle className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Generate a suggested counter-argument for you</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handlePolishText}
+                      disabled={!input.trim() || polishLoading}
+                      className="h-[22px] w-11 shrink-0"
+                    >
+                      {polishLoading ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Wand2 className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Polish and formalize your text</TooltipContent>
+                </Tooltip>
+              </div>
+              
+              <Textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  adjustTextareaHeight();
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder={hasStarted ? "Your counter-argument..." : "Make your claim..."}
+                className={cn(
+                  "flex-1 resize-none min-h-[44px] max-h-[120px] font-body",
+                  "border-border/60 focus:border-primary",
+                  isMobile ? "text-base" : "text-base"
+                )}
+                rows={1}
                 disabled={isLoading}
-                className="h-[22px] w-11 shrink-0"
-                title="Get sample claim"
+              />
+              <Button
+                onClick={handleSend}
+                disabled={!input.trim() || isLoading}
+                size="icon"
+                className="h-11 w-11 shrink-0"
               >
-                <Sparkles className="h-3.5 w-3.5" />
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
             </div>
-            
-            <Textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                adjustTextareaHeight();
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder={hasStarted ? "Your counter-argument..." : "Make your claim..."}
-              className={cn(
-                "flex-1 resize-none min-h-[44px] max-h-[120px] font-body text-sm",
-                "border-border/60 focus:border-primary"
-              )}
-              rows={1}
-              disabled={isLoading}
-            />
-            <Button
-              onClick={handleSend}
-              disabled={!input.trim() || isLoading}
-              size="icon"
-              className="h-11 w-11 shrink-0"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-            </Button>
           </div>
         </div>
-      </div>
 
-      <FeedbackModal
-        open={feedbackOpen}
-        onOpenChange={setFeedbackOpen}
-        feedbackData={feedbackData}
-        isLoading={feedbackLoading}
-      />
+        <FeedbackModal
+          open={feedbackOpen}
+          onOpenChange={setFeedbackOpen}
+          feedbackData={feedbackData}
+          isLoading={feedbackLoading}
+        />
+      </TooltipProvider>
     </MainLayout>
   );
 }
