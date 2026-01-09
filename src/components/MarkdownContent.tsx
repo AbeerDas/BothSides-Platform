@@ -113,7 +113,7 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
   }, [content]);
 
   return (
-    <div className={cn("text-sm font-body space-y-0.5", className)}>
+    <div className={cn("font-body space-y-0.5", className)}>
       {formattedContent}
     </div>
   );

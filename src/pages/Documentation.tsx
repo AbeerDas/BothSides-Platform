@@ -1,8 +1,10 @@
 import { MainLayout } from "@/components/MainLayout";
-import { Scale, ArrowRight, Linkedin, Mail, GraduationCap, Newspaper, Briefcase, BookOpen, Pen, Sparkles } from "lucide-react";
+import { Scale, ArrowRight, Linkedin, Mail, GraduationCap, Newspaper, Briefcase, BookOpen, Pen, Sparkles, ChevronDown, MessageSquare, Trophy, Wand2, HelpCircle, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 const audienceCards = [{
   icon: GraduationCap,
   title: "Students",
@@ -28,9 +30,36 @@ const audienceCards = [{
   title: "Curious Minds",
   description: "who want to challenge their own assumptions"
 }];
+
+const scoringCriteria = [
+  {
+    name: "Logical Coherence",
+    maxScore: 2.5,
+    description: "How well your arguments follow a logical structure. Are your premises sound? Do your conclusions follow from your evidence? Penalties for logical fallacies like ad hominem, strawman, false dichotomy, etc."
+  },
+  {
+    name: "Evidence & Examples",
+    maxScore: 2.5,
+    description: "The quality and relevance of supporting evidence. Are you using specific examples, statistics, studies, or historical precedents? Vague claims without backing lower this score."
+  },
+  {
+    name: "Rebuttal Strength",
+    maxScore: 2.5,
+    description: "How effectively you address the opponent's counterarguments. Do you directly engage with their points? Do you concede where appropriate while maintaining your position?"
+  },
+  {
+    name: "Persuasiveness",
+    maxScore: 2.5,
+    description: "Overall rhetorical effectiveness. Is your argument compelling? Do you use clear language? Is your tone appropriate for the debate context?"
+  }
+];
+
 export default function Documentation() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
-  return <MainLayout>
+  const [scoringOpen, setScoringOpen] = useState(false);
+
+  return (
+    <MainLayout>
       <article className="max-w-3xl mx-auto">
         {/* Header */}
         <header className="text-center">
@@ -40,7 +69,6 @@ export default function Documentation() {
               BothSides
             </h1>
           </div>
-          
         </header>
 
         {/* Philosophy Section - Featured Card */}
@@ -146,6 +174,137 @@ export default function Documentation() {
           </div>
         </section>
 
+        {/* Debate Practice Section - NEW */}
+        <section className="mb-16">
+          <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground mb-8 tracking-tight border-b border-border pb-4 flex items-center gap-3">
+            <MessageSquare className="h-7 w-7 text-greek-gold" />
+            Debate Practice
+          </h2>
+          
+          <div className="bg-muted/30 border border-border p-6 md:p-8 mb-8">
+            <p className="font-body text-foreground/90 leading-relaxed mb-6">
+              Sharpen your argumentation skills by sparring with an AI opponent. Unlike the debate generator, Practice Mode puts you in the driver's seat — you make claims, defend your position, and receive real-time counterarguments to strengthen your reasoning.
+            </p>
+            
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-4">
+                <h3 className="font-serif text-lg font-medium text-foreground">How It Works</h3>
+                <ol className="space-y-3 font-body text-muted-foreground">
+                  <li className="flex gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-greek-gold/10 border border-greek-gold/30 flex items-center justify-center font-serif text-sm font-bold text-greek-gold">1</span>
+                    <span>Make a claim you want to defend</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-greek-gold/10 border border-greek-gold/30 flex items-center justify-center font-serif text-sm font-bold text-greek-gold">2</span>
+                    <span>The AI argues against your position</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-greek-gold/10 border border-greek-gold/30 flex items-center justify-center font-serif text-sm font-bold text-greek-gold">3</span>
+                    <span>Respond with counter-arguments</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-greek-gold/10 border border-greek-gold/30 flex items-center justify-center font-serif text-sm font-bold text-greek-gold">4</span>
+                    <span>Get detailed feedback on your performance</span>
+                  </li>
+                </ol>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="font-serif text-lg font-medium text-foreground">Tools at Your Disposal</h3>
+                <ul className="space-y-3 font-body text-muted-foreground">
+                  <li className="flex items-start gap-3">
+                    <HelpCircle className="h-5 w-5 text-greek-gold shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-medium text-foreground">Help Button</span> — Stuck? Generate a suggested counter-argument based on the current debate
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Wand2 className="h-5 w-5 text-greek-gold shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-medium text-foreground">Polish Button</span> — Refine your text to sound more formal and persuasive
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Trophy className="h-5 w-5 text-greek-gold shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-medium text-foreground">Feedback</span> — See detailed scoring and tips after 4+ exchanges
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <History className="h-5 w-5 text-greek-gold shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-medium text-foreground">History</span> — Signed-in users can save and revisit past practice debates
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* How We Score - Collapsible */}
+          <Collapsible open={scoringOpen} onOpenChange={setScoringOpen}>
+            <CollapsibleTrigger asChild>
+              <button className="w-full flex items-center justify-between p-4 bg-muted/50 border border-border hover:bg-muted/70 transition-colors">
+                <div className="flex items-center gap-3">
+                  <Trophy className="h-5 w-5 text-greek-gold" />
+                  <span className="font-serif text-lg font-medium text-foreground">How We Score Your Debate</span>
+                </div>
+                <ChevronDown className={cn(
+                  "h-5 w-5 text-muted-foreground transition-transform duration-200",
+                  scoringOpen && "rotate-180"
+                )} />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="border border-t-0 border-border p-6 space-y-6">
+                <p className="font-body text-muted-foreground">
+                  Your debate performance is scored out of <span className="font-semibold text-foreground">10.0 points</span> across four categories, each worth up to 2.5 points. The scoring is objective and consistent — your score will improve as you demonstrate stronger argumentation skills.
+                </p>
+                
+                <div className="grid gap-4 md:grid-cols-2">
+                  {scoringCriteria.map((criterion) => (
+                    <div key={criterion.name} className="p-4 bg-background border border-border">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-serif font-medium text-foreground">{criterion.name}</h4>
+                        <span className="text-sm font-mono text-greek-gold">{criterion.maxScore} pts</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {criterion.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-greek-gold/5 border border-greek-gold/20 p-4">
+                  <h4 className="font-serif font-medium text-foreground mb-2">What Gets Penalized?</h4>
+                  <ul className="space-y-1.5 font-body text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
+                      Logical fallacies (ad hominem, strawman, false dichotomy, circular reasoning)
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
+                      Unsupported claims without evidence or examples
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
+                      Ignoring or misrepresenting the opponent's arguments
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
+                      Emotional appeals without logical backing
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
+                      Inconsistent or contradictory positions
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </section>
+
         {/* Key Features Section */}
         <section className="mb-16">
           <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground mb-8 tracking-tight border-b border-border pb-4">
@@ -197,14 +356,30 @@ export default function Documentation() {
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {audienceCards.map((card, index) => <div key={card.title} className={cn("relative p-6 border border-border bg-card transition-all duration-300 cursor-default overflow-hidden group", hoveredCard === index && "border-greek-gold shadow-lg")} onMouseEnter={() => setHoveredCard(index)} onMouseLeave={() => setHoveredCard(null)}>
+            {audienceCards.map((card, index) => (
+              <div 
+                key={card.title} 
+                className={cn(
+                  "relative p-6 border border-border bg-card transition-all duration-300 cursor-default overflow-hidden group", 
+                  hoveredCard === index && "border-greek-gold shadow-lg"
+                )} 
+                onMouseEnter={() => setHoveredCard(index)} 
+                onMouseLeave={() => setHoveredCard(null)}
+              >
                 {/* Shimmer effect */}
-                <div className={cn("absolute inset-0 bg-gradient-to-r from-transparent via-greek-gold/10 to-transparent -translate-x-full transition-transform duration-700", hoveredCard === index && "translate-x-full")} />
+                <div className={cn(
+                  "absolute inset-0 bg-gradient-to-r from-transparent via-greek-gold/10 to-transparent -translate-x-full transition-transform duration-700", 
+                  hoveredCard === index && "translate-x-full"
+                )} />
                 
-                <card.icon className={cn("h-8 w-8 mb-4 transition-colors duration-300", hoveredCard === index ? "text-greek-gold" : "text-muted-foreground")} />
+                <card.icon className={cn(
+                  "h-8 w-8 mb-4 transition-colors duration-300", 
+                  hoveredCard === index ? "text-greek-gold" : "text-muted-foreground"
+                )} />
                 <h3 className="font-serif text-lg font-medium text-foreground mb-2">{card.title}</h3>
                 <p className="font-body text-sm text-muted-foreground">{card.description}</p>
-              </div>)}
+              </div>
+            ))}
           </div>
         </section>
 
@@ -231,7 +406,6 @@ export default function Documentation() {
               <span className="font-serif font-bold text-foreground">Try the Complexity Slider</span>
               <span className="text-right">Academic mode for research papers, Simple mode for accessible explanations</span>
             </div>
-            
           </div>
         </section>
 
@@ -242,7 +416,8 @@ export default function Documentation() {
           </h2>
           
           <div className="font-body text-muted-foreground leading-relaxed space-y-4">
-            <p>BothSides was created by Abeer Das, a software engineer studying Systems Design at the University of Waterloo. He is passionate about building tools that promote critical thinking, intellectual honesty, and balanced discourse.<span className="font-serif font-medium text-foreground">Abeer Das</span>, a software engineer studying Systems Design at the University of Waterloo. He is passionate about building tools that promote critical thinking, intellectual honesty, and balanced discourse.
+            <p>
+              BothSides was created by <span className="font-serif font-medium text-foreground">Abeer Das</span>, a software engineer studying Systems Design at the University of Waterloo. He is passionate about building tools that promote critical thinking, intellectual honesty, and balanced discourse.
             </p>
             <p>
               With experience across three software engineering internships and an ongoing interest in impactful product development, he is always open to feedback, collaboration, and new internship opportunities.
@@ -276,5 +451,6 @@ export default function Documentation() {
           </p>
         </footer>
       </article>
-    </MainLayout>;
+    </MainLayout>
+  );
 }

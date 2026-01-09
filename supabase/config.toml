@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.generate-feedback]
 verify_jwt = false
+
+[functions.polish-text]
+verify_jwt = false
+
+[functions.generate-help]
+verify_jwt = false
