@@ -102,7 +102,7 @@ export default function Auth() {
 
           <Button
             type="submit"
-            className="w-full bg-amber-800 hover:bg-amber-700 text-white font-medium text-sm"
+            className="w-full bg-amber-800 hover:bg-amber-700 text-white font-medium text-sm btn-action-glisten"
             disabled={loading}
           >
             {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}

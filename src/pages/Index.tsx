@@ -470,7 +470,7 @@ const Index = () => {
                       <PerspectivePills perspectives={perspectives} onChange={setPerspectives} className="mr-3" />
                     </div>
                     
-                    <Button onClick={detectIntentAndGenerate} disabled={!statement.trim()} size="sm" className="font-sans text-xs uppercase tracking-wider text-white font-medium bg-amber-800 hover:bg-amber-700 h-9 px-4">
+                    <Button onClick={detectIntentAndGenerate} disabled={!statement.trim()} size="sm" className="font-sans text-xs uppercase tracking-wider text-white font-medium bg-amber-800 hover:bg-amber-700 h-9 px-4 btn-action-glisten">
                       Generate <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
                     </Button>
                   </div>

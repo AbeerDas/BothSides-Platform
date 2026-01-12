@@ -232,6 +232,7 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
           <NavItem icon={Swords} label="Practice" path="/practice" />
           <NavItem icon={Newspaper} label="Explore News" path="/news" />
           <NavItem icon={Globe} label="Public Debates" path="/public" />
+          <NavItem icon={FileText} label="Documentation" path="/docs" />
           <NavItem 
             icon={theme === "dark" ? Sun : Moon} 
             label={theme === "dark" ? "Light Mode" : "Dark Mode"} 
@@ -335,6 +336,7 @@ export const AppSidebar = ({ isMobileSheet = false, onClose }: AppSidebarProps) 
           <NavItem icon={Swords} label="Practice" path="/practice" />
           <NavItem icon={Newspaper} label="Explore News" path="/news" />
           <NavItem icon={Globe} label="Public Debates" path="/public" />
+          <NavItem icon={FileText} label="Documentation" path="/docs" />
           <NavItem 
             icon={theme === "dark" ? Sun : Moon} 
             label={theme === "dark" ? "Light Mode" : "Dark Mode"} 

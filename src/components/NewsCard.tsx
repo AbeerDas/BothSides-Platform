@@ -100,17 +100,28 @@ export const NewsCard = ({
 
       {/* Debate overlay on hover */}
       <div className={cn(
-        "absolute inset-0 bg-background/95 flex flex-col items-center justify-center transition-opacity duration-300",
+        "absolute inset-0 bg-background/95 flex flex-col items-center justify-center transition-opacity duration-300 gap-3",
         isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
       )}>
         <button
           onClick={onGenerateDebate}
-          className="flex items-center gap-2 px-4 py-2 bg-amber-800 hover:bg-amber-700 text-white font-sans text-sm uppercase tracking-wider transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-amber-800 hover:bg-amber-700 text-white font-sans text-sm uppercase tracking-wider transition-all duration-200 hover:shadow-lg group/btn relative overflow-hidden"
         >
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
           <Sparkles className="h-4 w-4" />
           Generate Debate
         </button>
-        <p className="mt-3 text-xs text-muted-foreground max-w-[200px] text-center">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center gap-2 px-4 py-2 border border-border bg-background hover:bg-muted text-foreground font-sans text-sm uppercase tracking-wider transition-colors"
+        >
+          <ExternalLink className="h-4 w-4" />
+          View Article
+        </a>
+        <p className="mt-2 text-xs text-muted-foreground max-w-[200px] text-center">
           Transform this story into a balanced debate
         </p>
       </div>

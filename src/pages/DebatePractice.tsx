@@ -489,11 +489,13 @@ export default function DebatePractice() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="outline"
                         size={isMobile ? "icon" : "sm"}
                         onClick={handleGetFeedback}
                         disabled={isLoading || feedbackLoading}
-                        className={cn(isMobile ? "h-9 w-9" : "text-xs")}
+                        className={cn(
+                          "bg-amber-800 hover:bg-amber-700 text-white btn-action-glisten",
+                          isMobile ? "h-9 w-9" : "text-xs"
+                        )}
                       >
                         <Trophy className={cn("h-4 w-4", !isMobile && "mr-1.5")} />
                         {!isMobile && "See how you're doing"}
