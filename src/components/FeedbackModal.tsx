@@ -54,191 +54,113 @@ export function FeedbackModal({ open, onOpenChange, feedbackData, isLoading }: F
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn(
         "max-h-[90vh] overflow-y-auto",
-        isMobile ? "max-w-[95vw] p-4" : "max-w-3xl p-6"
+        isMobile ? "max-w-[95vw] p-5" : "max-w-4xl p-8"
       )}>
         <DialogHeader>
-          <DialogTitle className={cn("font-serif flex items-center gap-2", isMobile ? "text-lg" : "text-2xl")}>
+          <DialogTitle className={cn("font-serif flex items-center gap-2", isMobile ? "text-xl" : "text-2xl")}>
             🏆 Debate Performance
           </DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
-          <div className={cn("flex flex-col items-center justify-center gap-4", isMobile ? "py-8" : "py-12")}>
-            <div className={cn("rounded-full border-4 border-primary/20 border-t-primary animate-spin", isMobile ? "w-12 h-12" : "w-16 h-16")} />
-            <p className={cn("text-muted-foreground", isMobile ? "text-sm" : "text-base")}>Analyzing your debate performance...</p>
+          <div className={cn("flex flex-col items-center justify-center gap-4", isMobile ? "py-10" : "py-16")}>
+            <div className={cn("rounded-full border-4 border-primary/20 border-t-primary animate-spin", isMobile ? "w-14 h-14" : "w-20 h-20")} />
+            <p className={cn("text-muted-foreground", isMobile ? "text-base" : "text-lg")}>Analyzing your debate performance...</p>
           </div>
         ) : feedbackData ? (
-          <div className={cn("space-y-6", isMobile ? "text-sm" : "")}>
+          <div className={cn("space-y-8", isMobile ? "text-base" : "")}>
             {/* Overall Score */}
             <div className={cn(
               "text-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20",
-              isMobile ? "p-4" : "p-6"
+              isMobile ? "p-5" : "p-8"
             )}>
               <div className={cn(
                 "font-bold font-serif",
                 getScoreColor(feedbackData.overallScore, 10),
-                isMobile ? "text-4xl" : "text-6xl"
+                isMobile ? "text-5xl" : "text-7xl"
               )}>
                 {feedbackData.overallScore.toFixed(1)}
               </div>
-              <div className={cn("text-muted-foreground mt-1", isMobile ? "text-xs" : "text-sm")}>out of 10.0</div>
-              <p className={cn("mt-3 text-foreground/80", isMobile ? "text-sm" : "text-base")}>{feedbackData.summary}</p>
+              <div className={cn("text-muted-foreground mt-2", isMobile ? "text-sm" : "text-base")}>out of 10.0</div>
+              <p className={cn("mt-4 text-foreground/80", isMobile ? "text-base leading-relaxed" : "text-lg")}>{feedbackData.summary}</p>
             </div>
 
-            {/* Desktop: Side by side layout */}
-            {!isMobile && (
-              <div className="grid grid-cols-3 gap-6">
-                {/* Category Breakdown */}
-                <div className="space-y-3">
-                  <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
-                    Scoring Breakdown
-                  </h3>
-                  {feedbackData.categories.map((category) => (
-                    <div key={category.name} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium flex items-center gap-2">
-                          {getScoreIcon(category.score, category.maxScore)}
-                          {category.name}
-                        </span>
-                        <span className={cn("font-mono", getScoreColor(category.score, category.maxScore))}>
-                          {category.score.toFixed(1)}/{category.maxScore.toFixed(1)}
-                        </span>
-                      </div>
-                      <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className={cn("absolute h-full rounded-full transition-all duration-500", getProgressColor(category.score, category.maxScore))}
-                          style={{ width: `${(category.score / category.maxScore) * 100}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">{category.feedback}</p>
+            {/* Category Breakdown - Full width */}
+            <div className="space-y-4">
+              <h3 className={cn("font-medium text-muted-foreground uppercase tracking-wide", isMobile ? "text-sm" : "text-sm")}>
+                Scoring Breakdown
+              </h3>
+              <div className={cn("grid gap-4", isMobile ? "grid-cols-1" : "grid-cols-2")}>
+                {feedbackData.categories.map((category) => (
+                  <div key={category.name} className={cn("p-4 bg-muted/30 rounded-lg space-y-2", isMobile ? "p-5" : "p-4")}>
+                    <div className="flex items-center justify-between">
+                      <span className={cn("font-medium flex items-center gap-2", isMobile ? "text-base" : "text-sm")}>
+                        {getScoreIcon(category.score, category.maxScore)}
+                        {category.name}
+                      </span>
+                      <span className={cn("font-mono", getScoreColor(category.score, category.maxScore), isMobile ? "text-base" : "text-sm")}>
+                        {category.score.toFixed(1)}/{category.maxScore.toFixed(1)}
+                      </span>
                     </div>
-                  ))}
-                </div>
-
-                {/* Strengths & Improvements */}
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      Strengths
-                    </h3>
-                    <ul className="space-y-1.5">
-                      {feedbackData.strengths.map((strength, i) => (
-                        <li key={i} className="text-sm pl-4 border-l-2 border-green-500/50 text-foreground/90">
-                          {strength}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className={cn("relative bg-muted rounded-full overflow-hidden", isMobile ? "h-3" : "h-2")}>
+                      <div 
+                        className={cn("absolute h-full rounded-full transition-all duration-500", getProgressColor(category.score, category.maxScore))}
+                        style={{ width: `${(category.score / category.maxScore) * 100}%` }}
+                      />
+                    </div>
+                    <p className={cn("text-muted-foreground leading-relaxed", isMobile ? "text-sm" : "text-xs")}>{category.feedback}</p>
                   </div>
-
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4 text-orange-500" />
-                      Areas to Improve
-                    </h3>
-                    <ul className="space-y-1.5">
-                      {feedbackData.improvements.map((improvement, i) => (
-                        <li key={i} className="text-sm pl-4 border-l-2 border-orange-500/50 text-foreground/90">
-                          {improvement}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Tips */}
-                <div className="space-y-2">
-                  <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                    <Lightbulb className="h-4 w-4 text-primary" />
-                    Pro Tips
-                  </h3>
-                  <ul className="space-y-1.5">
-                    {feedbackData.tips.map((tip, i) => (
-                      <li key={i} className="text-sm pl-4 border-l-2 border-primary/50 text-foreground/90">
-                        {tip}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                ))}
               </div>
-            )}
+            </div>
 
-            {/* Mobile: Stacked layout with better spacing */}
-            {isMobile && (
-              <>
-                {/* Category Breakdown */}
-                <div className="space-y-3">
-                  <h3 className="font-medium text-xs text-muted-foreground uppercase tracking-wide">
-                    Scoring Breakdown
-                  </h3>
-                  {feedbackData.categories.map((category) => (
-                    <div key={category.name} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium flex items-center gap-2">
-                          {getScoreIcon(category.score, category.maxScore)}
-                          {category.name}
-                        </span>
-                        <span className={cn("font-mono text-sm", getScoreColor(category.score, category.maxScore))}>
-                          {category.score.toFixed(1)}/{category.maxScore.toFixed(1)}
-                        </span>
-                      </div>
-                      <div className="relative h-2.5 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className={cn("absolute h-full rounded-full transition-all duration-500", getProgressColor(category.score, category.maxScore))}
-                          style={{ width: `${(category.score / category.maxScore) * 100}%` }}
-                        />
-                      </div>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{category.feedback}</p>
-                    </div>
+            {/* Strengths, Improvements, Tips - Responsive grid */}
+            <div className={cn("grid gap-6", isMobile ? "grid-cols-1" : "grid-cols-3")}>
+              {/* Strengths */}
+              <div className="space-y-3">
+                <h3 className={cn("font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2", isMobile ? "text-sm" : "text-xs")}>
+                  <CheckCircle className={cn("text-green-500", isMobile ? "h-5 w-5" : "h-4 w-4")} />
+                  Strengths
+                </h3>
+                <ul className="space-y-2">
+                  {feedbackData.strengths.map((strength, i) => (
+                    <li key={i} className={cn("pl-4 border-l-2 border-green-500/50 text-foreground/90 leading-relaxed", isMobile ? "text-base" : "text-sm")}>
+                      {strength}
+                    </li>
                   ))}
-                </div>
+                </ul>
+              </div>
 
-                {/* Strengths */}
-                <div className="space-y-2">
-                  <h3 className="font-medium text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    Strengths
-                  </h3>
-                  <ul className="space-y-2">
-                    {feedbackData.strengths.map((strength, i) => (
-                      <li key={i} className="text-sm pl-4 border-l-2 border-green-500/50 text-foreground/90 leading-relaxed">
-                        {strength}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              {/* Areas for Improvement */}
+              <div className="space-y-3">
+                <h3 className={cn("font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2", isMobile ? "text-sm" : "text-xs")}>
+                  <AlertCircle className={cn("text-orange-500", isMobile ? "h-5 w-5" : "h-4 w-4")} />
+                  Areas to Improve
+                </h3>
+                <ul className="space-y-2">
+                  {feedbackData.improvements.map((improvement, i) => (
+                    <li key={i} className={cn("pl-4 border-l-2 border-orange-500/50 text-foreground/90 leading-relaxed", isMobile ? "text-base" : "text-sm")}>
+                      {improvement}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-                {/* Areas for Improvement */}
-                <div className="space-y-2">
-                  <h3 className="font-medium text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-orange-500" />
-                    Areas to Improve
-                  </h3>
-                  <ul className="space-y-2">
-                    {feedbackData.improvements.map((improvement, i) => (
-                      <li key={i} className="text-sm pl-4 border-l-2 border-orange-500/50 text-foreground/90 leading-relaxed">
-                        {improvement}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Tips */}
-                <div className="space-y-2">
-                  <h3 className="font-medium text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                    <Lightbulb className="h-4 w-4 text-primary" />
-                    Pro Tips
-                  </h3>
-                  <ul className="space-y-2">
-                    {feedbackData.tips.map((tip, i) => (
-                      <li key={i} className="text-sm pl-4 border-l-2 border-primary/50 text-foreground/90 leading-relaxed">
-                        {tip}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </>
-            )}
+              {/* Tips */}
+              <div className="space-y-3">
+                <h3 className={cn("font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2", isMobile ? "text-sm" : "text-xs")}>
+                  <Lightbulb className={cn("text-primary", isMobile ? "h-5 w-5" : "h-4 w-4")} />
+                  Pro Tips
+                </h3>
+                <ul className="space-y-2">
+                  {feedbackData.tips.map((tip, i) => (
+                    <li key={i} className={cn("pl-4 border-l-2 border-primary/50 text-foreground/90 leading-relaxed", isMobile ? "text-base" : "text-sm")}>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
