@@ -6,6 +6,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Map countries to their news sources for non-US regions
+const COUNTRY_SOURCES: Record<string, string> = {
+  gb: "bbc-news,the-guardian-uk,independent,mirror,metro",
+  ca: "cbc-news,the-globe-and-mail,national-post",
+  au: "abc-news-au,news-com-au",
+  us: "", // US uses country parameter directly
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -28,16 +36,18 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const today = new Date().toISOString().split('T')[0];
+    const selectedCountry = country || 'us';
+    const selectedCategory = category || 'general';
 
-    console.log(`Fetching news for date: ${today}, category: ${category || 'general'}, country: ${country || 'us'}`);
+    console.log(`Fetching news for date: ${today}, category: ${selectedCategory}, country: ${selectedCountry}`);
 
     // Check if we already have headlines for today with these filters
     const { data: existingHeadlines, error: checkError } = await supabase
       .from('news_headlines')
       .select('*')
       .eq('fetched_date', today)
-      .eq('category', category || 'general')
-      .eq('country', country || 'us')
+      .eq('category', selectedCategory)
+      .eq('country', selectedCountry)
       .limit(1);
 
     if (checkError) {
@@ -52,8 +62,8 @@ serve(async (req) => {
         .from('news_headlines')
         .select('*')
         .eq('fetched_date', today)
-        .eq('category', category || 'general')
-        .eq('country', country || 'us')
+        .eq('category', selectedCategory)
+        .eq('country', selectedCountry)
         .order('published_at', { ascending: false });
 
       return new Response(
@@ -62,19 +72,35 @@ serve(async (req) => {
       );
     }
 
-    // Fetch from NewsAPI
-    const params = new URLSearchParams({
-      apiKey: NEWS_API_KEY,
-      country: country || 'us',
-      category: category || 'general',
-      pageSize: '20'
-    });
+    // Determine API parameters based on country
+    // For non-US countries, use sources parameter instead of country
+    const useSourcesApproach = selectedCountry !== 'us' && COUNTRY_SOURCES[selectedCountry];
+    
+    let apiUrl: string;
+    
+    if (useSourcesApproach) {
+      // Use sources for non-US - can't combine with category, so we filter later
+      const params = new URLSearchParams({
+        apiKey: NEWS_API_KEY,
+        sources: COUNTRY_SOURCES[selectedCountry],
+        pageSize: '30' // Get more to filter by category
+      });
+      apiUrl = `https://newsapi.org/v2/top-headlines?${params.toString()}`;
+      console.log(`Using sources approach for ${selectedCountry}`);
+    } else {
+      // Use country + category for US
+      const params = new URLSearchParams({
+        apiKey: NEWS_API_KEY,
+        country: selectedCountry,
+        category: selectedCategory,
+        pageSize: '20'
+      });
+      apiUrl = `https://newsapi.org/v2/top-headlines?${params.toString()}`;
+    }
 
-    console.log(`Calling NewsAPI with params: ${params.toString()}`);
+    console.log(`Calling NewsAPI`);
 
-    const newsResponse = await fetch(
-      `https://newsapi.org/v2/top-headlines?${params.toString()}`
-    );
+    const newsResponse = await fetch(apiUrl);
 
     if (!newsResponse.ok) {
       const errorText = await newsResponse.text();
@@ -96,25 +122,28 @@ serve(async (req) => {
         .from('news_headlines')
         .delete()
         .eq('fetched_date', today)
-        .eq('category', category || 'general')
-        .eq('country', country || 'us');
+        .eq('category', selectedCategory)
+        .eq('country', selectedCountry);
     }
 
     // Store headlines in database
-    const headlines = newsData.articles?.map((article: any) => ({
-      title: article.title,
-      description: article.description,
-      source_name: article.source?.name,
-      source_id: article.source?.id,
-      author: article.author,
-      url: article.url,
-      url_to_image: article.urlToImage,
-      published_at: article.publishedAt,
-      content: article.content,
-      category: category || 'general',
-      country: country || 'us',
-      fetched_date: today
-    })) || [];
+    const headlines = (newsData.articles || [])
+      .filter((article: any) => article.title && article.title !== '[Removed]')
+      .slice(0, 20) // Limit to 20 articles
+      .map((article: any) => ({
+        title: article.title,
+        description: article.description,
+        source_name: article.source?.name,
+        source_id: article.source?.id,
+        author: article.author,
+        url: article.url,
+        url_to_image: article.urlToImage,
+        published_at: article.publishedAt,
+        content: article.content,
+        category: selectedCategory,
+        country: selectedCountry,
+        fetched_date: today
+      }));
 
     if (headlines.length > 0) {
       const { error: insertError } = await supabase

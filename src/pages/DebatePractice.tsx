@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Send, RotateCcw, Trophy, Loader2, Wand2, HelpCircle, History } from "lucide-react";
@@ -21,6 +20,7 @@ interface Message {
 
 interface FeedbackData {
   overallScore: number;
+  winningStatus?: string;
   categories: {
     name: string;
     score: number;
@@ -55,6 +55,7 @@ export default function DebatePractice() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackData, setFeedbackData] = useState<FeedbackData | null>(null);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackMessageCount, setFeedbackMessageCount] = useState<number>(0); // Track message count when feedback was generated
   const [user, setUser] = useState<any>(null);
   const [debates, setDebates] = useState<PracticeDebate[]>([]);
   const [currentDebateId, setCurrentDebateId] = useState<string | null>(null);
@@ -306,6 +307,13 @@ export default function DebatePractice() {
   const handleGetFeedback = async () => {
     if (messages.length < 2 || isLoading) return;
     
+    // Check if we already have feedback for this message count (cached)
+    if (feedbackData && feedbackMessageCount === messages.length) {
+      // Just show existing feedback
+      setFeedbackOpen(true);
+      return;
+    }
+    
     setFeedbackLoading(true);
     setFeedbackOpen(true);
     
@@ -325,6 +333,7 @@ export default function DebatePractice() {
 
       const data = await resp.json();
       setFeedbackData(data);
+      setFeedbackMessageCount(messages.length); // Cache the message count
       
       if (user && data.overallScore) {
         saveDebate(messages, data.overallScore);
@@ -344,6 +353,7 @@ export default function DebatePractice() {
     setHasStarted(false);
     setCurrentDebateId(null);
     setFeedbackData(null);
+    setFeedbackMessageCount(0);
     setEditingFromIndex(null);
   };
 
@@ -352,6 +362,7 @@ export default function DebatePractice() {
     setCurrentDebateId(debate.id);
     setHasStarted(true);
     setFeedbackData(null);
+    setFeedbackMessageCount(0);
     setEditingFromIndex(null);
   };
 
@@ -438,10 +449,8 @@ export default function DebatePractice() {
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      const newHeight = Math.min(textareaRef.current.scrollHeight, 120);
+      const newHeight = Math.min(textareaRef.current.scrollHeight, 200);
       textareaRef.current.style.height = newHeight + "px";
-      // Keep textarea in view
-      textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
     }
   };
 
@@ -449,12 +458,12 @@ export default function DebatePractice() {
     <MainLayout withPadding={false}>
       <TooltipProvider>
         <div className="flex flex-col h-full">
-          {/* Sticky Header */}
+          {/* Sticky Header - full width */}
           <div className={cn(
             "border-b border-border bg-card/95 backdrop-blur-sm sticky top-0 z-10",
             isMobile ? "px-3 py-2" : "px-6 py-4"
           )}>
-            <div className="flex items-center justify-between max-w-3xl mx-auto w-full">
+            <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2 md:gap-3 min-w-0">
                 {user && (
                   <Tooltip>
@@ -602,7 +611,7 @@ export default function DebatePractice() {
             </div>
           </div>
 
-          {/* Sticky Input area */}
+          {/* Sticky Input area - full width */}
           <div 
             ref={inputContainerRef}
             className={cn(
@@ -626,7 +635,7 @@ export default function DebatePractice() {
                 </div>
               </div>
             )}
-            <div className="max-w-3xl mx-auto flex gap-2 items-end">
+            <div className="flex gap-2 items-end w-full">
               {/* Help and Polish buttons */}
               <div className="flex flex-col gap-1">
                 <Tooltip>
@@ -677,7 +686,7 @@ export default function DebatePractice() {
                 onKeyDown={handleKeyDown}
                 placeholder={hasStarted ? "Your counter-argument..." : "Make your claim..."}
                 className={cn(
-                  "flex-1 resize-none min-h-[44px] max-h-[120px] font-body",
+                  "flex-1 resize-none min-h-[44px] max-h-[200px] font-body",
                   "border-border/60 focus:border-primary",
                   isMobile ? "text-base" : "text-base"
                 )}

@@ -34,24 +34,29 @@ const audienceCards = [{
 
 const scoringCriteria = [
   {
-    name: "Logical Coherence",
-    maxScore: 2.5,
-    description: "How well your arguments follow a logical structure. Are your premises sound? Do your conclusions follow from your evidence? Penalties for logical fallacies like ad hominem, strawman, false dichotomy, etc."
+    name: "Logical Architecture",
+    maxScore: 2.0,
+    description: "Premise validity, inferential strength, structural coherence, and fallacy avoidance. Penalties for ad hominem, strawman, false dichotomy, and circular reasoning."
   },
   {
-    name: "Evidence & Examples",
-    maxScore: 2.5,
-    description: "The quality and relevance of supporting evidence. Are you using specific examples, statistics, studies, or historical precedents? Vague claims without backing lower this score."
+    name: "Evidence Quality",
+    maxScore: 2.0,
+    description: "Specificity of claims (statistics, studies, named experts), relevance to the argument, source credibility, and sufficiency of evidence."
   },
   {
-    name: "Rebuttal Strength",
-    maxScore: 2.5,
-    description: "How effectively you address the opponent's counterarguments. Do you directly engage with their points? Do you concede where appropriate while maintaining your position?"
+    name: "Rebuttal Effectiveness",
+    maxScore: 2.0,
+    description: "Direct engagement with opponent's strongest points, quality of refutation, strategic concessions, and depth of clash."
   },
   {
-    name: "Persuasiveness",
-    maxScore: 2.5,
-    description: "Overall rhetorical effectiveness. Is your argument compelling? Do you use clear language? Is your tone appropriate for the debate context?"
+    name: "Persuasive Impact",
+    maxScore: 2.0,
+    description: "Clarity of expression, effective framing of the debate, appropriate emotional resonance, and memorability of key points."
+  },
+  {
+    name: "Strategic Execution",
+    maxScore: 2.0,
+    description: "Understanding of burden of proof, anticipation of objections, resource allocation to important arguments, and adaptability."
   }
 ];
 
@@ -75,21 +80,29 @@ export default function Documentation() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 150;
+      const viewportCenter = window.innerHeight / 2;
+      let closestSection = sections[0].id;
+      let closestDistance = Infinity;
       
       for (const section of sections) {
         const element = sectionRefs.current[section.id];
         if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(section.id);
-            break;
+          const rect = element.getBoundingClientRect();
+          const sectionCenter = rect.top + rect.height / 2;
+          const distance = Math.abs(sectionCenter - viewportCenter);
+          
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestSection = section.id;
           }
         }
       }
+      
+      setActiveSection(closestSection);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Initial check
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -105,18 +118,18 @@ export default function Documentation() {
   return (
     <MainLayout>
       <div className="flex gap-8 max-w-5xl mx-auto">
-        {/* Side navigation - desktop only */}
+        {/* Side navigation - desktop only, centered vertically */}
         {!isMobile && (
-          <nav className="hidden lg:block sticky top-24 h-fit w-40 shrink-0">
+          <nav className="hidden lg:flex sticky top-1/2 -translate-y-1/2 h-fit w-40 shrink-0 flex-col">
             <ul className="space-y-2">
               {sections.map((section) => (
                 <li key={section.id}>
                   <button
                     onClick={() => scrollToSection(section.id)}
                     className={cn(
-                      "text-left text-sm transition-all duration-200 w-full py-1",
+                      "text-left text-sm transition-all duration-300 w-full py-1",
                       activeSection === section.id
-                        ? "font-semibold text-foreground"
+                        ? "font-bold text-foreground"
                         : "text-muted-foreground hover:text-foreground font-normal"
                     )}
                   >
@@ -149,13 +162,10 @@ export default function Documentation() {
               <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground mb-6 tracking-tight">The Philosophy</h2>
               <div className="font-serif text-base md:text-lg leading-relaxed text-foreground/90 space-y-6">
                 <p className="first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-greek-gold">
-                  BothSides was created to help people move beyond polarized discourse by exploring complex issues from multiple perspectives. When you enter a topic, our AI generates clear, well-supported arguments for and against it, giving you the material you need to think critically rather than accept a single narrative.
+                  BothSides helps people move beyond polarized discourse by exploring complex issues from multiple perspectives. Enter a topic, and the AI generates clear arguments for and against, giving you the material to think critically.
                 </p>
                 <p>
-                  The platform is built on a simple belief: understanding opposing viewpoints makes us better thinkers. Not all arguments are equally strong and evidence should guide our conclusions, but we cannot evaluate ideas fairly unless we understand them fully and charitably.
-                </p>
-                <p>
-                  BothSides aims to promote deeper reasoning, not false equivalence. By seeing the strongest arguments on each side, you can form more informed opinions and engage in conversations with greater clarity and openness.
+                  The platform is built on a simple belief: understanding opposing viewpoints makes us better thinkers. Not all arguments are equally strong, but we cannot evaluate ideas fairly unless we understand them fully.
                 </p>
               </div>
             </div>
@@ -178,7 +188,7 @@ export default function Documentation() {
                   <div>
                     <h3 className="font-serif text-xl font-medium text-foreground mb-2">Enter Your Statement</h3>
                     <p className="font-body text-muted-foreground leading-relaxed">
-                      Start by typing a debatable statement into the input field. This could be anything from "Remote work is more productive than office work" to "Space exploration is worth the investment." The more specific your statement, the more focused the arguments will be.
+                      Type a debatable statement into the input field. Example: "Remote work is more productive than office work." The more specific, the more focused the arguments.
                     </p>
                   </div>
                 </div>
@@ -192,7 +202,7 @@ export default function Documentation() {
                   <div>
                     <h3 className="font-serif text-xl font-medium text-foreground mb-2">Add Perspectives (Optional)</h3>
                     <p className="font-body text-muted-foreground leading-relaxed">
-                      Want arguments from specific viewpoints? Click "Add Perspective" to filter arguments through particular lenses like an Economist, Philosopher, Historian, or Climate Scientist. This helps tailor the debate to your interests or research needs.
+                      Click <code className="bg-muted px-1.5 py-0.5 rounded text-sm">Add Perspective</code> to filter arguments through lenses like Economist, Philosopher, or Historian.
                     </p>
                   </div>
                 </div>
@@ -206,7 +216,7 @@ export default function Documentation() {
                   <div>
                     <h3 className="font-serif text-xl font-medium text-foreground mb-2">Generate the Debate</h3>
                     <p className="font-body text-muted-foreground leading-relaxed">
-                      Click "Generate" and watch as the AI constructs balanced arguments for both sides. Each argument includes a title, summary, detailed explanation, and citations to relevant sources.
+                      Click <code className="bg-muted px-1.5 py-0.5 rounded text-sm">Generate</code> and watch as the AI constructs balanced arguments for both sides, each with citations.
                     </p>
                   </div>
                 </div>
@@ -220,30 +230,8 @@ export default function Documentation() {
                   <div>
                     <h3 className="font-serif text-xl font-medium text-foreground mb-2">Explore and Expand</h3>
                     <p className="font-body text-muted-foreground leading-relaxed mb-4">
-                      Once generated, you can:
+                      Once generated, you can add more arguments, generate refutations, adjust complexity, or export to PDF.
                     </p>
-                    <ul className="space-y-2 font-body text-muted-foreground">
-                      <li className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-greek-gold rounded-full"></span>
-                        Add more arguments to either side
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-greek-gold rounded-full"></span>
-                        Generate refutations to dive deeper into counterpoints
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-greek-gold rounded-full"></span>
-                        Change complexity from academic to simple language
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-greek-gold rounded-full"></span>
-                        Apply different lenses to see how perspectives shift
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-greek-gold rounded-full"></span>
-                        Export to PDF for offline reading or sharing
-                      </li>
-                    </ul>
                   </div>
                 </div>
               </div>
@@ -263,7 +251,7 @@ export default function Documentation() {
             
             <div className="space-y-6">
               <p className="font-body text-foreground/90 leading-relaxed">
-                Sharpen your argumentation skills by sparring with an AI opponent. Unlike the debate generator, Practice Mode puts you in the driver's seat — you make claims, defend your position, and receive real-time counterarguments to strengthen your reasoning.
+                Sharpen your argumentation skills by sparring with an AI opponent. You make claims, defend your position, and receive real-time counterarguments.
               </p>
               
               <div className="grid gap-6 md:grid-cols-2">
@@ -284,36 +272,36 @@ export default function Documentation() {
                     </li>
                     <li className="flex gap-3">
                       <span className="flex-shrink-0 w-6 h-6 bg-greek-gold/10 border border-greek-gold/30 flex items-center justify-center font-serif text-sm font-bold text-greek-gold">4</span>
-                      <span>Get detailed feedback on your performance</span>
+                      <span>Click <code className="bg-muted px-1 py-0.5 rounded text-xs">See how you're doing</code> for feedback</span>
                     </li>
                   </ol>
                 </div>
                 
                 <div className="space-y-4">
-                  <h3 className="font-serif text-lg font-medium text-foreground">Tools at Your Disposal</h3>
+                  <h3 className="font-serif text-lg font-medium text-foreground">Tools</h3>
                   <ul className="space-y-3 font-body text-muted-foreground">
                     <li className="flex items-start gap-3">
                       <HelpCircle className="h-5 w-5 text-greek-gold shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-medium text-foreground">Help Button</span> — Stuck? Generate a suggested counter-argument based on the current debate
+                        <code className="bg-muted px-1.5 py-0.5 rounded text-sm">Help</code> — Generates a suggested counter-argument
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
                       <Wand2 className="h-5 w-5 text-greek-gold shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-medium text-foreground">Polish Button</span> — Refine your text to sound more formal and persuasive
+                        <code className="bg-muted px-1.5 py-0.5 rounded text-sm">Polish</code> — Refines your text to sound more formal
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
                       <Trophy className="h-5 w-5 text-greek-gold shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-medium text-foreground">Feedback</span> — See detailed scoring and tips after 4+ exchanges
+                        <code className="bg-muted px-1.5 py-0.5 rounded text-sm">See how you're doing</code> — Detailed scoring after 4+ exchanges
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
                       <History className="h-5 w-5 text-greek-gold shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-medium text-foreground">History</span> — Signed-in users can save and revisit past practice debates
+                        <code className="bg-muted px-1.5 py-0.5 rounded text-sm">History</code> — Save and revisit past debates (signed-in users)
                       </div>
                     </li>
                   </ul>
@@ -338,17 +326,17 @@ export default function Documentation() {
               <CollapsibleContent>
                 <div className="border border-t-0 border-border p-6 space-y-6">
                   <p className="font-body text-muted-foreground">
-                    Your debate performance is scored out of <span className="font-semibold text-foreground">10.0 points</span> across four categories, each worth up to 2.5 points. The scoring is objective and consistent — your score will improve as you demonstrate stronger argumentation skills.
+                    Your debate is scored out of <span className="font-semibold text-foreground">10.0 points</span> across five categories. Each category has subcriteria evaluated on a 0.0-0.5 scale that sum to 2.0 max per category.
                   </p>
                   
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {scoringCriteria.map((criterion) => (
                       <div key={criterion.name} className="p-4 bg-background border border-border">
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-serif font-medium text-foreground">{criterion.name}</h4>
-                          <span className="text-sm font-mono text-greek-gold">{criterion.maxScore} pts</span>
+                          <h4 className="font-serif font-medium text-foreground text-sm">{criterion.name}</h4>
+                          <span className="text-xs font-mono text-greek-gold">{criterion.maxScore} pts</span>
                         </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
+                        <p className="text-xs text-muted-foreground leading-relaxed">
                           {criterion.description}
                         </p>
                       </div>
@@ -356,27 +344,23 @@ export default function Documentation() {
                   </div>
 
                   <div className="bg-greek-gold/5 border border-greek-gold/20 p-4">
-                    <h4 className="font-serif font-medium text-foreground mb-2">What Gets Penalized?</h4>
+                    <h4 className="font-serif font-medium text-foreground mb-2">Scoring Philosophy</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      We avoid clustering around 7.0-7.9. Most debaters score either below 6.5 (developing) or above 8.0 (strong). The feedback tells you who is "winning" based on standing arguments, burden of proof, and framing effectiveness.
+                    </p>
+                    <h4 className="font-serif font-medium text-foreground mb-2">What Gets Penalized</h4>
                     <ul className="space-y-1.5 font-body text-sm text-muted-foreground">
                       <li className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
-                        Logical fallacies (ad hominem, strawman, false dichotomy, circular reasoning)
+                        Logical fallacies (ad hominem, strawman, false dichotomy)
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
-                        Unsupported claims without evidence or examples
+                        Unsupported claims without evidence
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
-                        Ignoring or misrepresenting the opponent's arguments
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
-                        Emotional appeals without logical backing
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
-                        Inconsistent or contradictory positions
+                        Ignoring or misrepresenting opponent's arguments
                       </li>
                     </ul>
                   </div>
@@ -385,7 +369,7 @@ export default function Documentation() {
             </Collapsible>
           </section>
 
-          {/* Explore News Section - NEW */}
+          {/* Explore News Section */}
           <section 
             id="explore-news" 
             ref={(el) => { sectionRefs.current["explore-news"] = el; }}
@@ -398,7 +382,7 @@ export default function Documentation() {
             
             <div className="space-y-6">
               <p className="font-body text-foreground/90 leading-relaxed">
-                Transform today's headlines into thoughtful debates. The Explore News feature lets you browse current events from multiple countries and categories, then generate balanced debate topics from any story.
+                Transform headlines into thoughtful debates. Browse current events from multiple countries, then generate balanced debate topics from any story.
               </p>
               
               <div className="grid gap-6 md:grid-cols-2">
@@ -411,19 +395,15 @@ export default function Documentation() {
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-greek-gold rounded-full"></span>
-                      Browse categories: General, Business, Tech, Sports, Health, Science, Entertainment
+                      Categories: General, Business, Tech, Sports, Health, Science
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-greek-gold rounded-full"></span>
-                      Hover over any headline to generate debate topics
+                      Hover on any headline → <code className="bg-muted px-1 py-0.5 rounded text-xs">Generate Debate</code>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-greek-gold rounded-full"></span>
-                      View original articles directly
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-greek-gold rounded-full"></span>
-                      News refreshes daily with manual refresh option
+                      Click <code className="bg-muted px-1 py-0.5 rounded text-xs">View Article</code> to read original
                     </li>
                   </ul>
                 </div>
@@ -433,19 +413,19 @@ export default function Documentation() {
                   <ol className="space-y-3 font-body text-muted-foreground">
                     <li className="flex gap-3">
                       <span className="flex-shrink-0 w-6 h-6 bg-greek-gold/10 border border-greek-gold/30 flex items-center justify-center font-serif text-sm font-bold text-greek-gold">1</span>
-                      <span>Select your preferred country and category</span>
+                      <span>Select country and category from dropdowns</span>
                     </li>
                     <li className="flex gap-3">
                       <span className="flex-shrink-0 w-6 h-6 bg-greek-gold/10 border border-greek-gold/30 flex items-center justify-center font-serif text-sm font-bold text-greek-gold">2</span>
-                      <span>Browse the latest headlines</span>
+                      <span>Browse today's headlines</span>
                     </li>
                     <li className="flex gap-3">
                       <span className="flex-shrink-0 w-6 h-6 bg-greek-gold/10 border border-greek-gold/30 flex items-center justify-center font-serif text-sm font-bold text-greek-gold">3</span>
-                      <span>Hover and click "Generate Debate"</span>
+                      <span>Hover and click <code className="bg-muted px-1 py-0.5 rounded text-xs">Generate Debate</code></span>
                     </li>
                     <li className="flex gap-3">
                       <span className="flex-shrink-0 w-6 h-6 bg-greek-gold/10 border border-greek-gold/30 flex items-center justify-center font-serif text-sm font-bold text-greek-gold">4</span>
-                      <span>Select a debate topic and explore both sides</span>
+                      <span>Pick a debate topic and explore both sides</span>
                     </li>
                   </ol>
                 </div>
@@ -467,35 +447,28 @@ export default function Documentation() {
               <div>
                 <h3 className="font-serif text-xl font-medium text-foreground mb-2">Balanced Arguments</h3>
                 <p className="font-body text-muted-foreground leading-relaxed">
-                  Every debate is generated with equal attention to both sides. Our AI doesn't take sides—it presents the strongest possible arguments for each position, letting you form your own conclusions.
+                  Every debate presents the strongest possible arguments for each position. The AI doesn't take sides.
                 </p>
               </div>
 
               <div>
                 <h3 className="font-serif text-xl font-medium text-foreground mb-2">Source Citations</h3>
                 <p className="font-body text-muted-foreground leading-relaxed">
-                  Arguments aren't just opinions. Each point is backed by relevant sources and citations, giving you starting points for deeper research and verification.
+                  Arguments include citations for deeper research and verification.
                 </p>
               </div>
 
               <div>
                 <h3 className="font-serif text-xl font-medium text-foreground mb-2">Nested Refutations</h3>
                 <p className="font-body text-muted-foreground leading-relaxed">
-                  Real debates don't stop at initial arguments. BothSides allows you to generate refutations to any point, creating a tree of arguments and counterarguments that mirrors authentic intellectual discourse. These do not get saved after the initial generation.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-serif text-xl font-medium text-foreground mb-2">Generated Conclusions</h3>
-                <p className="font-body text-muted-foreground leading-relaxed">
-                  After presenting both sides, BothSides provides a generated conclusion that weighs the evidence and suggests which position has stronger support, always with the caveat that you should draw your own conclusions.
+                  Generate refutations to any point, creating argument trees that mirror authentic discourse.
                 </p>
               </div>
 
               <div>
                 <h3 className="font-serif text-xl font-medium text-foreground mb-2">Public Debates Library</h3>
                 <p className="font-body text-muted-foreground leading-relaxed">
-                  Browse debates created by the community. Filter by tags, search for topics, and discover new perspectives on issues you care about.
+                  Browse community debates. Filter by tags and discover new perspectives.
                 </p>
               </div>
             </div>
@@ -539,7 +512,7 @@ export default function Documentation() {
             </div>
           </section>
 
-          {/* Tips Section */}
+          {/* Tips Section - Table format */}
           <section 
             id="tips" 
             ref={(el) => { sectionRefs.current["tips"] = el; }}
@@ -549,23 +522,27 @@ export default function Documentation() {
               Tips for Best Results
             </h2>
             
-            <div className="space-y-4 font-body text-muted-foreground">
-              <div className="flex flex-col md:flex-row gap-2 md:gap-3 md:items-center">
-                <span className="font-serif font-bold text-foreground shrink-0">Be Specific</span>
-                <span>"Social media affects mental health" will generate more focused arguments than "social media is bad"</span>
-              </div>
-              <div className="flex flex-col md:flex-row gap-2 md:gap-3 md:items-center">
-                <span className="font-serif font-bold text-foreground shrink-0">Use Perspectives</span>
-                <span>Adding an "Economist" lens to a healthcare debate highlights different considerations than a "Medical Professional" lens</span>
-              </div>
-              <div className="flex flex-col md:flex-row gap-2 md:gap-3 md:items-center">
-                <span className="font-serif font-bold text-foreground shrink-0">Follow the Refutations</span>
-                <span>The deepest insights often come from following an argument thread several levels deep</span>
-              </div>
-              <div className="flex flex-col md:flex-row gap-2 md:gap-3 md:items-center">
-                <span className="font-serif font-bold text-foreground shrink-0">Try the Complexity Slider</span>
-                <span>Academic mode for research papers, Simple mode for accessible explanations</span>
-              </div>
+            <div className="border border-border">
+              <table className="w-full">
+                <tbody className="divide-y divide-border">
+                  <tr>
+                    <td className="p-4 font-serif font-bold text-foreground align-top w-1/4">Be Specific</td>
+                    <td className="p-4 text-muted-foreground text-right">"Social media affects mental health" generates more focused arguments than "social media is bad"</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-serif font-bold text-foreground align-top">Use Perspectives</td>
+                    <td className="p-4 text-muted-foreground text-right">An "Economist" lens on healthcare highlights different points than a "Medical Professional" lens</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-serif font-bold text-foreground align-top">Follow Refutations</td>
+                    <td className="p-4 text-muted-foreground text-right">The deepest insights come from following argument threads several levels deep</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-serif font-bold text-foreground align-top">Complexity Slider</td>
+                    <td className="p-4 text-muted-foreground text-right">Academic mode for papers, Simple mode for accessible explanations</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </section>
 
@@ -581,10 +558,7 @@ export default function Documentation() {
             
             <div className="font-body text-muted-foreground leading-relaxed space-y-4">
               <p>
-                BothSides was created by <span className="font-serif font-medium text-foreground">Abeer Das</span>, a Systems Design Engineering student at the University of Waterloo. Passionate about building tools that promote critical thinking and balanced discourse, Abeer brings experience from multiple software engineering internships to create impactful products.
-              </p>
-              <p>
-                Always open to feedback, collaboration, and new opportunities.
+                BothSides was created by <span className="font-serif font-medium text-foreground">Abeer Das</span>, a Systems Design Engineering student at the University of Waterloo. Always open to feedback and collaboration.
               </p>
             </div>
             
